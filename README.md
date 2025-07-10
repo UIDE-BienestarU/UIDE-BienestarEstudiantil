@@ -1,93 +1,525 @@
-# Backernd_Proyecto_Grupal
+Configuración de la Base de Datos Bienestar UIDE con Sequelize
+
+El proyecto utiliza Sequelize como ORM para interactuar con una base de datos MySQL, con dependencias gestionadas mediante npm.
+Requisitos Previos
+
+Instalación
+Paso 1: Configurar el Proyecto
+
+Clonar o Crear el Proyecto:Crea un nuevo proyecto Node.js o navega al directorio existente:
+mkdir bienestar-uide
+cd bienestar-uide
+npm init -y
+
+
+Instalar Dependencias:Instala las dependencias especificadas en el package.json:
+npm install bcrypt@6.0.0 bcryptjs@3.0.2 cors@2.8.5 dotenv@17.0.1 express@5.1.0 jsonwebtoken@9.0.2 mysql2@3.14.1 sequelize@6.37.7 nodemon@3.1.10
+
+
+Configurar Variables de Entorno:Crea un archivo .env en la raíz del proyecto para configurar la conexión a MySQL:
+DB_HOST=localhost
+DB_USER=tu_usuario
+DB_PASSWORD=tu_contraseña
+DB_NAME=bienestar_uide
+DB_PORT=3306
+JWT_SECRET=tu_secreto_jwt
+
+Reemplaza tu_usuario, tu_contraseña y tu_secreto_jwt con tus credenciales de MySQL y una clave secreta para JWT.
+
+
+Paso 2: Configurar la Base de Datos MySQL
+
+Crear la Base de Datos:Conéctate a MySQL y crea la base de datos bienestar_uide:
+CREATE DATABASE bienestar_uide;
+
+
+Aplicar el Esquema (Opcional):Si prefieres usar el esquema SQL directamente, ejecuta schema.sql con un cliente MySQL:
+mysql -u tu_usuario -p bienestar_uide < schema.sql
+
+Esto crea las tablas e inserta 10 registros iniciales. Sin embargo, con Sequelize, puedes definir modelos y sincronizarlos (ver Paso 3).
+
+
+Paso 3: Configurar Sequelize
+
+Inicializar Sequelize:Crea un archivo de configuración para Sequelize (por ejemplo, config/database.js):
+const { Sequelize } = require('sequelize');
+require('dotenv').config();
+
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: 'mysql',
+    logging: false,
+  }
+);
+
+module.exports = sequelize;
+
+
+Definir Modelos Sequelize:Crea un directorio models y define los modelos para cada tabla. Ejemplo para Usuario y Estudiante:
+models/Usuario.js:
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
+
+const Usuario = sequelize.define('Usuario', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  correo_institucional: {
+    type: DataTypes.STRING(100),
+    unique: true,
+    allowNull: false,
+  },
+  contrasena: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  rol: {
+    type: DataTypes.ENUM('estudiante', 'administrador'),
+    allowNull: false,
+  },
+}, {
+  tableName: 'Usuario',
+  timestamps: false,
+});
+
+module.exports = Usuario;
+
+models/Estudiante.js:
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
+const Usuario = require('./Usuario');
+
+const Estudiante = sequelize.define('Estudiante', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+  },
+  nombre_completo: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+  },
+  cedula: {
+    type: DataTypes.STRING(20),
+    unique: true,
+    allowNull: false,
+  },
+  matricula: {
+    type: DataTypes.STRING(20),
+    unique: true,
+    allowNull: false,
+  },
+  telefono: {
+    type: DataTypes.STRING(15),
+    allowNull: false,
+  },
+  carrera: {
+    type: DataTypes.ENUM(
+      'Ingeniería en Tecnologías de la Información',
+      'Arquitectura',
+      'Psicología',
+      'Marketing',
+      'Derecho',
+      'Business'
+    ),
+    allowNull: false,
+  },
+  semestre: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+}, {
+  tableName: 'Estudiante',
+  timestamps: false,
+});
+
+Estudiante.belongsTo(Usuario, { foreignKey: 'id' });
+Usuario.hasOne(Estudiante, { foreignKey: 'id' });
+
+module.exports = Estudiante;
+
+Crea archivos similares para Administrador, TipoSolicitud, SubtipoSolicitud, Solicitud, Documento, HistorialEstado, Discapacidad, y Notificacion, siguiendo el esquema SQL.
+
+Configurar Asociaciones:Crea un archivo models/index.js para definir las relaciones entre tablas:
+const sequelize = require('../config/database');
+const Usuario = require('./Usuario');
+const Estudiante = require('./Estudiante');
+const Administrador = require('./Administrador');
+const TipoSolicitud = require('./TipoSolicitud');
+const SubtipoSolicitud = require('./SubtipoSolicitud');
+const Solicitud = require('./Solicitud');
+const Documento = require('./Documento');
+const HistorialEstado = require('./HistorialEstado');
+const Discapacidad = require('./Discapacidad');
+const Notificacion = require('./Notificacion');
+
+Administrador.belongsTo(Usuario, { foreignKey: 'id' });
+SubtipoSolicitud.belongsTo(TipoSolicitud, { foreignKey: 'tipo_id' });
+Solicitud.belongsTo(Estudiante, { foreignKey: 'estudiante_id' });
+Solicitud.belongsTo(SubtipoSolicitud, { foreignKey: 'subtipo_id' });
+Documento.belongsTo(Solicitud, { foreignKey: 'solicitud_id' });
+HistorialEstado.belongsTo(Solicitud, { foreignKey: 'solicitud_id' });
+HistorialEstado.belongsTo(Administrador, { foreignKey: 'admin_id' });
+Discapacidad.belongsTo(Estudiante, { foreignKey: 'estudiante_id' });
+Notificacion.belongsTo(Solicitud, { foreignKey: 'solicitud_id' });
+
+module.exports = {
+  sequelize,
+  Usuario,
+  Estudiante,
+  Administrador,
+  TipoSolicitud,
+  SubtipoSolicitud,
+  Solicitud,
+  Documento,
+  HistorialEstado,
+  Discapacidad,
+  Notificacion,
+};
+
+
+Sincronizar la Base de Datos:Crea un script (por ejemplo, init-db.js) para sincronizar los modelos con la base de datos:
+const { sequelize } = require('./models');
+
+async function initDb() {
+  try {
+    await sequelize.authenticate();
+    console.log('Conexión establecida.');
+    await sequelize.sync({ force: true }); // Usa force: true para recrear tablas
+    console.log('Base de datos sincronizada.');
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+initDb();
+
+Ejecútalo:
+node init-db.js
+
+Nota: force: true elimina las tablas existentes. Usa force: false para conservar datos si el esquema ya está aplicado.
+
+
+Paso 4: Cargar Datos desde Archivos JSON
+Para cargar los datos de schema.sql (10 inserciones iniciales) y sample_data.json (registros adicionales), crea un script de inicialización.
+
+Crear un Script de Inicialización:Crea un archivo (por ejemplo, seeders/seed.js):
+const { sequelize, Usuario, Estudiante, Administrador, TipoSolicitud, SubtipoSolicitud, Solicitud, Documento, HistorialEstado, Discapacidad, Notificacion } = require('../models');
+const fs = require('fs');
+const bcrypt = require('bcryptjs');
+
+async function seedDatabase() {
+  try {
+    // Cargar datos JSON
+    const jsonData = JSON.parse(fs.readFileSync('sample_data.json', 'utf8'));
+
+    // Datos iniciales de schema.sql
+    const initialData = {
+      Usuario: [
+        { correo_institucional: 'mateo.castillo@uide.edu.ec', contrasena: await bcrypt.hash('12345', 10), rol: 'estudiante' },
+        { correo_institucional: 'cristian.salinas@uide.edu.ec', contrasena: await bcrypt.hash('67890', 10), rol: 'estudiante' },
+        { correo_institucional: 'admin1@uide.edu.ec', contrasena: await bcrypt.hash('adminxd', 10), rol: 'administrador' },
+      ],
+      Estudiante: [
+        { id: 1, nombre_completo: 'Mateo Castillo', cedula: '1105852212', matricula: 'U123456', telefono: '099111222', carrera: 'Psicología', semestre: 5 },
+        { id: 2, nombre_completo: 'Cristian Salinas', cedula: '1100220022', matricula: 'U654321', telefono: '099333444', carrera: 'Ingeniería en Tecnologías de la Información', semestre: 3 },
+      ],
+      Administrador: [{ id: 3 }],
+      TipoSolicitud: [
+        { nombre: 'Beca', otrasSolicitudes: null },
+        { nombre: 'Apoyo Psicoeducativo', otrasSolicitudes: null },
+      ],
+      SubtipoSolicitud: [
+        { tipo_id: 1, nombre_sub: 'Beca por excelencia académica', otros_sub: null },
+        { tipo_id: 2, nombre_sub: 'Apoyo psicológico', otros_sub: null },
+      ],
+      Solicitud: [
+        { estudiante_id: 1, subtipo_id: 1, fecha_solicitud: '2025-07-01', estado_actual: 'Pendiente', nivel_urgencia: 'Normal', observaciones: 'Solicita ayuda por méritos académicos' },
+      ],
+      Documento: [
+        { solicitud_id: 1, nombre_documento: 'Copia de cédula', url_archivo: 'https://uide.edu.ec/docs/cedula_mateo.pdf' },
+      ],
+      HistorialEstado: [
+        { solicitud_id: 1, admin_id: 3, estado: 'Pendiente', comentario: 'Solicitud registrada correctamente' },
+      ],
+    };
+
+    // Insertar datos
+    for (const user of [...initialData.Usuario, ...jsonData.Usuario]) {
+      await Usuario.create({
+        ...user,
+        contrasena: await bcrypt.hash(user.contrasena, 10),
+      });
+    }
+    await Estudiante.bulkCreate([...initialData.Estudiante, ...jsonData.Estudiante]);
+    await Administrador.bulkCreate([...initialData.Administrador, ...jsonData.Administrador]);
+    await TipoSolicitud.bulkCreate([...initialData.TipoSolicitud, ...jsonData.TipoSolicitud]);
+    await SubtipoSolicitud.bulkCreate([...initialData.SubtipoSolicitud, ...jsonData.SubtipoSolicitud]);
+    await Solicitud.bulkCreate([...initialData.Solicitud, ...jsonData.Solicitud]);
+    await Documento.bulkCreate([...initialData.Documento, ...jsonData.Documento]);
+    await HistorialEstado.bulkCreate([...initialData.HistorialEstado, ...jsonData.HistorialEstado]);
+    await Discapacidad.bulkCreate(jsonData.Discapacidad || []);
+    await Notificacion.bulkCreate(jsonData.Notificacion || []);
+
+    console.log('Base de datos inicializada con éxito.');
+  } catch (error) {
+    console.error('Error al inicializar:', error);
+  } finally {
+    await sequelize.close();
+  }
+}
+
+seedDatabase();
+
+
+Ejecutar el Script:Corre el script de inicialización:
+node seeders/seed.js o el que se haya efinido en el packge.Json en mi caso npm start
+
+Esto insertará los datos de schema.sql y datos.js, asegurando que las contraseñas estén hasheadas con bcryptjs.
+
+Verificar Datos:Verifica los datos en la base de datos:
+const { sequelize, Usuario } = require('./models');
+async function checkData() {
+  const users = await Usuario.findAll();
+  console.log(users);
+}
+checkData();
+
+O usa un cliente MySQL:
+USE bienestar_uide;
+SELECT * FROM Usuario; 
+SELECT * FROM Estudiante;  
+SELECT * FROM Solicitud;  
 
 
 
-## Getting started
+Paso 5: Configurar el Servidor Express con Rutas
+Crea un archivo index.js en la raíz del proyecto para configurar el servidor Express con las rutas solicitadas:
+const express = require('express');
+const cors = require('cors');
+const { sequelize, Usuario, Solicitud, Notificacion } = require('./models');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+// Middleware para autenticación JWT (opcional, descomentar para usar)
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Acceso denegado' });
 
-## Add your files
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Token inválido' });
+    req.user = user;
+    next();
+  });
+};
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+// Rutas para Usuarios
+app.get('/users', async (req, res) => {
+  try {
+    const users = await Usuario.findAll();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
+});
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/SalinasCHR/backernd_proyecto_grupal.git
-git branch -M main
-git push -uf origin main
-```
+app.post('/users', async (req, res) => {
+  try {
+    const { correo_institucional, contrasena, rol } = req.body;
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+    const user = await Usuario.create({
+      correo_institucional,
+      contrasena: hashedPassword,
+      rol,
+    });
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ error: 'Error al crear usuario' });
+  }
+});
 
-## Integrate with your tools
+app.get('/users/:id', async (req, res) => {
+  try {
+    const user = await Usuario.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener usuario' });
+  }
+});
 
-- [ ] [Set up project integrations](https://gitlab.com/SalinasCHR/backernd_proyecto_grupal/-/settings/integrations)
+app.put('/users/:id', async (req, res) => {
+  try {
+    const { correo_institucional, contrasena, rol } = req.body;
+    const user = await Usuario.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    
+    const updates = {};
+    if (correo_institucional) updates.correo_institucional = correo_institucional;
+    if (contrasena) updates.contrasena = await bcrypt.hash(contrasena, 10);
+    if (rol) updates.rol = rol;
 
-## Collaborate with your team
+    await user.update(updates);
+    res.json(user);
+  } catch (error) {
+    res.status(400).json({ error: 'Error al actualizar usuario' });
+  }
+});
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+app.delete('/users/:id', async (req, res) => {
+  try {
+    const user = await Usuario.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    await user.destroy();
+    res.json({ message: 'Usuario eliminado' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar usuario' });
+  }
+});
 
-## Test and Deploy
+// Rutas para Solicitudes
+app.get('/solicitudes', async (req, res) => {
+  try {
+    const solicitudes = await Solicitud.findAll();
+    res.json(solicitudes);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener solicitudes' });
+  }
+});
 
-Use the built-in continuous integration in GitLab.
+app.post('/solicitudes', async (req, res) => {
+  try {
+    const { estudiante_id, subtipo_id, fecha_solicitud, estado_actual, nivel_urgencia, observaciones } = req.body;
+    const solicitud = await Solicitud.create({
+      estudiante_id,
+      subtipo_id,
+      fecha_solicitud,
+      estado_actual: estado_actual || 'Pendiente',
+      nivel_urgencia: nivel_urgencia || 'Normal',
+      observaciones,
+    });
+    res.status(201).json(solicitud);
+  } catch (error) {
+    res.status(400).json({ error: 'Error al crear solicitud' });
+  }
+});
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+app.get('/solicitudes/:id', async (req, res) => {
+  try {
+    const solicitud = await Solicitud.findByPk(req.params.id);
+    if (!solicitud) return res.status(404).json({ error: 'Solicitud no encontrada' });
+    res.json(solicitud);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener solicitud' });
+  }
+});
 
-***
+app.put('/solicitudes/:id', async (req, res) => {
+  try {
+    const { estado_actual, observaciones } = req.body;
+    const solicitud = await Solicitud.findByPk(req.params.id);
+    if (!solicitud) return res.status(404).json({ error: 'Solicitud no encontrada' });
+    
+    const updates = {};
+    if (estado_actual) updates.estado_actual = estado_actual;
+    if (observaciones) updates.observaciones = observaciones;
 
-# Editing this README
+    await solicitud.update(updates);
+    res.json(solicitud);
+  } catch (error) {
+    res.status(400).json({ error: 'Error al actualizar solicitud' });
+  }
+});
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+// Rutas para Notificaciones
+app.get('/notificaciones', async (req, res) => {
+  try {
+    const notificaciones = await Notificacion.findAll();
+    res.json(notificaciones);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener notificaciones' });
+  }
+});
 
-## Suggestions for a good README
+app.listen(3000, async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Conexión a la base de datos establecida.');
+    console.log('Servidor corriendo en el puerto 3000');
+  } catch (error) {
+    console.error('Error al conectar con la base de datos:', error);
+  }
+});
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Ejecuta el servidor con:
+nodemon index.js o como se definio en el package.json
 
-## Name
-Choose a self-explaining name for your project.
+Paso 6: Probar las Rutas
+Usa una herramienta como Postman o curl para probar las rutas:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+GET /usuario: http://localhost:3000/usuario
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+GET /solicitudes:http://localhost:3000/solicitudes
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Estructura de los Datos JSON
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+schema.sql Datos Iniciales:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+3 Usuario (2 estudiantes, 1 administrador).
+2 Estudiante.
+1 Administrador.
+2 TipoSolicitud.
+2 SubtipoSolicitud.
+1 Solicitud.
+1 Documento.
+1 HistorialEstado.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
 
-## License
-For open source projects, say how it is licensed.
+data.json:
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+5 Usuario (4 estudiantes, 1 administrador).
+4 Estudiante.
+1 Administrador.
+2 TipoSolicitud.
+3 SubtipoSolicitud.
+4 Solicitud.
+3 Documento.
+3 HistorialEstado.
+1 Discapacidad.
+3 Notificacion.
+
+
+
+Los datos JSON respetan las restricciones de claves foráneas y campos únicos (por ejemplo, correo_institucional, cedula, matricula).
+Solución de Problemas mas comunes en el proyecto
+
+Errores de Conexión: Verifica las credenciales en .env y asegúrate de que MySQL esté en ejecución.
+Errores de Inicialización: Revisa duplicados en campos únicos o referencias de claves foráneas faltantes.
+Problemas de Sincronización: Usa force: false en sequelize.sync para evitar eliminar datos existentes.
+Errores de bcrypt: Usa bcryptjs para hashear contraseñas, ya que bcrypt puede tener problemas de compatibilidad.
+
+Ejecutar la Aplicación
+Para iniciar la aplicación con reinicio automático:
+npm install
+nodemon index.js
+
+Para producción:
+node index.js
+Integrantes: Christian Salnas, Mateo Castillo, Anderson Calva y Erick Morales
