@@ -1,37 +1,105 @@
 import Solicitud from '../../data/models/Solicitud.js';
-import SubtipoSolicitud from '../../data/models/SubtipoSolicitud.js';
-import Estudiante from '../../data/models/Estudiante.js';
+import Documento from '../../data/models/Documento.js';
+import HistorialEstado from '../../data/models/HistorialEstado.js';
+import Notificacion from '../../data/models/Notificacion.js';
 
 class SolicitudService {
-    static async obtenerTodas() {
-        return await Solicitud.findAll({ include: [Estudiante, SubtipoSolicitud] });
-    }
+  static async createSolicitud(userId, solicitudData) {
+    const transaction = await Solicitud.sequelize.transaction();
+    try {
+      const solicitud = await Solicitud.create({
+        estudiante_id: userId,
+        subtipo_id: solicitudData.subtipo_id,
+        fecha_solicitud: new Date(),
+        estado_actual: 'Pendiente',
+        nivel_urgencia: solicitudData.nivel_urgencia,
+        observaciones: solicitudData.observaciones,
+      }, { transaction });
 
-    static async obtenerPorId(id) {
-        const solicitud = await Solicitud.findByPk(id, {
-            include: [Estudiante, SubtipoSolicitud]
-        });
-        if (!solicitud) throw new Error('Solicitud no encontrada');
-        return solicitud;
-    }
+      if (solicitudData.documentos) {
+        for (const doc of solicitudData.documentos) {
+          await Documento.create({
+            solicitud_id: solicitud.id,
+            nombre_documento: doc.nombre_documento,
+            url_archivo: doc.url_archivo,
+            obligatorio: doc.obligatorio,
+          }, { transaction });
+        }
+      }
 
-    static async crear(datos) {
-        return await Solicitud.create(datos);
-    }
+      await Notificacion.create({
+        solicitud_id: solicitud.id,
+        mensaje: 'Solicitud registrada exitosamente',
+        tipo: 'Alerta',
+      }, { transaction });
 
-    static async actualizar(id, datos) {
-        const solicitud = await Solicitud.findByPk(id);
-        if (!solicitud) throw new Error('Solicitud no encontrada');
-        await solicitud.update(datos);
-        return solicitud;
+      await transaction.commit();
+      return solicitud;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
+  }
 
-    static async eliminar(id) {
-        const solicitud = await Solicitud.findByPk(id);
-        if (!solicitud) throw new Error('Solicitud no encontrada');
-        await solicitud.destroy();
-        return { mensaje: 'Solicitud eliminada correctamente' };
+  static async getSolicitudes(userId, rol) {
+    if (rol === 'administrador') {
+      return await Solicitud.findAll({ include: ['Estudiante', 'SubtipoSolicitud'] });
     }
+    return await Solicitud.findAll({
+      where: { estudiante_id: userId },
+      include: ['SubtipoSolicitud'],
+    });
+  }
+
+  static async updateSolicitud(solicitudId, adminId, updateData) {
+    const transaction = await Solicitud.sequelize.transaction();
+    try {
+      const solicitud = await Solicitud.findByPk(solicitudId);
+      if (!solicitud) {
+        throw new Error('Solicitud no encontrada');
+      }
+
+      await solicitud.update({
+        estado_actual: updateData.estado,
+        observaciones: updateData.observaciones,
+      }, { transaction });
+
+      await HistorialEstado.create({
+        solicitud_id: solicitudId,
+        admin_id: adminId,
+        estado: updateData.estado,
+        comentario: updateData.comentario,
+      }, { transaction });
+
+      await Notificacion.create({
+        solicitud_id: solicitudId,
+        mensaje: `Estado actualizado a ${updateData.estado}`,
+        tipo: 'Actualización',
+      }, { transaction });
+
+      await transaction.commit();
+      return solicitud;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  static async deleteSolicitud(solicitudId, userId, rol) {
+    const solicitud = await Solicitud.findByPk(solicitudId);
+    if (!solicitud) {
+      throw new Error('Solicitud no encontrada');
+    }
+    if (rol !== 'administrador' && solicitud.estudiante_id !== userId) {
+      throw new Error('No tienes permiso para eliminar esta solicitud');
+    }
+    await solicitud.destroy();
+    await Notificacion.create({
+      solicitud_id: solicitudId,
+      mensaje: 'Solicitud eliminada',
+      tipo: 'Rechazo',
+    });
+  }
 }
 
 export default SolicitudService;

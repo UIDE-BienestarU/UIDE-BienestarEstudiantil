@@ -1,24 +1,64 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import crypto from 'crypto';
+import { Op } from 'sequelize';
+import Session from '../../data/models/Session.js';
 
-dotenv.config();
-
-const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-
-  if (!token || !token.startsWith('Bearer ')) {
-    return res.status(403).json({ message: 'Token no proporcionado o inválido' });
-  }
-
-  const jwtToken = token.split(' ')[1];
-
+const verifyToken = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET || 'secreto123');
-    req.usuario = decoded; 
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return res.status(401).json({
+        error: 'Token no proporcionado',
+        code: 'NO_TOKEN',
+        message: 'Debe proporcionar un token de autenticación',
+        details: [],
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const session = await Session.findOne({
+      where: {
+        tokenHash,
+        userId: decoded.userId,
+        isActive: true,
+        expiresAt: { [Op.gt]: new Date() },
+      },
+    });
+
+    if (!session) {
+      return res.status(401).json({
+        error: 'Sesión inválida o expirada',
+        code: 'INVALID_SESSION',
+        message: 'La sesión no es válida o ha expirado',
+        details: [],
+      });
+    }
+
+    req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Token inválido o expirado' });
+    return res.status(401).json({
+      error: 'Token inválido',
+      code: 'INVALID_TOKEN',
+      message: error.message,
+      details: [],
+    });
   }
 };
 
-export default verifyToken;
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.rol)) {
+      return res.status(403).json({
+        error: 'No autorizado',
+        code: 'FORBIDDEN',
+        message: 'No tienes permisos para realizar esta acción',
+        details: [],
+      });
+    }
+    next();
+  };
+};
+
+export { verifyToken, restrictTo };

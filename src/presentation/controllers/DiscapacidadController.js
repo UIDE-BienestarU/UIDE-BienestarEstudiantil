@@ -1,59 +1,72 @@
 import DiscapacidadService from '../../business/services/DiscapacidadService.js';
 
 class DiscapacidadController {
-    static async obtenerTodas(req, res) {
-        try {
-            const data = await DiscapacidadService.obtenerTodas();
-            res.json({ success: true, data });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
+  static async createDiscapacidad(req, res) {
+    try {
+      if (req.user.rol !== 'estudiante') {
+        return res.status(403).json({
+          error: 'No autorizado',
+          code: 'FORBIDDEN',
+          message: 'Solo los estudiantes pueden registrar discapacidades',
+          details: [],
+        });
+      }
+      const discapacidad = await DiscapacidadService.createDiscapacidad(req.user.userId, req.body);
+      res.status(201).json({
+        message: 'Discapacidad registrada exitosamente',
+        data: discapacidad,
+      });
+    } catch (error) {
+      res.status(422).json({
+        error: 'Error al registrar discapacidad',
+        code: 'DISCAPACIDAD_ERROR',
+        message: error.message,
+        details: [],
+      });
     }
+  }
 
-    static async obtenerPorId(req, res) {
-        try {
-            const data = await DiscapacidadService.obtenerPorId(req.params.id);
-            res.json({ success: true, data });
-        } catch (error) {
-            res.status(404).json({ success: false, message: error.message });
-        }
+  static async getDiscapacidad(req, res) {
+    try {
+      const discapacidad = await DiscapacidadService.getDiscapacidad(req.user.userId, req.user.rol);
+      res.status(200).json({
+        message: 'Discapacidad obtenida exitosamente',
+        data: discapacidad,
+      });
+    } catch (error) {
+      res.status(422).json({
+        error: 'Error al obtener discapacidad',
+        code: 'DISCAPACIDAD_ERROR',
+        message: error.message,
+        details: [],
+      });
     }
+  }
 
-    static async obtenerPorEstudiante(req, res) {
-        try {
-            const data = await DiscapacidadService.obtenerPorEstudiante(req.params.estudiante_id);
-            res.json({ success: true, data });
-        } catch (error) {
-            res.status(404).json({ success: false, message: error.message });
-        }
+  static async updateDiscapacidad(req, res) {
+    try {
+      if (req.user.rol !== 'estudiante') {
+        return res.status(403).json({
+          error: 'No autorizado',
+          code: 'FORBIDDEN',
+          message: 'Solo los estudiantes pueden actualizar discapacidades',
+          details: [],
+        });
+      }
+      const discapacidad = await DiscapacidadService.updateDiscapacidad(req.user.userId, req.body);
+      res.status(200).json({
+        message: 'Discapacidad actualizada exitosamente',
+        data: discapacidad,
+      });
+    } catch (error) {
+      res.status(422).json({
+        error: 'Error al actualizar discapacidad',
+        code: 'DISCAPACIDAD_ERROR',
+        message: error.message,
+        details: [],
+      });
     }
-
-    static async crear(req, res) {
-        try {
-            const data = await DiscapacidadService.crear(req.body);
-            res.status(201).json({ success: true, data });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
-    }
-
-    static async actualizar(req, res) {
-        try {
-            const data = await DiscapacidadService.actualizar(req.params.id, req.body);
-            res.json({ success: true, data });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
-    }
-
-    static async eliminar(req, res) {
-        try {
-            const data = await DiscapacidadService.eliminar(req.params.id);
-            res.json({ success: true, data });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
-    }
+  }
 }
 
 export default DiscapacidadController;

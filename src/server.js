@@ -1,17 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { testConnection, sequelize } from './data/database.js';
+import sequelize, { testConnection } from './data/database.js';
 import usuarioRoutes from './presentation/routes/usuarios.js';
-import estudianteRoutes from './presentation/routes/estudiantes.js';
-import administradorRoutes from './presentation/routes/administradores.js';
-import tipoSolicitudRoutes from './presentation/routes/tipoSolicitud.js';
-import subtipoSolicitudRoutes from './presentation/routes/subtipoSolicitud.js';
 import solicitudRoutes from './presentation/routes/solicitudes.js';
-import documentoRoutes from './presentation/routes/documentos.js';
-import historialEstadoRoutes from './presentation/routes/historialEstado.js';
-import discapacidadRoutes from './presentation/routes/discapacidad.js';
 import notificacionRoutes from './presentation/routes/notificaciones.js';
+import tipoSolicitudRoutes from './presentation/routes/tiposolicitudes.js';
+import documentoRoutes from './presentation/routes/documentos.js';
+import discapacidadRoutes from './presentation/routes/discapacidades.js';
 
 dotenv.config();
 const app = express();
@@ -22,16 +18,12 @@ app.use(cors());
 app.use(express.json());
 
 // Rutas
-app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/estudiantes', estudianteRoutes);
-app.use('/api/administradores', administradorRoutes);
-app.use('/api/tipos-solicitud', tipoSolicitudRoutes);
-app.use('/api/subtipos-solicitud', subtipoSolicitudRoutes);
-app.use('/api/solicitudes', solicitudRoutes);
-app.use('/api/documentos', documentoRoutes);
-app.use('/api/historial-estados', historialEstadoRoutes);
-app.use('/api/discapacidades', discapacidadRoutes);
-app.use('/api/notificaciones', notificacionRoutes);
+app.use('/api', usuarioRoutes);
+app.use('/api', solicitudRoutes);
+app.use('/api', notificacionRoutes);
+app.use('/api', tipoSolicitudRoutes);
+app.use('/api', documentoRoutes);
+app.use('/api', discapacidadRoutes);
 
 
 app.get('/api/testmysql', async (req, res) => {

@@ -1,13 +1,13 @@
 import express from 'express';
 import UsuarioController from '../controllers/UsuarioController.js';
-import { validateFields } from '../middleware/validation.js';
+import { validateUser } from '../middleware/validation.js';
+import { verifyToken, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Login de usuario
-router.post('/login', validateFields(['correo_institucional', 'contrasena']), UsuarioController.login);
-
-// Registro de usuario
-router.post('/registro', validateFields(['correo_institucional', 'contrasena', 'rol']), UsuarioController.registrar);
+router.post('/auth/register', validateUser, UsuarioController.register);
+router.post('/auth/login', validateUser, UsuarioController.login);
+router.post('/auth/logout', verifyToken, UsuarioController.logout);
+router.get('/estudiantes-con-solicitudes', verifyToken, restrictTo('administrador'), UsuarioController.getEstudiantesConSolicitudes);
 
 export default router;

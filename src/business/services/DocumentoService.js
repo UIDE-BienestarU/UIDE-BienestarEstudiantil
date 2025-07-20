@@ -2,40 +2,32 @@ import Documento from '../../data/models/Documento.js';
 import Solicitud from '../../data/models/Solicitud.js';
 
 class DocumentoService {
-    static async obtenerTodos() {
-        return await Documento.findAll({ include: Solicitud });
+  static async getDocumentosBySolicitud(solicitudId, userId, rol) {
+    const solicitud = await Solicitud.findByPk(solicitudId);
+    if (!solicitud) {
+      throw new Error('Solicitud no encontrada');
     }
+    if (rol !== 'administrador' && solicitud.estudiante_id !== userId) {
+      throw new Error('No tienes permiso para ver estos documentos');
+    }
+    return await Documento.findAll({ where: { solicitud_id: solicitudId } });
+  }
 
-    static async obtenerPorId(id) {
-        const doc = await Documento.findByPk(id, { include: Solicitud });
-        if (!doc) throw new Error('Documento no encontrado');
-        return doc;
+  static async addDocumento(solicitudId, documentoData, userId, rol) {
+    const solicitud = await Solicitud.findByPk(solicitudId);
+    if (!solicitud) {
+      throw new Error('Solicitud no encontrada');
     }
-
-    static async obtenerPorSolicitud(solicitud_id) {
-        return await Documento.findAll({ 
-            where: { solicitud_id },
-            include: Solicitud
-        });
+    if (rol !== 'administrador' && solicitud.estudiante_id !== userId) {
+      throw new Error('No tienes permiso para añadir documentos');
     }
-
-    static async crear(datos) {
-        return await Documento.create(datos);
-    }
-
-    static async actualizar(id, datos) {
-        const doc = await Documento.findByPk(id);
-        if (!doc) throw new Error('Documento no encontrado');
-        await doc.update(datos);
-        return doc;
-    }
-
-    static async eliminar(id) {
-        const doc = await Documento.findByPk(id);
-        if (!doc) throw new Error('Documento no encontrado');
-        await doc.destroy();
-        return { mensaje: 'Documento eliminado correctamente' };
-    }
+    return await Documento.create({
+      solicitud_id: solicitudId,
+      nombre_documento: documentoData.nombre_documento,
+      url_archivo: documentoData.url_archivo,
+      obligatorio: documentoData.obligatorio,
+    });
+  }
 }
 
 export default DocumentoService;
