@@ -1,10 +1,11 @@
 import { body, param, validationResult } from 'express-validator';
+import SubtipoSolicitud  from '../../data/models/SubtipoSolicitud.js';
 
 export const validateUser = [
   body('correo_institucional')
     .isEmail()
-    .matches(/^[a-z][a-z]?[a-z]+@uide\.edu\.ec$/i)
-    .withMessage('El correo debe ser institucional (@uide.edu.ec) con formato válido'),
+    .matches(/^[a-zA-Z0-9._%+-]+@uide\.edu\.ec$/i)
+    .withMessage('El correo debe ser institucional (@uide.edu.ec)'),
   body('contrasena')
     .isLength({ min: 8 })
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
@@ -31,7 +32,32 @@ export const validateUser = [
         code: 'VALIDATION_ERROR',
         message: 'Los datos proporcionados no son válidos',
         details: errors.array().map(err => ({
-          field: err.param,
+          field: err.path,
+          message: err.msg,
+        })),
+      });
+    }
+    next();
+  },
+];
+
+export const validateLogin = [
+  body('correo_institucional')
+    .isEmail()
+    .matches(/^[a-zA-Z0-9._%+-]+@uide\.edu\.ec$/i)
+    .withMessage('El correo debe ser institucional (@uide.edu.ec)'),
+  body('contrasena')
+    .notEmpty()
+    .withMessage('La contraseña es obligatoria'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        error: 'Error de validación',
+        code: 'VALIDATION_ERROR',
+        message: 'Los datos proporcionados no son válidos',
+        details: errors.array().map(err => ({
+          field: err.path,
           message: err.msg,
         })),
       });
@@ -41,7 +67,13 @@ export const validateUser = [
 ];
 
 export const validateSolicitud = [
-  body('subtipo_id').isInt().withMessage('Subtipo de solicitud inválido'),
+  body('subtipo_id').isInt().withMessage('Subtipo de solicitud inválido').custom(async (value) => {
+    const subtipo = await SubtipoSolicitud.findByPk(value);
+    if (!subtipo) {
+      throw new Error('El subtipo de solicitud no existe');
+    }
+    return true;
+  }),
   body('nivel_urgencia').isIn(['Normal', 'Alta', 'Crítica']).withMessage('Nivel de urgencia inválido'),
   body('observaciones').optional().isString().withMessage('Observaciones deben ser texto'),
   body('documentos').optional().isArray().withMessage('Documentos deben ser un arreglo'),
@@ -56,7 +88,7 @@ export const validateSolicitud = [
         code: 'VALIDATION_ERROR',
         message: 'Los datos proporcionados no son válidos',
         details: errors.array().map(err => ({
-          field: err.param,
+          field: err.path,
           message: err.msg,
         })),
       });
@@ -77,7 +109,7 @@ export const validateSolicitudUpdate = [
         code: 'VALIDATION_ERROR',
         message: 'Los datos proporcionados no son válidos',
         details: errors.array().map(err => ({
-          field: err.param,
+          field: err.path,
           message: err.msg,
         })),
       });
@@ -96,7 +128,7 @@ export const validateNotificacion = [
         code: 'VALIDATION_ERROR',
         message: 'Los datos proporcionados no son válidos',
         details: errors.array().map(err => ({
-          field: err.param,
+          field: err.path,
           message: err.msg,
         })),
       });
@@ -117,7 +149,7 @@ export const validateDocumento = [
         code: 'VALIDATION_ERROR',
         message: 'Los datos proporcionados no son válidos',
         details: errors.array().map(err => ({
-          field: err.param,
+          field: err.path,
           message: err.msg,
         })),
       });
@@ -138,7 +170,7 @@ export const validateDiscapacidad = [
         code: 'VALIDATION_ERROR',
         message: 'Los datos proporcionados no son válidos',
         details: errors.array().map(err => ({
-          field: err.param,
+          field: err.path,
           message: err.msg,
         })),
       });
