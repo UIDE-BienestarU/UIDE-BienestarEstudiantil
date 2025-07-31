@@ -32,6 +32,10 @@ const Solicitud = sequelize.define('Solicitud', {
   observaciones: {
     type: DataTypes.TEXT,
   },
+  comentario: {
+         type: DataTypes.TEXT,
+         allowNull: true,
+  },
 }, {
   tableName: 'Solicitud',
   timestamps: false,

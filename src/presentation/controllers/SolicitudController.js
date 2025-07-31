@@ -1,4 +1,5 @@
 import SolicitudService from '../../business/services/SolicitudService.js';
+
 class SolicitudController {
   static async createSolicitud(req, res) {
     try {
@@ -42,17 +43,51 @@ class SolicitudController {
     }
   }
 
+  static async getSolicitudById(req, res) {
+    try {
+      const solicitud = await SolicitudService.getSolicitudById(req.params.id, req.user.userId, req.user.rol);
+      res.status(200).json({
+        message: 'Solicitud obtenida exitosamente',
+        data: solicitud,
+      });
+    } catch (error) {
+      res.status(404).json({
+        error: 'Solicitud no encontrada',
+        code: 'NOT_FOUND',
+        message: error.message,
+        details: [],
+      });
+    }
+  }
+
+  static async getNotificaciones(req, res) {
+    try {
+      const notificaciones = await SolicitudService.getNotificaciones(req.user.userId, req.user.rol);
+      res.status(200).json({
+        message: 'Notificaciones obtenidas exitosamente',
+        data: notificaciones,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: 'Error interno del servidor',
+        code: 'SERVER_ERROR',
+        message: error.message,
+        details: [],
+      });
+    }
+  }
+
   static async updateSolicitud(req, res) {
     try {
-      if (req.user.rol !== 'administrador') {
+      if (req.user.rol !== 'administrador' && req.user.rol !== 'estudiante') {
         return res.status(403).json({
           error: 'No autorizado',
           code: 'FORBIDDEN',
-          message: 'Solo los administradores pueden actualizar solicitudes',
+          message: 'Solo administradores y estudiantes pueden actualizar solicitudes',
           details: [],
         });
       }
-      const solicitud = await SolicitudService.updateSolicitud(req.params.id, req.user.userId, req.body);
+      const solicitud = await SolicitudService.updateSolicitud(req.params.id, req.user.userId, req.body, req.user.rol);
       res.status(200).json({
         message: 'Solicitud actualizada exitosamente',
         data: solicitud,

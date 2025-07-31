@@ -67,19 +67,12 @@ export const validateLogin = [
 ];
 
 export const validateSolicitud = [
-  body('subtipo_id').isInt().withMessage('Subtipo de solicitud inválido').custom(async (value) => {
-    const subtipo = await SubtipoSolicitud.findByPk(value);
-    if (!subtipo) {
-      throw new Error('El subtipo de solicitud no existe');
-    }
-    return true;
-  }),
-  body('nivel_urgencia').isIn(['Normal', 'Alta', 'Crítica']).withMessage('Nivel de urgencia inválido'),
-  body('observaciones').optional().isString().withMessage('Observaciones deben ser texto'),
-  body('documentos').optional().isArray().withMessage('Documentos deben ser un arreglo'),
-  body('documentos.*.nombre_documento').optional().isString().withMessage('Nombre del documento debe ser texto'),
-  body('documentos.*.url_archivo').isString().withMessage('URL del documento es obligatoria'),
-  body('documentos.*.obligatorio').optional().isBoolean().withMessage('Obligatorio debe ser booleano'),
+  body('subtipo_id').isInt().withMessage('El ID del subtipo debe ser un número entero'),
+  body('nivel_urgencia').isIn(['Normal', 'Alta', 'Crítica']).withMessage('El nivel de urgencia debe ser Normal, Alta o Crítica'),
+  body('observaciones').optional().isString().withMessage('Las observaciones deben ser una cadena de texto'),
+  body('documentos').optional().isArray().withMessage('Los documentos deben ser un arreglo'),
+  body('documentos.*.url_archivo').optional().isString().withMessage('La URL del documento debe ser una cadena'),
+  body('documentos.*.obligatorio').optional().isBoolean().withMessage('El campo obligatorio debe ser booleano'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -87,10 +80,7 @@ export const validateSolicitud = [
         error: 'Error de validación',
         code: 'VALIDATION_ERROR',
         message: 'Los datos proporcionados no son válidos',
-        details: errors.array().map(err => ({
-          field: err.path,
-          message: err.msg,
-        })),
+        details: errors.array(),
       });
     }
     next();
@@ -99,8 +89,17 @@ export const validateSolicitud = [
 
 export const validateSolicitudUpdate = [
   body('estado_actual')
+    .optional()
     .isIn(['Pendiente', 'Aprobado', 'Rechazado', 'En espera'])
     .withMessage('El estado debe ser uno de: Pendiente, Aprobado, Rechazado, En espera'),
+  body('observaciones').optional().isString().withMessage('Las observaciones deben ser una cadena de texto'),
+  body('comentario')
+    .if(body('estado_actual').equals('Rechazado'))
+    .notEmpty()
+    .withMessage('El comentario es obligatorio al rechazar la solicitud'),
+  body('documentos').optional().isArray().withMessage('Los documentos deben ser un arreglo'),
+  body('documentos.*.url_archivo').optional().isString().withMessage('La URL del documento debe ser una cadena'),
+  body('documentos.*.obligatorio').optional().isBoolean().withMessage('El campo obligatorio debe ser booleano'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
