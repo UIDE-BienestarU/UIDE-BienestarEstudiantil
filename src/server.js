@@ -9,6 +9,7 @@ import tipoSolicitudRoutes from './presentation/routes/tiposolicitudes.js';
 import subtipoSolicitudRoutes from './presentation/routes/subtiposolicitudes.js';
 import documentoRoutes from './presentation/routes/documentos.js';
 import discapacidadRoutes from './presentation/routes/discapacidades.js';
+import estadisticasRouter from './presentation/routes/estadisticas.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import uploadRoutes from './presentation/routes/upload.js';
@@ -41,6 +42,7 @@ app.use('/api', subtipoSolicitudRoutes);
 app.use('/api', documentoRoutes);
 app.use('/api', discapacidadRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api', estadisticasRouter);
 
 app.get('/api/testmysql', async (req, res) => {
     try {
