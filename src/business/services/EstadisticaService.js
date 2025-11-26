@@ -1,56 +1,36 @@
 import Solicitud from '../../data/models/Solicitud.js';
 import SubtipoSolicitud from '../../data/models/SubtipoSolicitud.js';
+import Usuario from '../../data/models/Usuario.js';
 
 class EstadisticaService {
   static async getEstadisticas() {
-    try {
-      // Total de solicitudes
-      const total = await Solicitud.count();
-      console.log('Total de solicitudes:', total);
+    const total = await Solicitud.count();
 
-      // Solicitudes por estado
-      const porEstado = await Solicitud.findAll({
-        attributes: ['estado_actual', [Solicitud.sequelize.fn('COUNT', Solicitud.sequelize.col('estado_actual')), 'count']],
-        group: ['estado_actual'],
-      });
-      console.log('Por estado:', porEstado);
+    const porEstado = await Solicitud.findAll({
+      attributes: ['estado_actual', [Solicitud.sequelize.fn('COUNT', 'estado_actual'), 'count']],
+      group: ['estado_actual']
+    });
 
-      const porSubtipoRaw = await Solicitud.findAll({
-        attributes: [
-          [Solicitud.sequelize.col('SubtipoSolicitud.nombre_sub'), 'nombre_sub'],
-          [Solicitud.sequelize.fn('COUNT', Solicitud.sequelize.col('subtipo_id')), 'count'],
-        ],
-        include: [
-          {
-            model: SubtipoSolicitud,
-            attributes: ['nombre_sub'],
-            required: true, 
-          },
-        ],
-        group: ['SubtipoSolicitud.nombre_sub', 'subtipo_id'],
-      });
-      console.log('Por subtipo raw:', porSubtipoRaw);
+    const porSubtipoRaw = await Solicitud.findAll({
+      attributes: [
+        [Solicitud.sequelize.col('subtipo.nombre_sub'), 'nombre_sub'],
+        [Solicitud.sequelize.fn('COUNT', 'subtipo_id'), 'count']
+      ],
+      include: [{ model: SubtipoSolicitud, attributes: ['nombre_sub'] }],
+      group: ['subtipo.nombre_sub', 'subtipo_id']
+    });
 
-      const porSubtipo = porSubtipoRaw.reduce((acc, item) => {
-        const nombreSub = item.get('nombre_sub') || 'Sin subtipo';
-        acc[nombreSub] = parseInt(item.get('count'));
-        return acc;
-      }, {});
+    const porSubtipo = porSubtipoRaw.reduce((acc, item) => {
+      const nombre = item.get('nombre_sub') || 'Sin subtipo';
+      acc[nombre] = (acc[nombre] || 0) + parseInt(item.get('count'));
+      return acc;
+    }, {});
 
-      console.log('Por subtipo procesado:', porSubtipo);
-
-      return {
-        total,
-        porEstado: porEstado.reduce((acc, item) => {
-          acc[item.estado_actual] = parseInt(item.get('count'));
-          return acc;
-        }, {}),
-        porSubtipo,
-      };
-    } catch (error) {
-      console.error('Error en getEstadisticas:', error);
-      throw new Error('Error al obtener estadísticas: ' + error.message);
-    }
+    return {
+      total,
+      porEstado: Object.fromEntries(porEstado.map(s => [s.estado_actual, parseInt(s.get('count'))])),
+      porSubtipo
+    };
   }
 }
 

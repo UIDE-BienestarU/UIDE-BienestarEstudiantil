@@ -1,7 +1,6 @@
+// src/data/models/Usuario.js
 import { DataTypes } from 'sequelize';
-import bcrypt from 'bcrypt';
 import sequelize from '../database.js';
-import Session from './Session.js'; 
 
 const Usuario = sequelize.define('Usuario', {
   id: {
@@ -9,62 +8,89 @@ const Usuario = sequelize.define('Usuario', {
     primaryKey: true,
     autoIncrement: true,
   },
+
   correo_institucional: {
     type: DataTypes.STRING(100),
-    unique: true,
     allowNull: false,
+    unique: true,
     validate: {
       isEmail: true,
-      is: /^[a-z][a-z]?[a-z]+@uide\.edu\.ec$/i,
-      isInstitutional(value) {
-        if (!value.endsWith('@uide.edu.ec')) {
-          throw new Error('El correo debe ser institucional (@uide.edu.ec)');
-        }
-      },
-    },
+      is: /^[a-zA-Z0-9._%+-]+@uide\.edu\.ec$/i, 
+    }
   },
+
+  // CONTRASEÑA HASH — Se llena desde el Service
   contrasena_hash: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.STRING(255),
     allowNull: false,
   },
+
   nombre_completo: {
     type: DataTypes.STRING(100),
     allowNull: false,
   },
+
   rol: {
-    type: DataTypes.ENUM('estudiante', 'administrador'),
+    type: DataTypes.ENUM('estudiante', 'administrador', 'bienestar'),
     allowNull: false,
+    defaultValue: 'estudiante'
   },
+
+  cedula: {
+    type: DataTypes.STRING(10),
+    allowNull: true,
+    validate: {
+      len: [10, 10],
+      isNumeric: true
+    }
+  },
+
+  matricula: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    validate: {
+      is: /^U\d{6,8}$/i
+    }
+  },
+
+  telefono: {
+    type: DataTypes.STRING(15),
+    allowNull: true,
+    validate: {
+      is: /^\d{9,10}$/
+    }
+  },
+
+  carrera: {
+    type: DataTypes.ENUM(
+      'Ingeniería en Tecnologías de la Información',
+      'Arquitectura',
+      'Psicología',
+      'Marketing',
+      'Derecho',
+      'Business'
+    ),
+    allowNull: true
+  },
+
+  semestre: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    validate: {
+      min: 1,
+      max: 10
+    }
+  }
+
 }, {
-  tableName: 'Usuario',
+  tableName: 'usuario',
   timestamps: false,
-  hooks: {
-    beforeCreate: async (user) => {
-      user.contrasena_hash = await bcrypt.hash(user.contrasena_hash, 12);
-      await Session.destroy({ where: { userId: user.id, isActive: false } });
-    },
-    beforeUpdate: async (user) => {
-      if (user.changed('contrasena_hash')) {
-        user.contrasena_hash = await bcrypt.hash(user.contrasena_hash, 12);
-      }
-    },
-  },
-});
-
-Usuario.prototype.getFullName = function () {
-  return this.nombre_completo;
-};
-
-Usuario.prototype.getDisplayRole = function () {
-  return this.rol === 'estudiante' ? 'Estudiante' : 'Administrador';
-};
-
-Usuario.prototype.validatePassword = async function (password) {
-  return await bcrypt.compare(password, this.contrasena_hash);
-};
-
-Usuario.addScope('public', {
-  attributes: ['id', 'correo_institucional', 'nombre_completo', 'rol'],
+  indexes: [
+    {
+      unique: true,
+      fields: ['correo_institucional']
+    }
+  ]
 });
 
 export default Usuario;

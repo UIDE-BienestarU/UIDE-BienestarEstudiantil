@@ -5,18 +5,20 @@ import Session from '../../data/models/Session.js';
 
 const verifyToken = async (req, res, next) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) {
+    const authHeader = req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
-        error: 'Token no proporcionado',
+        error: 'Acceso denegado',
         code: 'NO_TOKEN',
-        message: 'Debe proporcionar un token de autenticación',
-        details: [],
+        message: 'Token de autenticación requerido',
       });
     }
 
+    const token = authHeader.replace('Bearer ', '');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
     const session = await Session.findOne({
       where: {
         tokenHash,
@@ -30,31 +32,33 @@ const verifyToken = async (req, res, next) => {
       return res.status(401).json({
         error: 'Sesión inválida o expirada',
         code: 'INVALID_SESSION',
-        message: 'La sesión no es válida o ha expirado',
-        details: [],
+        message: 'Por favor inicia sesión nuevamente',
       });
     }
 
-    req.user = decoded;
+    // ← MEJORA CLAVE: solo pasamos lo necesario y con nombres claros
+    req.user = {
+      userId: decoded.userId,
+      rol: decoded.rol,
+    };
+
     next();
   } catch (error) {
     return res.status(401).json({
       error: 'Token inválido',
       code: 'INVALID_TOKEN',
-      message: error.message,
-      details: [],
+      message: 'El token proporcionado no es válido o ha expirado',
     });
   }
 };
 
 const restrictTo = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.rol)) {
+    if (!req.user || !roles.includes(req.user.rol)) {
       return res.status(403).json({
-        error: 'No autorizado',
+        error: 'Acceso denegado',
         code: 'FORBIDDEN',
-        message: 'No tienes permisos para realizar esta acción',
-        details: [],
+        message: `Requiere uno de los siguientes roles: ${roles.join(', ')}`,
       });
     }
     next();

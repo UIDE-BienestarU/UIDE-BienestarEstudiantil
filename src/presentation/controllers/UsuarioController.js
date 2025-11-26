@@ -1,78 +1,133 @@
+// src/controllers/UsuarioController.js
 import UsuarioService from '../../business/services/UsuarioService.js';
 
 class UsuarioController {
   static async register(req, res) {
     try {
-      const { user, token } = await UsuarioService.register(req.body);
+      const userData = {
+        ...req.body,
+        contrasena: req.body.contrasena
+      };
+
+      const { user, token } = await UsuarioService.register(userData);
+
       res.status(201).json({
         message: 'Usuario registrado exitosamente',
-        data: { user: { id: user.id, correo_institucional: user.correo_institucional, rol: user.rol }, token },
+        user: {
+          id: user.id,
+          correo_institucional: user.correo_institucional,
+          nombre_completo: user.nombre_completo,
+          rol: user.rol,
+          cedula: user.cedula,
+          matricula: user.matricula,
+          carrera: user.carrera,
+          semestre: user.semestre
+        },
+        token
       });
     } catch (error) {
-      res.status(422).json({
-        error: 'Error al registrar usuario',
-        code: 'REGISTRATION_ERROR',
-        message: error.message,
-        details: [],
+      console.error('Error en registro:', error);
+
+      // Errores de validación de Sequelize
+      if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+        const details = error.errors?.map(err => ({
+          field: err.path,
+          message: err.message
+        })) || [];
+
+        return res.status(400).json({
+          error: 'Datos inválidos',
+          code: 'VALIDATION_ERROR',
+          message: 'Por favor revisa los campos ingresados',
+          details
+        });
+      }
+
+      // Correo ya registrado
+      if (error.message?.includes('correo_institucional')) {
+        return res.status(409).json({
+          error: 'Correo ya registrado',
+          code: 'EMAIL_EXISTS',
+          message: 'Ya existe un usuario con este correo institucional'
+        });
+      }
+
+      // Error genérico
+      res.status(500).json({
+        error: 'Error interno del servidor',
+        code: 'SERVER_ERROR',
+        message: 'No se pudo completar el registro',
+        // Solo en desarrollo mostramos el error real
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }
   }
 
   static async login(req, res) {
     try {
-      const { user, token } = await UsuarioService.login(req.body.correo_institucional, req.body.contrasena);
+      const { correo_institucional, contrasena } = req.body;
+
+      if (!correo_institucional || !contrasena) {
+        return res.status(400).json({
+          error: 'Faltan credenciales',
+          message: 'Debe proporcionar correo y contraseña'
+        });
+      }
+
+      const { user, token } = await UsuarioService.login(correo_institucional, contrasena);
+
       res.status(200).json({
+        success: true,
         message: 'Inicio de sesión exitoso',
-        data: { user: { id: user.id, correo_institucional: user.correo_institucional, rol: user.rol }, token },
+        user: {
+          id: user.id,
+          correo_institucional: user.correo_institucional,
+          nombre_completo: user.nombre_completo,
+          rol: user.rol
+        },
+        token
       });
     } catch (error) {
       res.status(401).json({
+        success: false,
         error: 'Credenciales inválidas',
-        code: 'LOGIN_ERROR',
-        message: error.message,
-        details: [],
+        code: 'LOGIN_FAILED',
+        message: 'Correo institucional o contraseña incorrectos'
       });
     }
   }
 
   static async logout(req, res) {
-    try {
-      await UsuarioService.logout(req.user.userId, req.header('Authorization')?.replace('Bearer ', ''));
-      res.status(200).json({
-        message: 'Sesión cerrada exitosamente',
-        data: null,
-      });
-    } catch (error) {
-      res.status(500).json({
-        error: 'Error al cerrar sesión',
-        code: 'LOGOUT_ERROR',
-        message: error.message,
-        details: [],
-      });
-    }
+    // En JWT el logout se maneja del lado del cliente (borrar token)
+    res.status(200).json({
+      success: true,
+      message: 'Sesión cerrada correctamente'
+    });
   }
 
   static async getEstudiantesConSolicitudes(req, res) {
     try {
-      if (req.user.rol !== 'administrador') {
+      if (!['bienestar', 'administrador'].includes(req.user.rol)) {
         return res.status(403).json({
-          error: 'No autorizado',
-          code: 'FORBIDDEN',
-          message: 'Solo los administradores pueden ver la lista de estudiantes con solicitudes',
-          details: [],
+          error: 'Acceso denegado',
+          message: 'Solo personal de Bienestar o Administrador puede acceder'
         });
       }
+
       const estudiantes = await UsuarioService.getEstudiantesConSolicitudes();
+      
       res.status(200).json({
-        message: 'Lista de estudiantes con solicitudes obtenida exitosamente',
-        data: estudiantes,
+        success: true,
+        message: 'Lista de estudiantes obtenida correctamente',
+        count: estudiantes.length,
+        data: estudiantes
       });
     } catch (error) {
+      console.error('Error al obtener estudiantes:', error);
       res.status(500).json({
-        error: 'Error interno del servidor',
-        code: 'SERVER_ERROR',
-        message: error.message,
-        details: [],
+        success: false,
+        error: 'Error del servidor',
+        message: 'No se pudieron cargar los datos'
       });
     }
   }

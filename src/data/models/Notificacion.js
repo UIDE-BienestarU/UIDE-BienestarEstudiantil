@@ -1,58 +1,25 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database.js';
 import Solicitud from './Solicitud.js';
-import Estudiante from './Estudiante.js';
+import Usuario from './Usuario.js';
 
 const Notificacion = sequelize.define('Notificacion', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  solicitud_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'Solicitud',
-      key: 'id',
-    },
-  },
-  mensaje: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-  },
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  solicitud_id: { type: DataTypes.INTEGER, allowNull: true },
+  usuario_id: { type: DataTypes.INTEGER, allowNull: false },
+  mensaje: { type: DataTypes.STRING(255), allowNull: false },
   tipo: {
     type: DataTypes.ENUM('Alerta', 'Actualización', 'Recordatorio', 'Confirmación'),
-    allowNull: false,
+    defaultValue: 'Actualización',
   },
-  fecha_envio: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  leido: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-  destinatario_rol: {
-    type: DataTypes.ENUM('administrador', 'estudiante'),
-    allowNull: false,
-  },
-  destinatario_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'Estudiante',
-      key: 'id',
-    },
-  },
+  leido: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, {
-  tableName: 'Notificacion',
-  timestamps: false,
+  tableName: 'notificaciones',
+  timestamps: true,
+  createdAt: 'fecha_envio',
 });
 
-// Definir relaciones
-Notificacion.belongsTo(Solicitud, { foreignKey: 'solicitud_id', as: 'Solicitud' });
-Solicitud.hasMany(Notificacion, { foreignKey: 'solicitud_id', as: 'Notificaciones' });
-Notificacion.belongsTo(Estudiante, { foreignKey: 'destinatario_id', as: 'Estudiante', constraints: false });
+Notificacion.belongsTo(Solicitud);
+Notificacion.belongsTo(Usuario, { foreignKey: 'usuario_id', as: 'destinatario' });
 
 export default Notificacion;

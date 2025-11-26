@@ -4,41 +4,22 @@ import Solicitud from './Solicitud.js';
 import Usuario from './Usuario.js';
 
 const HistorialEstado = sequelize.define('HistorialEstado', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  solicitud_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  admin_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  solicitud_id: { type: DataTypes.INTEGER, allowNull: false },
+  admin_id: { type: DataTypes.INTEGER, allowNull: false },
   estado: {
     type: DataTypes.ENUM('Pendiente', 'Aprobado', 'Rechazado', 'En espera'),
     allowNull: false,
   },
-  fecha: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  comentario: {
-    type: DataTypes.TEXT,
-  },
+  comentario: DataTypes.TEXT,
 }, {
-  tableName: 'HistorialEstado',
-  timestamps: false,
-  indexes: [
-    { fields: ['estado'] },
-  ],
+  tableName: 'historial_estados',
+  timestamps: true,
+  createdAt: 'fecha',
+  updatedAt: false,
 });
 
-HistorialEstado.belongsTo(Solicitud, { foreignKey: 'solicitud_id' });
-HistorialEstado.belongsTo(Usuario, { foreignKey: 'admin_id' });
-Solicitud.hasMany(HistorialEstado, { foreignKey: 'solicitud_id' });
-Usuario.hasMany(HistorialEstado, { foreignKey: 'admin_id' });
+HistorialEstado.belongsTo(Solicitud);
+HistorialEstado.belongsTo(Usuario, { foreignKey: 'admin_id', as: 'administrador' });
 
 export default HistorialEstado;
