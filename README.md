@@ -4,11 +4,11 @@ Sistema integral de gestión de bienestar estudiantil que permite a los estudian
 
 ## Integrantes
 
-- **Mateo [Apellido]** - Full Stack Developer - @mateocp10
-- **Chris [Apellido]** - Full Stack Developer - @ChrisSR247
-- **Juan Esteban [Apellido]** - Full Stack Developer - @juanestebanf
-- **Victor [Apellido]** - Full Stack Developer - @Victor12-ui
-- **Ginia [Apellido]** - Full Stack Developer - @ginia18
+- **Mateo Castillo** - Backend - @mateocp10
+- **Christian Salinas** - Backend - @ChrisSR247
+- **Juan Esteban Fuentes** - Fronted - @juanestebanf
+- **Victor Montaño** - Fronted - @Victor12-ui
+- **Vriginia Mora ** - Fronted - @ginia18
 
 ## Enlaces a GitHub Projects
 
