@@ -68,7 +68,7 @@ Una Historia de Usuario está completa cuando:
 ## Instalación
 ```bash
 # Clonar repositorio
-git clone https://github.com/[TU-USUARIO]/bienestar-estudiantil-uide.git
+git clone https://github.com/UIDE-BienestarU/UIDE-BienestarEstudiantil
 cd bienestar-estudiantil-uide
 
 # Instalar dependencias de Flutter
