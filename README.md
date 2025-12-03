@@ -14,56 +14,71 @@ Sistema integral de gestión de bienestar estudiantil que permite a los estudian
 
 - https://github.com/UIDE-BienestarU/UIDE-BienestarEstudiantil.git
 
+## Descripción General
+
+Este sistema permite:
+
+- Registro e inicio de sesión para estudiantes y personal administrativo.  
+- Envío de solicitudes de becas con datos y documentos adjuntos.  
+- Seguimiento del estado de cada solicitud.  
+- Panel administrativo para revisión, aprobación o rechazo.  
+- Historial y trazabilidad de cambios por solicitud.
+
+El objetivo principal es **digitalizar y centralizar** el proceso de gestión de solicitudes de Bienestar Estudiantil en la UIDE.
+
+---
+
 ## Definition of Ready (DoR)
 
-Una Historia de Usuario está lista para ser trabajada cuando:
-- Tiene criterios de aceptación claros en formato Gherkin
-- Está estimada con story points
-- Tiene prioridad asignada (must/should/could/wont-have)
-- No tiene dependencias bloqueantes con otras HU
-- Los diseños/mockups están disponibles (si aplica)
-- El equipo entiende completamente lo que se debe hacer
+Una Historia de Usuario se considera lista cuando:
+
+- Tiene criterios de aceptación en formato **Gherkin**.  
+- Está estimada en **Story Points**.  
+- Cuenta con prioridad (must / should / could / won’t).  
+- No tiene dependencias bloqueantes.  
+- Incluye mockups o diseños si aplica.  
+- El equipo entiende claramente qué se debe implementar.
+
+---
 
 ## Definition of Done (DoD)
 
-Una Historia de Usuario está completa cuando:
-- El código está implementado y funciona correctamente
-- Los tests unitarios y de integración pasan exitosamente (coverage > 70%)
-- La documentación técnica está actualizada (README, API docs)
-- La HU cumple todos los criterios de aceptación en formato Gherkin
-- No hay bugs críticos o bloqueantes
-- Los commits están vinculados al issue (#número)
-- El estado del issue está actualizado en GitHub Projects
+Una Historia de Usuario está terminada cuando:
+
+- El código funciona correctamente.  
+- Tests unitarios/integración pasan (coverage > **80%**).  
+- Documentación técnica actualizada (README, API Docs).  
+- Todos los criterios de aceptación se cumplen.  
+- No existen bugs críticos.  
+- Commits asociados al issue correspondiente.  
+- Estado actualizado en GitHub Projects.
+
+---
 
 ## Capacidad del Equipo
 
-- **Integrantes:** 5 personas
-- **Disponibilidad:** 10-12 horas por persona por sprint (2 semanas)
-- **Velocidad estimada:** 2.5 SP por persona = 12-13 SP total por sprint
-- **Sprint duration:** 2 semanas
+- **Integrantes:** 5 personas  
+- **Disponibilidad:** 12 horas por persona  
+- **Velocidad estimada:** 3.5 SP por persona  
+- **Capacidad total por sprint:** **17.5 Story Points**  
+- **Duración del sprint:** 2 semanas  
 
-## Convenciones
+---
 
-### Convenciones de Ramas
-- `main`: Rama principal de producción
-- `develop`: Rama de desarrollo
-- `feature/[nombre-funcionalidad]`: Ramas para nuevas funcionalidades (ej: `feature/crear-solicitud-beca`)
-- `fix/[nombre-bug]`: Ramas para correcciones de bugs
+## Convenciones del Proyecto
 
-### Convenciones de Commits
-- `feat:` - Nueva funcionalidad
-- `fix:` - Corrección de bugs
-- `docs:` - Cambios en documentación
-- `test:` - Agregar o modificar tests
-- `chore:` - Tareas de mantenimiento
-- `refactor:` - Refactorización de código
+- Uso de GitFlow básico:
+  - `main` → versión estable  
+  - `develop` → desarrollo continuo  
+  - `feature/` → nuevas funcionalidades  
+  - `fix/` → correcciones  
+- Convención de commits:
+  - `feat: descripción`
+  - `fix: descripción`
+  - `docs: descripción`
+  - `refactor: descripción`
 
-**Importante:** Siempre vincular commits a issues usando `#número`
-
-### Labels
-- **Tipo:** `feature`, `user-story`, `bug`, `documentation`
-- **Prioridad:** `priority:must-have`, `priority:should-have`, `priority:could-have`, `priority:wont-have`
-- **Story Points:** `sp:1`, `sp:2`, `sp:3`, `sp:5`, `sp:8`
+---
 
 ## Instalación
 ```bash
