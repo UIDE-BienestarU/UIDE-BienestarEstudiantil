@@ -8,7 +8,7 @@ Sistema integral de gestión de bienestar estudiantil que permite a los estudian
 - **Christian Salinas** - Backend - @ChrisSR247
 - **Juan Esteban Fuentes** - Fronted - @juanestebanf
 - **Victor Montaño** - Fronted - @Victor12-ui
-- **Vriginia Mora** - Fronted - @ginia18
+- **Vriginia Mora ** - Fronted - @ginia18
 
 ## Enlaces a GitHub Projects
 
