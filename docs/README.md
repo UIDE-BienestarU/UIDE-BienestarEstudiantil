@@ -31,7 +31,7 @@ El objetivo principal es digitalizar y centralizar el proceso de gestión de sol
 ## Requerimientos Funcionales
 
 ### RF-01: Autenticación de Usuarios
-El sistema permitirá que los estudiantes inicien sesión empleando credenciales almacenadas en una base de datos de simulación.
+El sistema permitirá que los estudiantes inicien sesión empleando credenciales almacenadas en una base de datos.
 
 ### RF-02: Envío de Solicitudes con Documentos
 El sistema deberá permitir el envío de solicitudes con documentos adjuntos.
@@ -40,7 +40,7 @@ El sistema deberá permitir el envío de solicitudes con documentos adjuntos.
 El usuario podrá consultar el estado actualizado de sus solicitudes enviadas.
 
 ### RF-04: Gestión de Solicitudes Administrativas
-El personal de Bienestar podrá revisar solicitudes y aprobarlas, rechazarlas o derivarlas a Becas.
+El personal de Bienestar gestionará solicitudes y aprobarlas, rechazarlas o derivarlas a Becas.
 
 ### RF-05: Sistema de Notificaciones
 El sistema enviará notificaciones básicas cuando cambie el estado de una solicitud o información respecto al mismo.
@@ -50,6 +50,17 @@ El sistema permitirá filtrar y visualizar solicitudes por estado, fecha o tipo 
 
 ### RF-07: Historial de Acciones
 El sistema registrará las acciones realizadas para mantener un historial.
+### RF-08: Gestión de Avisos Institucionales
+
+El sistema permitirá al personal de Bienestar publicar avisos generales dirigidos a la comunidad universitaria, incluyendo noticias, eventos y objetos perdidos con imagen descriptiva.
+
+### RF-09: Contactos Directos
+
+El sistema permitirá mostrar información de contacto directo del personal de Bienestar y asesores específicos según el tipo de solicitud.
+
+### RF-10: Reservas de Salas de Biblioteca
+
+El sistema permitirá a los estudiantes consultar disponibilidad y reservar salas de estudio de la biblioteca.
 
 ## Requerimientos No Funcionales
 
