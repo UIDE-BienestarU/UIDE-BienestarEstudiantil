@@ -74,6 +74,9 @@ El sistema permitirá al administrador apreciar estadísticas de solcitudes revi
 
 El sistema permitirá al administrador generar avisos sobre objetos perdidos incluyendo imagenes.
 
+### RF-14: Filtrar solicitudes por estado y por tipo
+
+El sistema permitirá al administrador filtrar solicitudes por tipo de estado y por tipo de solicitud.
 ## Requerimientos No Funcionales
 
 ### RNF-01: Rendimiento
