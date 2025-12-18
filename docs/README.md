@@ -53,8 +53,7 @@ El sistema registrará las acciones realizadas para mantener un historial.
 
 ### RF-08: Gestión de Avisos Institucionales
 
-El sistema permitirá al personal de Bienestar publicar avisos generales dirigidos a la comunidad universitaria, incluyendo noticias, eventos y objetos perdidos con imagen descriptiva.
-
+El sistema permitirá al personal de Bienestar publicar avisos generales dirigidos a la comunidad universitaria como noticias o eventos. 
 ### RF-09: Contactos Directos
 
 El sistema permitirá mostrar información de contacto directo del personal de Bienestar y asesores específicos según el tipo de solicitud.
@@ -70,6 +69,10 @@ El sistema notificará a estudiantes mediante ventanas emergentes que indicarán
 ### RF-12: Estadísticas sobre solicitudes
 
 El sistema permitirá al administrador apreciar estadísticas de solcitudes revisadas, por revisar y aprobadas.
+
+### RF-13: Avisos sobre objetos perdidos
+
+El sistema permitirá al administrador generar avisos sobre objetos perdidos incluyendo imagenes.
 
 ## Requerimientos No Funcionales
 
