@@ -8,9 +8,6 @@ class UsuarioService {
   static async register(userData) {
     const t = await Usuario.sequelize.transaction();
     try {
-      // EL SECRETO ESTÁ AQUÍ: PASAMOS LA CONTRASEÑA COMO "contrasena_hash" DIRECTO
-      // Porque tu modelo NO tiene hook que la hashee automáticamente (o no está funcionando)
-      // Entonces lo hacemos NOSOTROS aquí, manualmente, y listo.
       const salt = await import('bcrypt').then(bcrypt => bcrypt.genSalt(12));
       const contrasenaHash = await import('bcrypt').then(bcrypt => 
         bcrypt.hash(userData.contrasena, salt)

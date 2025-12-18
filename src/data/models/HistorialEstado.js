@@ -8,7 +8,7 @@ const HistorialEstado = sequelize.define('HistorialEstado', {
   solicitud_id: { type: DataTypes.INTEGER, allowNull: false },
   admin_id: { type: DataTypes.INTEGER, allowNull: false },
   estado: {
-    type: DataTypes.ENUM('Pendiente', 'Aprobado', 'Rechazado', 'En espera'),
+    type: DataTypes.ENUM('Aprobado', 'En progreso', 'Por revisar'),
     allowNull: false,
   },
   comentario: DataTypes.TEXT,
