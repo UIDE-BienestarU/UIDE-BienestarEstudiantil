@@ -1,8 +1,11 @@
 // lib/screens/login/login_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../theme/uide_colors.dart';
-import '../admin/admin_dashboard.dart'; 
+import '../admin/admin_dashboard.dart';
 import '../student/student_dashboard.dart';
+import '../../services/auth_service.dart';
+import '../../providers/user_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -21,7 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Validaciones básicas
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Completa todos los campos')),
@@ -38,22 +40,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulamos login (en el futuro aquí irá el AuthService)
-    await Future.delayed(const Duration(milliseconds: 1200));
+    final result = await AuthService.login(email, password);
 
-    setState(() => _isLoading = false);
+    setState(() => _isLoading = false); // ← CORREGIDO
 
-    // Rol simple para demo (puedes cambiar por Firebase/Auth real después)
-    if (email.contains('admin')) {
+    if (result == null || !result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result?['message'] ?? 'Error de conexión'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // CARGAMOS EL NOMBRE DEL USUARIO
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.loadUser();
+
+    final String rol = (result['role'] as String).toLowerCase();
+
+    if (rol == 'admin' || rol == 'coordinador') {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const AdminDashboard()),
       );
     } else {
-       Navigator.pushReplacement(
-         context,
-         MaterialPageRoute(builder: (_) => const StudentDashboard()),
-       );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const StudentDashboard()),
+      );
     }
   }
 
@@ -72,7 +88,6 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // Logo y título
                   Container(
                     width: isTablet ? 140 : 110,
                     height: isTablet ? 140 : 110,
@@ -92,11 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 24),
                   const Text(
                     "Bienestar Estudiantil",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                   Text(
@@ -110,7 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 48),
 
-                  // Card del formulario
                   Card(
                     elevation: 12,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -119,42 +129,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Text(
-                            "Iniciar Sesión",
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: UIDEColors.azul,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                          const Text("Iniciar Sesión", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: UIDEColors.azul), textAlign: TextAlign.center),
                           const SizedBox(height: 8),
-                          Text(
-                            "Usa tus credenciales de Canvas",
-                            style: TextStyle(color: Colors.grey[600], fontSize: 15),
-                            textAlign: TextAlign.center,
-                          ),
+                          Text("Usa tus credenciales de Canvas", style: TextStyle(color: Colors.grey[600], fontSize: 15), textAlign: TextAlign.center),
                           const SizedBox(height: 32),
 
-                          // Email
                           TextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.person_outline),
                               hintText: "usuario@uide.edu.ec",
                               filled: true,
                               fillColor: Colors.grey[50],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                             ),
                           ),
                           const SizedBox(height: 20),
 
-                          // Contraseña
                           TextField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
@@ -163,10 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               hintText: "Contraseña",
                               filled: true,
                               fillColor: Colors.grey[50],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                               suffixIcon: IconButton(
                                 icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
                                 onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
@@ -175,7 +164,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 32),
 
-                          // Botón Login
                           ElevatedButton(
                             onPressed: _isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
@@ -183,18 +171,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              elevation: 6,
                             ),
                             child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                  )
-                                : const Text(
-                                    "INGRESAR",
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
+                                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                : const Text("INGRESAR", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                           ),
                           const SizedBox(height: 16),
                         ],

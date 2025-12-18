@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';              // ← AÑADIDO
 import '../../theme/uide_colors.dart';
-import '../../main.dart'; 
+import '../../main.dart';
+import '../../providers/user_provider.dart';          // ← AÑADIDO (ruta correcta)
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({Key? key}) : super(key: key);
@@ -72,7 +74,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: UIDEColors.conchevino),
-            onPressed: () { Navigator.pop(ctx); logout(context); },
+            onPressed: () {
+              Navigator.pop(ctx);
+              logout(context);
+            },
             child: const Text("Salir", style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -80,36 +85,37 @@ class _StudentDashboardState extends State<StudentDashboard> {
     );
   }
 }
-//Pantalla inicio
+
+// ==================== SALUDO CON NOMBRE REAL ====================
 class StudentHomeScreen extends StatelessWidget {
   const StudentHomeScreen({Key? key}) : super(key: key);
 
   final List<Map<String, dynamic>> comunicados = const [
-  {
-    "fuente": "Bienestar UIDE",
-    "titulo": "Feria de Becas 2025: ¡Inscríbete antes del 5 de diciembre!",
-    "icono": Icons.school_outlined,
-    "color": UIDEColors.amarillo,
-  },
-  {
-    "fuente": "Depto. Psicología",
-    "titulo": "Nuevos horarios de atención psicológica disponibles desde el lunes",
-    "icono": Icons.psychology_outlined,
-    "color": Colors.purple,
-  },
-  {
-    "fuente": "Seguros UIDE",
-    "titulo": "Seguro médico estudiantil ya activado para el período 2025-1",
-    "icono": Icons.local_hospital_outlined,
-    "color": Colors.red,
-  },
-  {
-    "fuente": "Registro Académico",
-    "titulo": "Solicita tu certificado de estudios en línea desde la app",
-    "icono": Icons.description_outlined,
-    "color": Colors.teal,
-  },
-];
+    {
+      "fuente": "Bienestar UIDE",
+      "titulo": "Feria de Becas 2025: ¡Inscríbete antes del 5 de diciembre!",
+      "icono": Icons.school_outlined,
+      "color": UIDEColors.amarillo,
+    },
+    {
+      "fuente": "Depto. Psicología",
+      "titulo": "Nuevos horarios de atención psicológica disponibles desde el lunes",
+      "icono": Icons.psychology_outlined,
+      "color": Colors.purple,
+    },
+    {
+      "fuente": "Seguros UIDE",
+      "titulo": "Seguro médico estudiantil ya activado para el período 2025-1",
+      "icono": Icons.local_hospital_outlined,
+      "color": Colors.red,
+    },
+    {
+      "fuente": "Registro Académico",
+      "titulo": "Solicita tu certificado de estudios en línea desde la app",
+      "icono": Icons.description_outlined,
+      "color": Colors.teal,
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -118,24 +124,35 @@ class StudentHomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            color: UIDEColors.azul,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: const Padding(
-              padding: EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("¡Hola, Juan Fuentes!", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
-                  SizedBox(height: 8),
-                  Text("Aquí puedes gestionar todas tus solicitudes de bienestar", style: TextStyle(fontSize: 16, color: Colors.white70)),
-                ],
-              ),
-            ),
+          // ← SALUDO CON TU NOMBRE REAL
+          Consumer<UserProvider>(
+            builder: (context, userProvider, child) {
+              final nombre = userProvider.name ?? "Estudiante";
+              return Card(
+                color: UIDEColors.azul,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "¡Hola, $nombre!",
+                        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        "Aquí puedes gestionar todas tus solicitudes de bienestar",
+                        style: TextStyle(fontSize: 16, color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 32),
 
-          // Accesos rápidos
           const Text("Accesos rápidos", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: UIDEColors.conchevino)),
           const SizedBox(height: 16),
           GridView.count(
@@ -154,7 +171,6 @@ class StudentHomeScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 40),
-
           const Text("Comunicados importantes", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: UIDEColors.conchevino)),
           const SizedBox(height: 16),
 
@@ -163,7 +179,7 @@ class StudentHomeScreen extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: comunicados.length,
             separatorBuilder: (context, index) => const Divider(height: 32, thickness: 0.5, color: Color(0xFFE5E5E5)),
-           itemBuilder: (context, index) {
+            itemBuilder: (context, index) {
               final noticia = comunicados[index];
               return InkWell(
                 onTap: () {},
@@ -176,38 +192,21 @@ class StudentHomeScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              noticia["fuente"],
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue, fontSize: 14),
-                            ),
+                            Text(noticia["fuente"], style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue, fontSize: 14)),
                             const SizedBox(height: 4),
-                            Text(
-                              noticia["titulo"],
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 1.3),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            Text(noticia["titulo"], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 1.3), maxLines: 3, overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 8),
                             Text("8h", style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                           ],
                         ),
                       ),
                       const SizedBox(width: 16),
-
                       Container(
                         width: 90,
                         height: 90,
-                        decoration: BoxDecoration(
-                          color: (noticia["color"] as Color).withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          noticia["icono"] as IconData,
-                          size: 48,
-                          color: noticia["color"] as Color,
-                        ),
+                        decoration: BoxDecoration(color: (noticia["color"] as Color).withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+                        child: Icon(noticia["icono"] as IconData, size: 48, color: noticia["color"] as Color),
                       ),
-
                       const SizedBox(width: 12),
                       const Icon(Icons.more_horiz, color: Colors.grey),
                     ],
@@ -216,7 +215,6 @@ class StudentHomeScreen extends StatelessWidget {
               );
             },
           ),
-
           const SizedBox(height: 20),
         ],
       ),
@@ -248,7 +246,54 @@ class StudentHomeScreen extends StatelessWidget {
   }
 }
 
-//mis solicitudes
+// ==================== PERFIL CON TUS DATOS REALES ====================
+class PerfilScreen extends StatelessWidget {
+  const PerfilScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Mi Perfil"),
+        backgroundColor: UIDEColors.conchevino,
+        foregroundColor: Colors.white,
+      ),
+      body: Center(
+        child: Consumer<UserProvider>(
+          builder: (context, userProvider, child) {
+            final nombre = userProvider.name ?? "Estudiante";
+            final correo = userProvider.email ?? "";
+            final rol = userProvider.role?.toUpperCase() ?? "ESTUDIANTE";
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircleAvatar(
+                  radius: 70,
+                  backgroundColor: UIDEColors.conchevino,
+                  child: Icon(Icons.person, size: 90, color: Colors.white),
+                ),
+                const SizedBox(height: 30),
+                Text(nombre, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: UIDEColors.conchevino)),
+                const SizedBox(height: 12),
+                Text(correo, style: const TextStyle(fontSize: 18, color: Colors.grey)),
+                const SizedBox(height: 16),
+                Chip(
+                  backgroundColor: UIDEColors.conchevino,
+                  label: Text(rol, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                ),
+                const SizedBox(height: 50),
+                const Text("Versión 1.0 • UIDE 2025", style: TextStyle(color: Colors.grey)),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// ==================== RESTO DE PANTALLAS SIN CAMBIOS ====================
 class MisSolicitudesScreen extends StatelessWidget {
   const MisSolicitudesScreen({Key? key}) : super(key: key);
 
@@ -273,7 +318,10 @@ class MisSolicitudesScreen extends StatelessWidget {
                   leading: Icon(Icons.description, color: s["color"]),
                   title: Text(s["tipo"], style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text("Enviada: ${s["fecha"]}"),
-                  trailing: Chip(label: Text(s["estado"], style: const TextStyle(color: Colors.white)), backgroundColor: s["color"]),
+                  trailing: Chip(
+                    label: Text(s["estado"], style: const TextStyle(color: Colors.white)),
+                    backgroundColor: s["color"],
+                  ),
                 ),
               );
             },
@@ -281,9 +329,6 @@ class MisSolicitudesScreen extends StatelessWidget {
   }
 }
 
-// ============================
-// NUEVA SOLICITUD
-// ============================
 class NuevaSolicitudScreen extends StatelessWidget {
   final String? tipoInicial;
   const NuevaSolicitudScreen({Key? key, this.tipoInicial}) : super(key: key);
@@ -318,33 +363,6 @@ class NuevaSolicitudScreen extends StatelessWidget {
                 child: const Text("ENVIAR SOLICITUD", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-// PERFIL
-
-class PerfilScreen extends StatelessWidget {
-  const PerfilScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Mi Perfil"), backgroundColor: UIDEColors.conchevino, foregroundColor: Colors.white),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(radius: 60, child: Icon(Icons.person, size: 80)),
-            SizedBox(height: 20),
-            Text("Juan Fuentes", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            Text("jufuentespl@uide.edu.ec", style: TextStyle(color: Colors.grey)),
-            SizedBox(height: 40),
-            Text("Pantalla de perfil y configuración", style: TextStyle(fontSize: 16)),
           ],
         ),
       ),
