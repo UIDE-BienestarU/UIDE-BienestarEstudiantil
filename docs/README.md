@@ -40,7 +40,7 @@ El sistema deberá permitir el envío de solicitudes con documentos adjuntos.
 El usuario podrá consultar el estado actualizado de sus solicitudes enviadas.
 
 ### RF-04: Gestión de Solicitudes Administrativas
-El personal de Bienestar gestionará solicitudes y aprobarlas, rechazarlas o derivarlas a Becas.
+El personal de Bienestar gestionará solicitudes y aprobarlas o derivarlas a Becas.
 
 ### RF-05: Sistema de Notificaciones
 El sistema enviará notificaciones básicas cuando cambie el estado de una solicitud o información respecto al mismo.
@@ -50,6 +50,7 @@ El sistema permitirá filtrar y visualizar solicitudes por estado, fecha o tipo 
 
 ### RF-07: Historial de Acciones
 El sistema registrará las acciones realizadas para mantener un historial.
+
 ### RF-08: Gestión de Avisos Institucionales
 
 El sistema permitirá al personal de Bienestar publicar avisos generales dirigidos a la comunidad universitaria, incluyendo noticias, eventos y objetos perdidos con imagen descriptiva.
@@ -61,6 +62,14 @@ El sistema permitirá mostrar información de contacto directo del personal de B
 ### RF-10: Reservas de Salas de Biblioteca
 
 El sistema permitirá a los estudiantes consultar disponibilidad y reservar salas de estudio de la biblioteca.
+
+### RF-11: Avisos sencillos a estudiantes
+
+El sistema notificará a estudiantes mediante ventanas emergentes que indicarán los avisos de forma resumida
+
+### RF-12: Estadísticas sobre solicitudes
+
+El sistema permitirá al administrador apreciar estadísticas de solcitudes revisadas, por revisar y aprobadas.
 
 ## Requerimientos No Funcionales
 
