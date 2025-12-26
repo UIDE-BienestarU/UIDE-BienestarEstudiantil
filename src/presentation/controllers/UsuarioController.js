@@ -1,7 +1,7 @@
-// src/controllers/UsuarioController.js
 import UsuarioService from '../../business/services/UsuarioService.js';
 
 class UsuarioController {
+  // Registro de usuario
   static async register(req, res) {
     try {
       const userData = {
@@ -28,7 +28,7 @@ class UsuarioController {
     } catch (error) {
       console.error('Error en registro:', error);
 
-      // Errores de validación de Sequelize
+      // Errores de validacion de Sequelize
       if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
         const details = error.errors?.map(err => ({
           field: err.path,
@@ -52,7 +52,7 @@ class UsuarioController {
         });
       }
 
-      // Error genérico
+      // Error general
       res.status(500).json({
         error: 'Error interno del servidor',
         code: 'SERVER_ERROR',
@@ -62,7 +62,8 @@ class UsuarioController {
       });
     }
   }
-
+  
+  // Inicio de sesión
   static async login(req, res) {
     try {
       const { correo_institucional, contrasena } = req.body;
