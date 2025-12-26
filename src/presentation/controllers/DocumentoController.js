@@ -1,6 +1,7 @@
 import DocumentoService from '../../business/services/DocumentoService.js';
 
 class DocumentoController {
+  // Obtener documentos por solicitud
   static async getDocumentosBySolicitud(req, res) {
     try {
       const documentos = await DocumentoService.getDocumentosBySolicitud(req.params.solicitudId, req.user.userId, req.user.rol);
@@ -18,6 +19,7 @@ class DocumentoController {
     }
   }
 
+  // Añadir documento
   static async addDocumento(req, res) {
     try {
       if (req.user.rol !== 'estudiante') {
