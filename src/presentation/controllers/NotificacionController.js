@@ -1,6 +1,7 @@
 import NotificacionService from '../../business/services/NotificacionService.js';
 
 class NotificacionController {
+  // Obtener notificaciones
   static async getNotificaciones(req, res) {
     try {
       const notificaciones = await NotificacionService.getNotificaciones(req.user.userId, req.user.rol);
@@ -18,6 +19,7 @@ class NotificacionController {
     }
   }
 
+  // Obtener notificaciones por usuario
   static async getNotificacionesByUserId(req, res) {
     try {
       const { userId } = req.params;
@@ -44,6 +46,7 @@ class NotificacionController {
     }
   }
 
+  // Marcar notificación como leída
   static async markAsRead(req, res) {
     try {
       const notificacion = await NotificacionService.markAsRead(req.params.id, req.user.userId, req.user.rol);
