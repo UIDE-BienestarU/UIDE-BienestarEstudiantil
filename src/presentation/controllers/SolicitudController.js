@@ -1,6 +1,7 @@
 import SolicitudService from '../../business/services/SolicitudService.js';
 
 class SolicitudController {
+  // Crear solicitud
   static async createSolicitud(req, res) {
     try {
       if (req.user.rol !== 'estudiante') {
@@ -13,6 +14,7 @@ class SolicitudController {
     }
   }
 
+  // Listar solicitudes
   static async getSolicitudes(req, res) {
     try {
       const solicitudes = await SolicitudService.getSolicitudes(req.user.userId, req.user.rol);
@@ -22,6 +24,7 @@ class SolicitudController {
     }
   }
 
+  // Actualizar estado de solicitud
   static async updateEstado(req, res) {
     try {
       if (!['administrador', 'bienestar'].includes(req.user.rol)) {
