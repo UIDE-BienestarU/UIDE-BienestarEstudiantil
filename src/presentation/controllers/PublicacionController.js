@@ -1,6 +1,7 @@
 import PublicacionService from '../../business/services/PublicacionService.js';
 
 class PublicacionController {
+  // Crear publicacion
   static async crear(req, res) {
     try {
       if (!['administrador', 'bienestar'].includes(req.user.rol)) {
@@ -15,6 +16,7 @@ class PublicacionController {
     }
   }
 
+  // Obtener todas las publicaciones
   static async obtenerTodas(req, res) {
     try {
       const pubs = await PublicacionService.obtenerTodas();
