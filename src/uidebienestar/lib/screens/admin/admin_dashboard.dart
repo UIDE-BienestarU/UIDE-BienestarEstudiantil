@@ -3,6 +3,8 @@ import '../../theme/uide_colors.dart';
 import '../../main.dart'; 
 import '../../services/solicitud_api_service.dart';
 import '../../models/solicitud.dart';
+import 'admin_detalle_solicitud.dart';
+
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({Key? key}) : super(key: key);
@@ -148,7 +150,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 20,
                     crossAxisSpacing: 20,
-                    childAspectRatio: 1.25,   // ← MÁS ALTA
+                    childAspectRatio: 1.25,
                   ),
                   itemCount: 4,
                   itemBuilder: (context, i) {
@@ -181,13 +183,24 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: ListTile(
-                    leading: CircleAvatar(backgroundColor: _getColor(ultima.estado), child: Text(ultima.estudiante[0])),
+                    leading: CircleAvatar(
+                      backgroundColor: _getColor(ultima.estado),
+                      child: Text(ultima.estudiante[0]),
+                    ),
                     title: Text(ultima.estudiante, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text("${ultima.tipo} • ${ultima.fecha}"),
                     trailing: Chip(
                       label: Text(ultima.estado, style: const TextStyle(color: Colors.white, fontSize: 12)),
                       backgroundColor: _getColor(ultima.estado),
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AdminDetalleSolicitudScreen(solicitud: ultima),
+                        ),
+                      );
+                    },
                   ),
                 );
               }
@@ -216,7 +229,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           border: Border.all(color: color.withOpacity(0.3), width: 1.5),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,   // ← SOLUCIÓN DEL OVERFLOW
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(value, style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: color)),
             const SizedBox(height: 8),

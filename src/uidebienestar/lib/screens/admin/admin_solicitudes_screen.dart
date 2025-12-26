@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../theme/uide_colors.dart';
+import '../../models/solicitud.dart';
 import 'admin_detalle_solicitud.dart';
 
 class AdminSolicitudesScreen extends StatelessWidget {
