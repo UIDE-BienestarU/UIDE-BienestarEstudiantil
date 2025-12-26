@@ -109,7 +109,7 @@ class AdminDetalleSolicitudScreen extends StatelessWidget {
                         );
                       },
                       icon: const Icon(Icons.cancel, size: 28),
-                      label: const Text("Rechazar", style: TextStyle(fontSize: 18)),
+                      label: const Text("Posponer", style: TextStyle(fontSize: 18)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.symmetric(vertical: 16),

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../theme/uide_colors.dart';
 import '../../main.dart'; 
+// temas
+import 'package:provider/provider.dart';
+import '../../providers/theme_provider.dart';
+
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({Key? key}) : super(key: key);
@@ -41,21 +45,47 @@ class _StudentDashboardState extends State<StudentDashboard> {
         actions: [
           IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () {}, tooltip: "Notificaciones"),
           IconButton(icon: const Icon(Icons.logout), onPressed: () => _confirmarLogout(context), tooltip: "Cerrar sesión"),
+          IconButton(
+            icon: const Icon(Icons.dark_mode_outlined),
+            tooltip: "Cambiar tema (prueba)",
+            onPressed: () {
+              context.read<ThemeProvider>().toggleTheme();
+            },
+          ),
         ],
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) => setState(() => _selectedIndex = index),
-        backgroundColor: Colors.white,
-        indicatorColor: UIDEColors.amarillo.withOpacity(0.3),
+        onDestinationSelected: (index) =>
+            setState(() => _selectedIndex = index),
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Inicio'),
-          NavigationDestination(icon: Icon(Icons.folder_open_outlined), selectedIcon: Icon(Icons.folder_open), label: 'Mis solicitudes'),
-          NavigationDestination(icon: Icon(Icons.campaign_outlined), selectedIcon: Icon(Icons.campaign), label: 'Noticias'),
-          NavigationDestination(icon: Icon(Icons.add_circle_outline), selectedIcon: Icon(Icons.add_circle, size: 32), label: 'Nueva'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Perfil'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.folder_open_outlined),
+            selectedIcon: Icon(Icons.folder_open),
+            label: 'Mis solicitudes',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.campaign_outlined),
+            selectedIcon: Icon(Icons.campaign),
+            label: 'Noticias',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle, size: 32),
+            label: 'Nueva',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Perfil',
+          ),
         ],
       ),
     );

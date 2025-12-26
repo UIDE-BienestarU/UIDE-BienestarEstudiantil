@@ -67,7 +67,6 @@ class AdminHomeScreen extends StatelessWidget {
                 _buildStatCard("Pendientes", "12", Icons.pending_actions, Colors.orange),
                 _buildStatCard("En revisión", "8", Icons.remove_red_eye, Colors.blue),
                 _buildStatCard("Aprobadas", "25", Icons.check_circle, Colors.green),
-                _buildStatCard("Rechazadas", "3", Icons.cancel, Colors.red),
               ],
             ),
             const SizedBox(height: 32),

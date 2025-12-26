@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    "Bienestar Estudiantil",
+                    "Bienestar Universitario",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,

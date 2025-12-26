@@ -39,7 +39,7 @@ class AdminSolicitudesScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.all(12),
                 child: Row(
-                  children: ['Todas', 'Pendiente', 'En revisión', 'Aprobada', 'Rechazada']
+                  children: ['Todas', 'Pendiente', 'En revisión', 'Aprobada']
                       .map((e) => Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: FilterChip(
