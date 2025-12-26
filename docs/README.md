@@ -1,6 +1,6 @@
-# Sistema de Bienestar Estudiantil UIDE
+# Sistema de Bienestar Universitario UIDE
 
-Sistema integral de gestión de bienestar estudiantil que permite a los estudiantes de la UIDE solicitar becas, consultar el estado de sus solicitudes y recibir atención personalizada, optimizando los procesos administrativos del departamento de bienestar.
+Sistema de gestión de bienestar estudiantil que permite a los estudiantes de la UIDE solicitar becas, consultar el estado de sus solicitudes y recibir atención personalizada, optimizando los procesos administrativos del departamento de bienestar.
 
 ##  Integrantes
 
