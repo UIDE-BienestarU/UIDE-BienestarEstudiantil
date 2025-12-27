@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/uide_colors.dart';
-import '../../main.dart'; 
+import '../../main.dart';
 import '../../services/solicitud_api_service.dart';
 import '../../models/solicitud.dart';
 import 'admin_detalle_solicitud.dart';
-
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({Key? key}) : super(key: key);
@@ -19,15 +19,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final screens = [
     const AdminHomeScreen(),
     const AdminSolicitudesScreen(),
-    const Center(
+    Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.campaign_outlined, size: 90, color: UIDEColors.conchevino),
-          SizedBox(height: 20),
-          Text("Noticias", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: UIDEColors.conchevino)),
-          SizedBox(height: 10),
-          Text("Próximamente", style: TextStyle(fontSize: 18, color: Colors.grey)),
+          const Icon(Icons.campaign_outlined, size: 90, color: UIDEColors.conchevino),
+          const SizedBox(height: 20),
+          Text("Noticias", style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: UIDEColors.conchevino)),
+          const SizedBox(height: 10),
+          Builder(
+            builder: (context) {
+              final loc = AppLocalizations.of(context)!;
+              return Text(loc.comingSoon, style: const TextStyle(fontSize: 18, color: Colors.grey));
+            },
+          ),
         ],
       ),
     ),
@@ -35,15 +40,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: UIDEColors.conchevino,
         foregroundColor: Colors.white,
-        title: const Text("Panel Administrativo"),
+        title: Text(loc.adminPanel),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: "Cerrar sesión",
+            tooltip: loc.logout,
             onPressed: () => _confirmarLogout(context),
           ),
         ],
@@ -55,31 +62,45 @@ class _AdminDashboardState extends State<AdminDashboard> {
         backgroundColor: Colors.white,
         indicatorColor: UIDEColors.amarillo.withOpacity(0.3),
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Inicio'),
-          NavigationDestination(icon: Icon(Icons.folder_open_outlined), selectedIcon: Icon(Icons.folder_open), label: 'Solicitudes'),
-          NavigationDestination(icon: Icon(Icons.campaign_outlined), selectedIcon: Icon(Icons.campaign), label: 'Noticias'),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: loc.homeTab,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.folder_open_outlined),
+            selectedIcon: const Icon(Icons.folder_open),
+            label: loc.requestsTab,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.campaign_outlined),
+            selectedIcon: const Icon(Icons.campaign),
+            label: loc.newsTab,
+          ),
         ],
       ),
     );
   }
 
   void _confirmarLogout(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Cerrar sesión"),
-        content: const Text("¿Estás seguro de que deseas salir?"),
+        title: Text(loc.logoutConfirmTitle),
+        content: Text(loc.logoutConfirmMessage),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(loc.cancel)),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: UIDEColors.conchevino),
             onPressed: () {
               Navigator.pop(ctx);
               logout(context);
             },
-            child: const Text("Salir", style: TextStyle(color: Colors.white)),
+            child: Text(loc.exit, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -109,6 +130,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -118,14 +141,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           Card(
             color: UIDEColors.azul,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: const Padding(
-              padding: EdgeInsets.all(24),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("¡Hola, Administrador!", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
-                  SizedBox(height: 8),
-                  Text("Gestiona todas las solicitudes de los estudiantes", style: TextStyle(fontSize: 16, color: Colors.white70)),
+                  Text(loc.welcomeAdmin, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(height: 8),
+                  Text(loc.manageRequests, style: const TextStyle(fontSize: 16, color: Colors.white70)),
                 ],
               ),
             ),
@@ -155,15 +178,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   itemCount: 4,
                   itemBuilder: (context, i) {
                     return [
-                      _statCard("Pendientes", "$pendientes", Colors.orange),
-                      _statCard("Revisión", "$enRevision", Colors.blue),
-                      _statCard("Aprobadas", "$aprobadas", Colors.green),
-                      _statCard("Rechazadas", "$rechazadas", Colors.red),
+                      _statCard(loc.pending, "$pendientes", Colors.orange),
+                      _statCard(loc.inReview, "$enRevision", Colors.blue),
+                      _statCard(loc.approved, "$aprobadas", Colors.green),
+                      _statCard(loc.rejected, "$rechazadas", Colors.red),
                     ][i];
                   },
                 );
               } else if (snapshot.hasError) {
-                return const Center(child: Text("Error al cargar estadísticas"));
+                return Center(child: Text(loc.errorLoadingStats));
               }
               return const Center(child: CircularProgressIndicator());
             },
@@ -171,7 +194,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
           const SizedBox(height: 40),
 
-          const Text("Última solicitud", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(loc.latestRequest, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
 
           FutureBuilder<List<Solicitud>>(
@@ -204,8 +227,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   ),
                 );
               }
-              return const Card(
-                child: ListTile(leading: Icon(Icons.info_outline), title: Text("No hay solicitudes aún")),
+              return Card(
+                child: ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(loc.noRequestsYet),
+                ),
               );
             },
           ),
@@ -216,7 +242,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-  // --------- CARD ESTADÍSTICAS (SIN OVERFLOW) ----------
   Widget _statCard(String title, String value, Color color) {
     return Card(
       elevation: 6,
@@ -242,11 +267,16 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   Color _getColor(String estado) {
     switch (estado) {
-      case "Pendiente": return Colors.orange;
-      case "En revisión": return Colors.blue;
-      case "Aprobada": return Colors.green;
-      case "Rechazada": return Colors.red;
-      default: return Colors.grey;
+      case "Pendiente":
+        return Colors.orange;
+      case "En revisión":
+        return Colors.blue;
+      case "Aprobada":
+        return Colors.green;
+      case "Rechazada":
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 }
@@ -273,13 +303,15 @@ class _AdminSolicitudesScreenState extends State<AdminSolicitudesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return FutureBuilder<List<Solicitud>>(
       future: futureSolicitudes,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final solicitudes = snapshot.data!;
           if (solicitudes.isEmpty) {
-            return const Center(child: Text("No hay solicitudes pendientes"));
+            return Center(child: Text(loc.noPendingRequests));
           }
 
           return ListView.builder(
@@ -292,20 +324,25 @@ class _AdminSolicitudesScreenState extends State<AdminSolicitudesScreen> {
                 elevation: 4,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: ListTile(
-                  leading: CircleAvatar(backgroundColor: _getColor(s.estado), child: Text(s.estudiante[0])),
+                  leading: CircleAvatar(
+                    backgroundColor: _getColor(s.estado),
+                    child: Text(s.estudiante[0]),
+                  ),
                   title: Text(s.estudiante, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text("${s.tipo} • ${s.fecha}"),
                   trailing: Chip(
                     label: Text(s.estado, style: const TextStyle(color: Colors.white, fontSize: 12)),
                     backgroundColor: _getColor(s.estado),
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    // Puedes navegar al detalle aquí si quieres
+                  },
                 ),
               );
             },
           );
         } else if (snapshot.hasError) {
-          return const Center(child: Text("Error al cargar"));
+          return Center(child: Text(loc.errorLoading));
         }
         return const Center(child: CircularProgressIndicator());
       },
@@ -314,11 +351,16 @@ class _AdminSolicitudesScreenState extends State<AdminSolicitudesScreen> {
 
   Color _getColor(String estado) {
     switch (estado) {
-      case "Pendiente": return Colors.orange;
-      case "En revisión": return Colors.blue;
-      case "Aprobada": return Colors.green;
-      case "Rechazada": return Colors.red;
-      default: return Colors.grey;
+      case "Pendiente":
+        return Colors.orange;
+      case "En revisión":
+        return Colors.blue;
+      case "Aprobada":
+        return Colors.green;
+      case "Rechazada":
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 }

@@ -1,8 +1,9 @@
 // lib/screens/login/login_screen.dart
 import 'package:flutter/material.dart';
 import '../../theme/uide_colors.dart';
-import '../admin/admin_dashboard.dart'; 
+import '../admin/admin_dashboard.dart';
 import '../student/student_dashboard.dart';
+import '../../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,193 +19,168 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   void _login() async {
+    final loc = AppLocalizations.of(context)!;
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Validaciones básicas
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Completa todos los campos')),
+        SnackBar(content: Text(loc.fillFieldsError)),
       );
       return;
     }
 
     if (!email.endsWith('@uide.edu.ec')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usa tu correo institucional @uide.edu.ec')),
+        SnackBar(content: Text(loc.institutionalEmailError)),
       );
       return;
     }
 
     setState(() => _isLoading = true);
-
-    // Simulamos login (en el futuro aquí irá el AuthService)
     await Future.delayed(const Duration(milliseconds: 1200));
-
     setState(() => _isLoading = false);
 
-    // Rol simple para demo (puedes cambiar por Firebase/Auth real después)
     if (email.contains('admin')) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const AdminDashboard()),
       );
     } else {
-       Navigator.pushReplacement(
-         context,
-         MaterialPageRoute(builder: (_) => const StudentDashboard()),
-       );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const StudentDashboard()),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     final bool isTablet = size.width > 600;
 
     return Scaffold(
       backgroundColor: UIDEColors.conchevino,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  // Logo y título
-                  Container(
-                    width: isTablet ? 140 : 110,
-                    height: isTablet ? 140 : 110,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'lib/assets/images/imagen4.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.school, size: 60, color: UIDEColors.conchevino),
+        child: Stack(
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      // Logo
+                      Container(
+                        width: isTablet ? 140 : 110,
+                        height: isTablet ? 140 : 110,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/imagen4.png', // ← Ya moviste la imagen, ¿verdad?
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.school, size: 60, color: UIDEColors.conchevino),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    "Bienestar Estudiantil",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  Text(
-                    "UIDE",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: UIDEColors.amarillo,
-                      letterSpacing: 3,
-                    ),
-                  ),
-                  const SizedBox(height: 48),
+                      const SizedBox(height: 24),
+                      Text(
+                        loc.appTitle.split(' ')[0], // "Bienestar"
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        "UIDE",
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: UIDEColors.amarillo, letterSpacing: 3),
+                      ),
+                      const SizedBox(height: 48),
 
-                  // Card del formulario
-                  Card(
-                    elevation: 12,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(32, 40, 32, 32),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            "Iniciar Sesión",
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: UIDEColors.azul,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Usa tus credenciales de Canvas",
-                            style: TextStyle(color: Colors.grey[600], fontSize: 15),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 32),
+                      Card(
+                        elevation: 12,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(32, 40, 32, 32),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(loc.loginTitle, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: UIDEColors.azul), textAlign: TextAlign.center),
+                              const SizedBox(height: 8),
+                              Text(loc.loginSubtitle, style: TextStyle(color: Colors.grey[600], fontSize: 15), textAlign: TextAlign.center),
+                              const SizedBox(height: 32),
 
-                          // Email
-                          TextField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.person_outline),
-                              hintText: "usuario@uide.edu.ec",
-                              filled: true,
-                              fillColor: Colors.grey[50],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
+                              TextField(
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                  prefixIcon: const Icon(Icons.person_outline),
+                                  hintText: loc.emailHint,
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                                ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
+                              const SizedBox(height: 20),
 
-                          // Contraseña
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              hintText: "Contraseña",
-                              filled: true,
-                              fillColor: Colors.grey[50],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-
-                          // Botón Login
-                          ElevatedButton(
-                            onPressed: _isLoading ? null : _login,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: UIDEColors.azul,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              elevation: 6,
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                  )
-                                : const Text(
-                                    "INGRESAR",
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              TextField(
+                                controller: _passwordController,
+                                obscureText: _obscurePassword,
+                                decoration: InputDecoration(
+                                  prefixIcon: const Icon(Icons.lock_outline),
+                                  hintText: loc.passwordHint,
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                   ),
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+
+                              ElevatedButton(
+                                onPressed: _isLoading ? null : _login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: UIDEColors.azul,
+                                  padding: const EdgeInsets.symmetric(vertical: 18),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                    : Text(loc.loginButton, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 16),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+
+            // BOTÓN TEMPORAL PARA CAMBIAR IDIOMA (para capturas)
+            Positioned(
+              top: 50,
+              right: 16,
+              child: FloatingActionButton.small(
+                onPressed: () {
+                  final current = Localizations.localeOf(context);
+                  final newLocale = current.languageCode == 'es' ? const Locale('en') : const Locale('es');
+                  // Esto solo funciona si lo pasas desde main.dart como te mostré antes
+                  // Si no, puedes usar un provider simple o eliminar después del entregable
+                },
+                backgroundColor: Colors.white.withOpacity(0.8),
+                child: const Icon(Icons.language, color: UIDEColors.conchevino),
+              ),
+            ),
+          ],
         ),
       ),
     );
