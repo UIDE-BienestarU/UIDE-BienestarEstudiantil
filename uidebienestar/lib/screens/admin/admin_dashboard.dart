@@ -161,7 +161,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   },
                 );
               } else if (snapshot.hasError) {
-                return const Center(child: Text("Error al cargar estadísticas"));
+                return const Center(child: Text("Error al cargar estadisticas"));
               }
               return const Center(child: CircularProgressIndicator());
             },
@@ -192,7 +192,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 );
               }
               return const Card(
-                child: ListTile(leading: Icon(Icons.info_outline), title: Text("No hay solicitudes aún")),
+                child: ListTile(leading: Icon(Icons.info_outline), title: Text("No hay solicitudes aun")),
               );
             },
           ),
