@@ -34,6 +34,8 @@ class BienestarUIDE extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => AvisosProvider()), // Agregado 
+        ChangeNotifierProvider(create: (_) => AvisosProvider(),), // avisos
+
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(
         builder: (context, themeProvider, localeProvider, _) {
