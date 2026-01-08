@@ -1,36 +1,29 @@
-# Auditoría Fase 1 – Correcciones y Mejoras Aplicadas
+# ADR-002: Persistencia de Datos y Notificaciones con Firebase
 
-## Objetivo
-Documentar las correcciones y mejoras realizadas al sistema a partir del
-feedback obtenido en la Fase 1 del proyecto.
+## Estado
+Aceptado
 
-## Cambios Realizados
+## Contexto
+El sistema de Bienestar Estudiantil UIDE es una aplicación móvil que gestiona
+solicitudes, documentos, avisos institucionales, objetos perdidos y notificaciones.
+El tamaño de la aplicación y la necesidad de notificaciones en tiempo real
+influyen en la decisión tecnológica.
 
-### 1. Requerimientos y SRS
-- Se validaron y refinaron los requerimientos funcionales y no funcionales.
-- Se alinearon los requerimientos con las funcionalidades realmente implementadas.
-- Se incorporaron nuevos elementos funcionales detectados durante el desarrollo de pantallas.
+## Decisión
+Se utilizará Firebase como plataforma de backend, específicamente:
+- Firebase Authentication
+- Firebase Firestore / Realtime Database
+- Firebase Storage para archivos
+- Firebase Cloud Messaging para notificaciones
 
-### 2. Backlog e Issues
-- Se ajustó el backlog para reflejar nuevas funcionalidades agregadas.
-- Se mejoraron los criterios de aceptación usando formato Gherkin.
-- Se mantuvo trazabilidad entre requerimientos, issues y commits.
+## Justificación
+- Escalabilidad automática sin necesidad de administrar servidores.
+- Almacenamiento eficiente de documentos y archivos mediante Firebase Storage.
+- Integración directa con notificaciones push.
+- Adecuado para aplicaciones móviles desarrolladas en Flutter.
+- Reduce la complejidad de infraestructura para un proyecto académico.
 
-### 3. Mejoras en Interfaz (Screens)
-Se realizaron mejoras significativas en la interfaz del sistema, entre ellas:
-- Implementación del apartado de **Noticias institucionales**.
-- Implementación del módulo de **Objetos Perdidos**.
-- Incorporación de **soporte multilenguaje (Español / Inglés)**.
-- Implementación de **tema oscuro y tema claro**.
-- Uso de **imágenes SVG** para mejorar escalabilidad y rendimiento.
-- Organización de navegación mediante **Router** para una mejor experiencia de usuario.
-
-### 4. Arquitectura Frontend
-- Mejora en la estructura de pantallas y navegación.
-- Separación clara de responsabilidades entre vistas, lógica y rutas.
-- Uso de buenas prácticas en Flutter para mantenibilidad del código.
-
-### 5. Flujo Git
-- Uso de ramas `main`, `develop` y `feature`.
-- Convención de commits aplicada consistentemente.
-- Commits separados para documentación, funcionalidades y correcciones.
+## Consecuencias
+- Dependencia del ecosistema Firebase.
+- Limitaciones en consultas complejas.
+- Costos potenciales si el uso escala fuera del plan gratuito.
