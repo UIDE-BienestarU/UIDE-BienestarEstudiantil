@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../theme/uide_colors.dart';
-
+//importaciones
 class StudentNuevaSolicitudScreen extends StatefulWidget {
   final String? tipoInicial;
 
