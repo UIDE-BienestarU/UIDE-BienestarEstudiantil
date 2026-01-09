@@ -13,7 +13,6 @@ class StudentAvisosScreen extends StatelessWidget {
         context.watch<AvisosProvider>().avisosActivos;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Avisos')),
       body: avisos.isEmpty
           ? const Center(child: Text('No hay avisos activos'))
           : ListView.builder(
