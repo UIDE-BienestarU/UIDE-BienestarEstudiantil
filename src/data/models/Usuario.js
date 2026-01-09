@@ -80,7 +80,11 @@ const Usuario = sequelize.define('Usuario', {
       min: 1,
       max: 10
     }
-  }
+  },
+  fcm_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 
 }, {
   tableName: 'usuario',

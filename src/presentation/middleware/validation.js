@@ -6,7 +6,7 @@ const handleValidation = (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({
       error: 'Error de validación',
-      message: 'Los datos no son válidos',
+      message: 'Los datos proporcionados no son válidos',
       details: errors.array().map(err => ({
         campo: err.path,
         mensaje: err.msg
@@ -16,7 +16,7 @@ const handleValidation = (req, res, next) => {
   next();
 };
 
-// ==================== REGISTRO - SIN .custom() PARA EVITAR EL ERROR ====================
+// ==================== REGISTRO ====================
 export const validateUser = [
   body('correo_institucional')
     .isEmail()
@@ -31,7 +31,6 @@ export const validateUser = [
     .notEmpty()
     .withMessage('El nombre completo es obligatorio'),
 
-  // SIN .custom() → NUNCA SALE "Validation is on..."
   body('cedula')
     .optional()
     .isLength({ min: 10, max: 10 })
@@ -63,8 +62,8 @@ export const validateUser = [
 
 // ==================== LOGIN ====================
 export const validateLogin = [
-  body('correo_institucional').isEmail().contains('@uide.edu.ec'),
-  body('contrasena').notEmpty(),
+  body('correo_institucional').isEmail().contains('@uide.edu.ec').withMessage('Correo institucional requerido'),
+  body('contrasena').notEmpty().withMessage('Contraseña requerida'),
   handleValidation
 ];
 
@@ -81,8 +80,38 @@ export const validateDocumento = [
 ];
 
 // ==================== NOTIFICACIÓN ====================
+
+// Para marcar como leída: PUT /notificaciones/:id/leido
 export const validateNotificacion = [
-  param('id').isInt({ min: 1 }).withMessage('ID inválido'),
+  param('id')
+    .isInt({ min: 1 })
+    .withMessage('El ID de la notificación debe ser un número entero positivo'),
+  handleValidation
+];
+
+// NUEVA: Para enviar notificación push: POST /notificaciones/enviar
+export const validateEnviarNotificacion = [
+  body('userId')
+    .isInt({ min: 1 })
+    .withMessage('userId debe ser un número entero positivo'),
+
+  body('title')
+    .isString()
+    .notEmpty()
+    .isLength({ max: 100 })
+    .withMessage('El título es obligatorio y no debe exceder 100 caracteres'),
+
+  body('body')
+    .isString()
+    .notEmpty()
+    .isLength({ max: 500 })
+    .withMessage('El mensaje es obligatorio y no debe exceder 500 caracteres'),
+
+  body('data')
+    .optional()
+    .isObject()
+    .withMessage('data debe ser un objeto JSON (opcional)'),
+
   handleValidation
 ];
 
@@ -93,6 +122,7 @@ export const validateSolicitud = [
 ];
 
 export const validateEstadoSolicitud = [
-  body('estado_actual').isIn(['Pendiente', 'Aprobado', 'Rechazado', 'En espera']),
+  body('estado_actual').isIn(['Pendiente', 'Aprobado', 'Rechazado', 'En espera'])
+    .withMessage('Estado no válido'),
   handleValidation
 ];
