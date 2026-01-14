@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
 import '../../theme/uide_colors.dart';
 import '../../main.dart';
-
-// Providers
-import '../../providers/theme_provider.dart';
 
 // Screens
 import 'student_home.dart';
 import 'student_historial.dart';
 import 'student_nueva_solicitud.dart';
-import 'student_avisos.dart';
 import 'student_perfil.dart';
 
 class StudentDashboard extends StatefulWidget {
@@ -28,7 +22,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
     StudentHomeScreen(),
     StudentHistorialScreen(),
     StudentNuevaSolicitudScreen(),
-    StudentAvisosScreen(),
     StudentPerfilScreen(),
   ];
 
@@ -38,29 +31,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
       appBar: AppBar(
         backgroundColor: UIDEColors.conchevino,
         foregroundColor: Colors.white,
-        title: const Text("Bienestar Estudiantil"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => _confirmarLogout(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.dark_mode_outlined),
-            onPressed: () => context.read<ThemeProvider>().toggleTheme(),
-          ),
-        ],
+        title: const Text("Bienestar Universitario"),
+        
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() => _selectedIndex = index);
-        },
-        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        onDestinationSelected: (index) =>
+            setState(() => _selectedIndex = index),
+        labelBehavior:
+            NavigationDestinationLabelBehavior.onlyShowSelected,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -78,11 +58,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
             label: 'Nueva',
           ),
           NavigationDestination(
-            icon: Icon(Icons.campaign_outlined),
-            selectedIcon: Icon(Icons.campaign),
-            label: 'Noticias',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Perfil',
@@ -96,9 +71,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text("Cerrar sesión"),
-        content: const Text("¿Estás seguro de que deseas salir?"),
+        content:
+            const Text("¿Estás seguro de que deseas salir?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),

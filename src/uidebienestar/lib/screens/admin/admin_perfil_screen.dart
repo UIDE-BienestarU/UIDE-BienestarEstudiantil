@@ -102,7 +102,7 @@ class AdminPerfilScreen extends StatelessWidget {
           label,
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: isDanger ? Colors.red : Colors.black,
+            color: isDanger ? Colors.red : Theme.of(context).textTheme.bodyLarge!.color,
           ),
         ),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),

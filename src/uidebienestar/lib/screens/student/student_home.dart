@@ -1,239 +1,296 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/avisos_provider.dart';
+import '../../models/aviso.dart';
 import '../../theme/uide_colors.dart';
-import 'student_nueva_solicitud.dart';
 
 class StudentHomeScreen extends StatelessWidget {
-  const StudentHomeScreen({Key? key}) : super(key: key);
-
-  final List<Map<String, dynamic>> comunicados = const [
-    {
-      "fuente": "Bienestar UIDE",
-      "titulo": "Feria de Becas 2025: ¡Inscríbete antes del 5 de diciembre!",
-      "icono": Icons.school_outlined,
-      "color": UIDEColors.amarillo,
-    },
-    {
-      "fuente": "Depto. Psicología",
-      "titulo": "Nuevos horarios de atención psicológica disponibles desde el lunes",
-      "icono": Icons.psychology_outlined,
-      "color": Colors.purple,
-    },
-    {
-      "fuente": "Seguros UIDE",
-      "titulo": "Seguro médico estudiantil ya activado para el período 2025-1",
-      "icono": Icons.local_hospital_outlined,
-      "color": Colors.red,
-    },
-    {
-      "fuente": "Registro Académico",
-      "titulo": "Solicita tu certificado de estudios en línea desde la app",
-      "icono": Icons.description_outlined,
-      "color": Colors.teal,
-    },
-  ];
+  const StudentHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AvisosProvider>();
+
+    final objetosPerdidos =
+        provider.avisosPorCategoria(CategoriaAviso.objetosPerdidos);
+    final comunicados =
+        provider.avisosPorCategoria(CategoriaAviso.comunicado);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            color: UIDEColors.azul,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "¡Hola, Juan Fuentes!",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Aquí puedes gestionar todas tus solicitudes de bienestar",
-                    style: TextStyle(fontSize: 16, color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _saludo(),
+          const SizedBox(height: 30),
 
-          const SizedBox(height: 32),
-
-          const Text(
-            "Accesos rápidos",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: UIDEColors.conchevino,
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 1.3,
-            children: [
-              _quickCard(
-                context,
-                "Solicitar Beca",
-                Icons.school,
-                UIDEColors.amarillo,
-                "Beca",
-              ),
-              _quickCard(
-                context,
-                "Cita Psicológica",
-                Icons.psychology,
-                Colors.purple,
-                "Cita Psicológica",
-              ),
-              _quickCard(
-                context,
-                "Certificado",
-                Icons.description,
-                Colors.teal,
-                "Certificado",
-              ),
-              _quickCard(
-                context,
-                "Seguro Médico",
-                Icons.local_hospital,
-                Colors.red,
-                "Seguro Médico",
-              ),
-            ],
-          ),
+          _titulo("Objetos perdidos"),
+          objetosPerdidos.isEmpty
+              ? _vacio("No hay objetos perdidos")
+              : Column(
+                  children: objetosPerdidos
+                      .map((a) => _itemObjetoPerdido(context, a))
+                      .toList(),
+                ),
 
           const SizedBox(height: 40),
 
-          const Text(
-            "Comunicados importantes",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: UIDEColors.conchevino,
-            ),
-          ),
-          const SizedBox(height: 16),
+          _titulo("Comunicados importantes"),
+          comunicados.isEmpty
+              ? _vacio("No hay comunicados activos")
+              : Column(
+                  children: comunicados
+                      .map((a) => _itemComunicado(context, a))
+                      .toList(),
+                ),
+        ],
+      ),
+    );
+  }
 
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: comunicados.length,
-            separatorBuilder: (_, __) =>
-                const Divider(height: 32, thickness: 0.5),
-            itemBuilder: (context, index) {
-              final noticia = comunicados[index];
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          noticia["fuente"],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          noticia["titulo"],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "8h",
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
+  // ================= UI BASE =================
+
+  Widget _saludo() {
+    return Card(
+      color: UIDEColors.azul,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: const Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "¡Hola!, Juan Fuentes",
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Revisa comunicados y objetos perdidos",
+              style: TextStyle(color: Colors.white70),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _titulo(String texto) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        texto,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: UIDEColors.conchevino,
+        ),
+      ),
+    );
+  }
+
+  Widget _vacio(String texto) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Text(texto, style: const TextStyle(color: Colors.grey)),
+    );
+  }
+
+  // ================= OBJETOS PERDIDOS (CARD GRANDE) =================
+
+  Widget _itemObjetoPerdido(BuildContext context, Aviso aviso) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // IMAGEN GRANDE
+          aviso.imagen != null
+              ? Image.file(
+                  File(aviso.imagen!),
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                )
+              : Container(
+                  height: 200,
+                  color: Colors.grey.shade300,
+                  child: const Center(
+                    child: Icon(Icons.backpack, size: 60),
                   ),
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color:
-                          (noticia["color"] as Color).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      noticia["icono"],
-                      size: 40,
-                      color: noticia["color"],
-                    ),
+                ),
+
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  aviso.titulo,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              );
-            },
+                ),
+
+                const SizedBox(height: 6),
+
+                Text(
+                  _fecha(aviso.fechaCreacion),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+
+                const SizedBox(height: 12),
+
+                // ICONO DE COMENTARIOS
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.comment),
+                      onPressed: () => _detalle(context, aviso),
+                    ),
+                    Text("${aviso.comentarios.length} comentarios"),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  static Widget _quickCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    String tipoSolicitud,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) =>
-                StudentNuevaSolicitudScreen(tipoInicial: tipoSolicitud),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 10),
-          ],
+  // ================= COMUNICADOS (NORMAL) =================
+
+  Widget _itemComunicado(BuildContext context, Aviso aviso) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: aviso.imagen != null
+            ? Image.file(File(aviso.imagen!), width: 50, fit: BoxFit.cover)
+            : const Icon(Icons.campaign),
+        title: Text(aviso.titulo),
+        subtitle: Text(
+          aviso.contenido,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: color),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+        onTap: () => _detalle(context, aviso),
+      ),
+    );
+  }
+
+  // ================= DETALLE + COMENTARIOS =================
+
+  void _detalle(BuildContext context, Aviso aviso) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  aviso.titulo,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Text(aviso.contenido),
+                const SizedBox(height: 12),
+
+                if (aviso.categoria == CategoriaAviso.objetosPerdidos) ...[
+                  const Divider(),
+                  const Text(
+                    "Comentarios",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+
+                  if (aviso.comentarios.isEmpty)
+                    const Text(
+                      "Aún no hay comentarios",
+                      style: TextStyle(color: Colors.grey),
+                    )
+                  else
+                    ...aviso.comentarios.map(
+                      (c) => ListTile(
+                        leading: const Icon(Icons.comment),
+                        title: Text(c.texto),
+                        subtitle: Text(
+                          _fecha(c.fecha),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            context.read<AvisosProvider>().eliminarComentario(
+                              aviso.id,
+                              c.id,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  _CajaComentario(aviso.id),
+                ],
+              ],
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  static String _fecha(DateTime f) =>
+      "${f.day}/${f.month}/${f.year}";
+}
+
+// ================= CAJA COMENTARIOS =================
+
+class _CajaComentario extends StatefulWidget {
+  final String avisoId;
+  const _CajaComentario(this.avisoId);
+
+  @override
+  State<_CajaComentario> createState() => _CajaComentarioState();
+}
+
+class _CajaComentarioState extends State<_CajaComentario> {
+  final _ctrl = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _ctrl,
+            decoration:
+                const InputDecoration(hintText: "Escribe un comentario"),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.send),
+          onPressed: () {
+            if (_ctrl.text.trim().isEmpty) return;
+            context
+                .read<AvisosProvider>()
+                .agregarComentario(widget.avisoId, _ctrl.text.trim());
+            _ctrl.clear();
+          },
+        ),
+      ],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../theme/uide_colors.dart';
 
 import '../../models/aviso.dart';
 import '../../providers/avisos_provider.dart';
@@ -9,77 +10,97 @@ import '../../providers/avisos_provider.dart';
 class AdminAvisosScreen extends StatelessWidget {
   const AdminAvisosScreen({super.key});
 
-  void _abrirFormulario(
+  void _formulario(
     BuildContext context, {
     Aviso? aviso,
-    int? index,
   }) {
-    final tituloCtrl = TextEditingController(text: aviso?.titulo);
-    final contenidoCtrl = TextEditingController(text: aviso?.contenido);
+    final titulo = TextEditingController(text: aviso?.titulo);
+    final contenido = TextEditingController(text: aviso?.contenido);
+    CategoriaAviso categoria =
+        aviso?.categoria ?? CategoriaAviso.comunicado;
     String? imagen = aviso?.imagen;
 
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(aviso == null ? 'Nuevo aviso' : 'Editar aviso'),
+        title: Text(aviso == null ? "Nuevo aviso" : "Editar aviso"),
         content: SingleChildScrollView(
           child: Column(
             children: [
               TextField(
-                controller: tituloCtrl,
-                decoration: const InputDecoration(labelText: 'Título'),
+                controller: titulo,
+                decoration: const InputDecoration(labelText: "Título"),
               ),
               const SizedBox(height: 10),
               TextField(
-                controller: contenidoCtrl,
+                controller: contenido,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Contenido'),
+                decoration: const InputDecoration(labelText: "Contenido"),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<CategoriaAviso>(
+                value: categoria,
+                items: const [
+                  DropdownMenuItem(
+                    value: CategoriaAviso.comunicado,
+                    child: Text("Comunicado"),
+                  ),
+                  DropdownMenuItem(
+                    value: CategoriaAviso.objetosPerdidos,
+                    child: Text("Objeto perdido"),
+                  ),
+                ],
+                onChanged: (v) => categoria = v!,
+                decoration: const InputDecoration(labelText: "Categoría"),
               ),
               const SizedBox(height: 12),
               ElevatedButton.icon(
                 icon: const Icon(Icons.image),
-                label: const Text('Agregar imagen'),
+                label: const Text("Imagen"),
                 onPressed: () async {
                   final img = await ImagePicker()
                       .pickImage(source: ImageSource.gallery);
                   if (img != null) imagen = img.path;
                 },
               ),
-              if (imagen != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Image.file(File(imagen!), height: 120),
+              if (imagen != null) ...[
+                const SizedBox(height: 12),
+                Image.file(
+                  File(imagen!),
+                  height: 120,
+                  fit: BoxFit.cover,
                 ),
+              ],
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: const Text("Cancelar"),
           ),
           ElevatedButton(
             onPressed: () {
-              final nuevoAviso = Aviso(
-                titulo: tituloCtrl.text.trim(),
-                contenido: contenidoCtrl.text.trim(),
+              final nuevo = Aviso(
+                id: aviso?.id ?? DateTime.now().toString(),
+                titulo: titulo.text.trim(),
+                contenido: contenido.text.trim(),
+                categoria: categoria,
                 imagen: imagen,
                 activo: aviso?.activo ?? true,
-                fechaCreacion: aviso?.fechaCreacion ?? DateTime.now(),
+                fechaCreacion:
+                    aviso?.fechaCreacion ?? DateTime.now(),
+                comentarios: aviso?.comentarios ?? [],
               );
 
-              final provider =
-                  context.read<AvisosProvider>();
-
-              if (aviso == null) {
-                provider.agregarAviso(nuevoAviso);
-              } else {
-                provider.editarAviso(index!, nuevoAviso);
-              }
+              final p = context.read<AvisosProvider>();
+              aviso == null
+                  ? p.agregarAviso(nuevo)
+                  : p.editarAviso(aviso.id, nuevo);
 
               Navigator.pop(context);
             },
-            child: const Text('Guardar'),
+            child: const Text("Guardar"),
           ),
         ],
       ),
@@ -91,37 +112,63 @@ class AdminAvisosScreen extends StatelessWidget {
     final avisos = context.watch<AvisosProvider>().avisos;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Administrar avisos')),
+      appBar: AppBar(
+        title: const Text("Bienestar Universitario"),
+        backgroundColor: UIDEColors.conchevino,
+        foregroundColor: Colors.white,
+        ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _abrirFormulario(context),
+        onPressed: () => _formulario(context),
         child: const Icon(Icons.add),
       ),
       body: avisos.isEmpty
-          ? const Center(child: Text('No hay avisos'))
+          ? const Center(child: Text('No hay avisos aún'))
           : ListView.builder(
               itemCount: avisos.length,
               itemBuilder: (_, i) {
-                final aviso = avisos[i];
+                final a = avisos[i];
                 return Card(
-                  margin: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: ListTile(
-                    leading: aviso.imagen != null
-                        ? Image.file(File(aviso.imagen!), width: 50)
-                        : const Icon(Icons.campaign),
-                    title: Text(aviso.titulo),
-                    subtitle: Text(
-                      aviso.contenido,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    title: Text(a.titulo),
+                    subtitle: Text(a.categoria.name),
                     trailing: Switch(
-                      value: aviso.activo,
-                      onChanged: (_) => context
-                          .read<AvisosProvider>()
-                          .toggleActivo(i),
+                      value: a.activo,
+                      onChanged: (_) =>
+                          context.read<AvisosProvider>().toggleActivo(a.id),
                     ),
-                    onTap: () =>
-                        _abrirFormulario(context, aviso: aviso, index: i),
+                    onTap: () => _formulario(context, aviso: a),
+                    onLongPress: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text("Eliminar aviso"),
+                          content: const Text(
+                              "¿Seguro que deseas eliminar este aviso?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Cancelar"),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                              ),
+                              onPressed: () {
+                                context
+                                    .read<AvisosProvider>()
+                                    .eliminarAviso(a.id);
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                "Eliminar",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 );
               },

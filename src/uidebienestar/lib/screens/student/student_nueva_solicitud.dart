@@ -63,7 +63,7 @@ class _StudentNuevaSolicitudScreenState
             ),
             const SizedBox(height: 8),
 
-            /// 🔽 SELECTOR DE TIPO
+            /// SELECTOR DE TIPO
             DropdownButtonFormField<String>(
               value: _tipoSeleccionado,
               decoration: const InputDecoration(
@@ -84,7 +84,7 @@ class _StudentNuevaSolicitudScreenState
 
             const SizedBox(height: 32),
 
-            /// 📝 DESCRIPCIÓN
+            /// DESCRIPCIÓN
             TextField(
               controller: _descripcionController,
               maxLines: 6,
@@ -103,7 +103,7 @@ class _StudentNuevaSolicitudScreenState
             ),
             const SizedBox(height: 12),
 
-            /// 📎 SUBIR ARCHIVOS
+            /// SUBIR ARCHIVOS
             ListTile(
               leading: const Icon(
                 Icons.cloud_upload_outlined,
@@ -117,7 +117,7 @@ class _StudentNuevaSolicitudScreenState
               onTap: _seleccionarArchivos,
             ),
 
-            /// 📄 LISTA DE ARCHIVOS
+            /// LISTA DE ARCHIVOS
             if (_archivos.isNotEmpty)
               Column(
                 children: _archivos.map((file) {
@@ -136,7 +136,7 @@ class _StudentNuevaSolicitudScreenState
 
             const SizedBox(height: 40),
 
-            /// 🚀 ENVIAR
+            /// ENVIAR
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

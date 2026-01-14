@@ -31,7 +31,7 @@ class AdminSolicitudesScreen extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Solicitudes'), backgroundColor: UIDEColors.conchevino, foregroundColor: Colors.white),
+          appBar: AppBar(title: const Text('Bienestar Universitario'), backgroundColor: UIDEColors.conchevino, foregroundColor: Colors.white),
           body: Column(
             children: [
               // Filtros
