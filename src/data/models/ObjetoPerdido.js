@@ -14,7 +14,7 @@ const ObjetoPerdido = sequelize.define('ObjetoPerdido', {
   },
   reportado_por: { type: DataTypes.INTEGER, allowNull: false },
 }, {
-  tableName: 'objetos_perdidos',
+  tableName: 'objetoperdido',
   timestamps: true,
 });
 

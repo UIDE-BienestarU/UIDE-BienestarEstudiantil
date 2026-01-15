@@ -19,7 +19,7 @@ const Solicitud = sequelize.define('Solicitud', {
   observaciones: DataTypes.TEXT,
   comentario: DataTypes.TEXT,
 }, {
-  tableName: 'solicitudes',
+  tableName: 'solicitud',
   timestamps: true,
   updatedAt: false,
 });

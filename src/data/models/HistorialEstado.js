@@ -13,7 +13,7 @@ const HistorialEstado = sequelize.define('HistorialEstado', {
   },
   comentario: DataTypes.TEXT,
 }, {
-  tableName: 'historial_estados',
+  tableName: 'historialestado',
   timestamps: true,
   createdAt: 'fecha',
   updatedAt: false,

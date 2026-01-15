@@ -9,7 +9,7 @@ const ComentarioObjeto = sequelize.define('ComentarioObjeto', {
   mensaje: { type: DataTypes.TEXT, allowNull: false },
   es_reclamo: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, {
-  tableName: 'comentarios_objetos',
+  tableName: 'comentarioobjeto',
   timestamps: true,
 });
 

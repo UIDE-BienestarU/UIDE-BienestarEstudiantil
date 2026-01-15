@@ -9,7 +9,7 @@ const Sugerencia = sequelize.define('Sugerencia', {
   leida: { type: DataTypes.BOOLEAN, defaultValue: false },
   estudiante_id: { type: DataTypes.INTEGER, allowNull: true },
 }, {
-  tableName: 'sugerencias',
+  tableName: 'sugerencia',
   timestamps: true,
 });
 

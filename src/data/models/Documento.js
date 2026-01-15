@@ -10,7 +10,7 @@ const Documento = sequelize.define('Documento', {
   obligatorio: { type: DataTypes.BOOLEAN, defaultValue: true },
   fecha_subida: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
 }, {
-  tableName: 'documentos',
+  tableName: 'documento',
   timestamps: false,
 });
 

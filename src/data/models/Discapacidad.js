@@ -9,7 +9,7 @@ const Discapacidad = sequelize.define('Discapacidad', {
   carnet_conadis: DataTypes.STRING(50),
   informe_medico: DataTypes.TEXT,
 }, {
-  tableName: 'discapacidades',
+  tableName: 'discapacidad',
   timestamps: false,
 });
 

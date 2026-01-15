@@ -14,7 +14,7 @@ const Notificacion = sequelize.define('Notificacion', {
   },
   leido: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, {
-  tableName: 'notificaciones',
+  tableName: 'notificacion',
   timestamps: true,
   createdAt: 'fecha_envio',
 });
