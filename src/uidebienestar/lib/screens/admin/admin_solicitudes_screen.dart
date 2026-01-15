@@ -31,7 +31,7 @@ class AdminSolicitudesScreen extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Solicitudes'), backgroundColor: UIDEColors.conchevino, foregroundColor: Colors.white),
+          appBar: AppBar(title: const Text('Bienestar Universitario'), backgroundColor: UIDEColors.conchevino, foregroundColor: Colors.white),
           body: Column(
             children: [
               // Filtros
@@ -39,7 +39,7 @@ class AdminSolicitudesScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.all(12),
                 child: Row(
-                  children: ['Todas', 'Pendiente', 'En revisión', 'Aprobada', 'Rechazada']
+                  children: ['Todas', 'Pendiente', 'En revisión', 'Aprobada']
                       .map((e) => Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: FilterChip(

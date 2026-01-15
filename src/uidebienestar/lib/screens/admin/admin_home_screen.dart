@@ -1,96 +1,105 @@
-// lib/screens/admin/admin_home_screen.dart
 import 'package:flutter/material.dart';
 import '../../theme/uide_colors.dart';
-import 'admin_solicitudes_screen.dart';
+import '../../services/solicitud_api_service.dart';
+import '../../models/solicitud.dart';
 
 class AdminHomeScreen extends StatelessWidget {
-  const AdminHomeScreen({Key? key}) : super(key: key);
+  const AdminHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Bienestar Universitario"),
         backgroundColor: UIDEColors.conchevino,
         foregroundColor: Colors.white,
-        elevation: 0,
-        title: const Text("Panel Administrativo"),
-        actions: [
-          IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.account_circle), onPressed: () {}),
-        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: FutureBuilder<List<Solicitud>>(
+        future: SolicitudApiService.getSolicitudes(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No hay solicitudes"));
+          }
+
+          final data = snapshot.data!;
+          final pendientes =
+              data.where((s) => s.estado == "Pendiente").length;
+          final revision =
+              data.where((s) => s.estado == "En revisión").length;
+          final aprobadas =
+              data.where((s) => s.estado == "Aprobada").length;
+
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _saludoAdmin(),
+                const SizedBox(height: 24),
+
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20,
+                    childAspectRatio: 1.2,
+                    children: [
+                      _stat(
+                        "Pendientes",
+                        pendientes,
+                        Icons.pending_actions,
+                        Colors.orange,
+                      ),
+                      _stat(
+                        "En revisión",
+                        revision,
+                        Icons.remove_red_eye,
+                        Colors.blue,
+                      ),
+                      _stat(
+                        "Aprobadas",
+                        aprobadas,
+                        Icons.check_circle,
+                        Colors.green,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ------------------ WIDGETS ------------------
+
+  Widget _saludoAdmin() {
+    return Card(
+      color: UIDEColors.azul,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: const Padding(
+        padding: EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Saludo
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [UIDEColors.conchevino, UIDEColors.conchevino.withOpacity(0.9)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "¡Bienvenido, Administrador!",
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Bienestar Estudiantil UIDE",
-                    style: TextStyle(fontSize: 16, color: Colors.white70),
-                  ),
-                ],
+            Text(
+              "Hola, administrador",
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
-            const SizedBox(height: 32),
-
-            // Estadísticas rápidas
-            const Text("Resumen del día", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: UIDEColors.conchevino)),
-            const SizedBox(height: 16),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 1.4,
-              children: [
-                _buildStatCard("Pendientes", "12", Icons.pending_actions, Colors.orange),
-                _buildStatCard("En revisión", "8", Icons.remove_red_eye, Colors.blue),
-                _buildStatCard("Aprobadas", "25", Icons.check_circle, Colors.green),
-                _buildStatCard("Rechazadas", "3", Icons.cancel, Colors.red),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Acceso rápido
-            const Text("Acciones rápidas", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: UIDEColors.conchevino)),
-            const SizedBox(height: 16),
-            _buildQuickAction(
-              context,
-              title: "Ver todas las solicitudes",
-              icon: Icons.folder_open,
-              color: UIDEColors.amarillo,
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSolicitudesScreen()));
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildQuickAction(
-              context,
-              title: "Generar reporte mensual",
-              icon: Icons.description,
-              color: UIDEColors.azul,
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Reporte generado"))),
+            SizedBox(height: 8),
+            Text(
+              "Aquí tienes un resumen general de las solicitudes",
+              style: TextStyle(color: Colors.white70),
             ),
           ],
         ),
@@ -98,50 +107,35 @@ class AdminHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _stat(String titulo, int valor, IconData icono, Color color) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 4))],
+        gradient: LinearGradient(
+          colors: [color.withOpacity(0.9), color.withOpacity(0.6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 36, color: color),
-          const SizedBox(height: 12),
-          Text(value, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: color)),
-          const SizedBox(height: 4),
-          Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey), textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickAction(BuildContext context, {required String title, required IconData icon, required Color color, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8, offset: const Offset(0, 4))],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
-              child: Icon(icon, color: color, size: 28),
+          Icon(icono, color: Colors.white, size: 32),
+          const Spacer(),
+          Text(
+            "$valor",
+            style: const TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            const SizedBox(width: 16),
-            Expanded(child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
-            Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 18),
-          ],
-        ),
+          ),
+          Text(
+            titulo,
+            style: const TextStyle(color: Colors.white70),
+          ),
+        ],
       ),
     );
   }
