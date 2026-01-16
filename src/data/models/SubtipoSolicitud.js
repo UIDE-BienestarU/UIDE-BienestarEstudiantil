@@ -12,7 +12,7 @@ const SubtipoSolicitud = sequelize.define('SubtipoSolicitud', {
   },
   nombre_sub: { type: DataTypes.STRING(100), allowNull: false },
 }, {
-  tableName: 'subtipossolicitud',
+  tableName: 'subtiposolicitud',
   timestamps: false,
   indexes: [{ unique: true, fields: ['tipo_id', 'nombre_sub'] }],
 });
