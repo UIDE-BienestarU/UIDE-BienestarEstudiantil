@@ -4,7 +4,7 @@ import { verifyToken, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.post('/', verifyToken, SugerenciaController.enviar);
-router.get('/', verifyToken, restrictTo('administrador', 'bienestar'), SugerenciaController.obtenerTodas);
+router.post('/enviar-sugerencia', verifyToken, SugerenciaController.enviar);
+router.get('/ver-sugerencias', verifyToken, restrictTo('administrador', 'bienestar'), SugerenciaController.obtenerTodas);
 
 export default router;

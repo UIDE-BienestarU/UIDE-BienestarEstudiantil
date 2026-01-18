@@ -1,7 +1,5 @@
-// src/business/services/NotificacionService.js
-
 import Notificacion from '../../data/models/Notificacion.js';
-import Usuario from '../../data/models/Usuario.js'; 
+import Usuario from '../../data/models/Usuario.js';
 
 class NotificacionService {
   // Obtener notificaciones del usuario (o todas si es admin/bienestar)
@@ -12,7 +10,7 @@ class NotificacionService {
     
     return await Notificacion.findAll({ 
       where, 
-      order: [['createdAt', 'DESC']] 
+      order: [['fecha_envio', 'DESC']] 
     });
   }
 
@@ -20,7 +18,7 @@ class NotificacionService {
   static async getNotificacionesByUserId(userId) {
     return await Notificacion.findAll({
       where: { usuario_id: userId },
-      order: [['createdAt', 'DESC']],
+      order: [['fecha_envio', 'DESC']],
     });
   }
 

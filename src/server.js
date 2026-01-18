@@ -14,6 +14,7 @@ import documentoRoutes from './presentation/routes/documentos.js';
 import discapacidadRoutes from './presentation/routes/discapacidades.js';
 import estadisticasRouter from './presentation/routes/estadisticas.js';
 import uploadRoutes from './presentation/routes/upload.js';
+import './data/models/registerAssociations.js';
 
 // NUEVAS RUTAS
 import publicacionesRoutes from './presentation/routes/publicaciones.js';
@@ -67,7 +68,7 @@ app.get('/api/testmysql', async (req, res) => {
 const startServer = async () => {
   try {
     await testConnection();
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ alter: false, force: false });
     console.log('Base de datos sincronizada');
     app.listen(PORT, () => {
       console.log(`SERVIDOR CORRIENDO EN http://localhost:${PORT}`);

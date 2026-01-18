@@ -24,7 +24,7 @@ const Session = sequelize.define('Session', {
     allowNull: false,
   },
 }, {
-  tableName: 'session',
+  tableName: 'Session',
   timestamps: false,
   indexes: [
     { fields: ['userId'] },

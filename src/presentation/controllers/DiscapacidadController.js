@@ -70,30 +70,36 @@ class DiscapacidadController {
   }
 
   static async updateDiscapacidad(req, res) {
-    try {
-      if (req.user.rol !== 'estudiante') {
-        return res.status(403).json({
-          error: 'No autorizado',
-          code: 'FORBIDDEN',
-          message: 'Solo los estudiantes pueden actualizar discapacidades',
-          details: [],
-        });
-      }
-      const fileUrl = req.file ? `/Uploads/${req.file.filename}` : null;
-      const discapacidad = await DiscapacidadService.updateDiscapacidad(req.user.userId, req.body, fileUrl);
-      res.status(200).json({
-        message: 'Discapacidad actualizada exitosamente',
-        data: discapacidad,
-      });
-    } catch (error) {
-      res.status(422).json({
-        error: 'Error al actualizar discapacidad',
-        code: 'DISCAPACIDAD_ERROR',
-        message: error.message,
-        details: [],
-      });
+  try {
+    if (req.user.rol !== 'estudiante') {
+      return res.status(403).json({ error: 'No autorizado' });
     }
+
+    const discapacidadId = req.params.id;  // si usas :id en la ruta
+    const fileUrl = req.file ? `/Uploads/${req.file.filename}` : null;
+
+    const discapacidad = await DiscapacidadService.updateDiscapacidad(
+      discapacidadId,               // 1: ID del registro
+      req.user.userId,              // 2: userId del estudiante
+      req.user.rol,                 // 3: rol
+      req.body,                     // 4: datos a actualizar
+      fileUrl                       // 5: fileUrl
+    );
+
+    res.status(200).json({
+      message: 'Discapacidad actualizada exitosamente',
+      data: discapacidad,
+    });
+  } catch (error) {
+    console.error('Error al actualizar discapacidad:', error);
+    res.status(422).json({
+      error: 'Error al actualizar discapacidad',
+      code: 'DISCAPACIDAD_ERROR',
+      message: error.message,
+      details: [],
+    });
   }
+}
 }
 
 export default DiscapacidadController;

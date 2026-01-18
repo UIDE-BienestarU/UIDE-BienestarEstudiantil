@@ -1,7 +1,7 @@
-// src/business/services/SolicitudService.js
-
 import Solicitud from '../../data/models/Solicitud.js';
 import Documento from '../../data/models/Documento.js';
+import Usuario from '../../data/models/Usuario.js';
+import SubtipoSolicitud from '../../data/models/SubtipoSolicitud.js';
 
 class SolicitudService {
   static async createSolicitud(userId, data) {
@@ -12,6 +12,7 @@ class SolicitudService {
         subtipo_id: data.subtipo_id,
         nivel_urgencia: data.nivel_urgencia || 'Normal',
         observaciones: data.observaciones,
+        comentario: data.comentario || null,
       }, { transaction: t });
 
       if (data.documentos?.length > 0) {
@@ -52,14 +53,18 @@ class SolicitudService {
 
   static async updateEstado(id, estado, adminId, comentario = '') {
     const solicitud = await Solicitud.findByPk(id, {
-      include: [{ model: Usuario, as: 'estudiante' }] // Traemos el estudiante para usarlo después si quieres
+      include: [{
+        model: Usuario,
+        as: 'estudiante',
+        attributes: ['id', 'nombre_completo', 'correo_institucional']  
+      }]
     });
 
     if (!solicitud) throw new Error('Solicitud no encontrada');
 
     await solicitud.update({
       estado_actual: estado,
-      comentario,
+      comentario: comentario || null,
     });
 
     return solicitud;

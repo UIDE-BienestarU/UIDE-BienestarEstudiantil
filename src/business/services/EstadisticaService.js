@@ -7,28 +7,39 @@ class EstadisticaService {
     const total = await Solicitud.count();
 
     const porEstado = await Solicitud.findAll({
-      attributes: ['estado_actual', [Solicitud.sequelize.fn('COUNT', 'estado_actual'), 'count']],
-      group: ['estado_actual']
+      attributes: ['estado_actual', [Solicitud.sequelize.fn('COUNT', Solicitud.sequelize.col('estado_actual')), 'count']],
+      group: ['estado_actual'],
+      raw: true, // para obtener resultados planos
     });
 
+    // Consulta de subtipos con alias correcto
     const porSubtipoRaw = await Solicitud.findAll({
       attributes: [
         [Solicitud.sequelize.col('subtipo.nombre_sub'), 'nombre_sub'],
-        [Solicitud.sequelize.fn('COUNT', 'subtipo_id'), 'count']
+        [Solicitud.sequelize.fn('COUNT', Solicitud.sequelize.col('subtipo_id')), 'count']
       ],
-      include: [{ model: SubtipoSolicitud, attributes: ['nombre_sub'] }],
-      group: ['subtipo.nombre_sub', 'subtipo_id']
+      include: [
+        {
+          model: SubtipoSolicitud,
+          as: 'subtipo',                
+          attributes: []                
+        }
+      ],
+      group: ['subtipo.nombre_sub', 'subtipo_id'],
+      raw: true,
     });
 
     const porSubtipo = porSubtipoRaw.reduce((acc, item) => {
-      const nombre = item.get('nombre_sub') || 'Sin subtipo';
-      acc[nombre] = (acc[nombre] || 0) + parseInt(item.get('count'));
+      const nombre = item.nombre_sub || 'Sin subtipo';
+      acc[nombre] = (acc[nombre] || 0) + parseInt(item.count);
       return acc;
     }, {});
 
     return {
       total,
-      porEstado: Object.fromEntries(porEstado.map(s => [s.estado_actual, parseInt(s.get('count'))])),
+      porEstado: Object.fromEntries(
+        porEstado.map(s => [s.estado_actual, parseInt(s.count)])
+      ),
       porSubtipo
     };
   }

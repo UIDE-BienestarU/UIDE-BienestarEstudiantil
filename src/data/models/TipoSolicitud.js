@@ -5,7 +5,7 @@ const TipoSolicitud = sequelize.define('TipoSolicitud', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   nombre: { type: DataTypes.STRING(100), allowNull: false, unique: true },
 }, {
-  tableName: 'tiposolicitud',
+  tableName: 'TipoSolicitud',
   timestamps: false,
 });
 

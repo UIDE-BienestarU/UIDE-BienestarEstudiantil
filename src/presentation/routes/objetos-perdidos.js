@@ -6,7 +6,7 @@ import ObjetoPerdidoController from '../controllers/ObjetoPerdidoController.js';
 const router = express.Router();
 
 router.post(
-  '/',
+  '/reportar-objetos-perdidos',
   verifyToken,
   restrictTo('administrador', 'bienestar'),
   upload.single('foto'),
@@ -14,7 +14,7 @@ router.post(
 );
 
 router.get(
-  '/',
+  '/ver-objetos',
   verifyToken,
   ObjetoPerdidoController.obtenerTodos
 );

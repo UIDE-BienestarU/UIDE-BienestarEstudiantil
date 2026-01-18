@@ -1,9 +1,7 @@
-// src/presentation/controllers/SolicitudController.js
-
 import SolicitudService from '../../business/services/SolicitudService.js';
-import NotificacionService from '../../business/services/NotificacionService.js'; // NUEVO
-import admin from '../../config/firebase.js'; // NUEVO: Firebase Admin
-import Usuario from '../../data/models/Usuario.js'; // Para buscar admins
+import NotificacionService from '../../business/services/NotificacionService.js'; 
+import admin from '../../config/firebase.js'; 
+import Usuario from '../../data/models/Usuario.js'; 
 
 class SolicitudController {
   // Crear solicitud
@@ -21,9 +19,16 @@ class SolicitudController {
         attributes: ['id', 'nombre_completo', 'fcm_token'],
       });
 
-      const titulo = 'Nueva solicitud pendiente';
-      const cuerpo = `${req.user.nombre_completo} ha creado una nueva solicitud`;
+      const estudianteActual = await Usuario.findByPk(req.user.userId, {
+        attributes: ['nombre_completo']
+      });
 
+      const nombre = estudianteActual?.nombre_completo?.trim() 
+        ? estudianteActual.nombre_completo.trim() 
+        : `Estudiante (ID: ${req.user.userId})`;
+
+      const titulo = 'Nueva solicitud pendiente';
+      const cuerpo = `${nombre} ha creado una nueva solicitud`;
       for (const adminUser of admins) {
         if (adminUser.fcm_token) {
           const message = {
@@ -56,7 +61,7 @@ class SolicitudController {
     }
   }
 
-  // Listar solicitudes (sin cambios)
+  // Listar solicitudes 
   static async getSolicitudes(req, res) {
     try {
       const solicitudes = await SolicitudService.getSolicitudes(req.user.userId, req.user.rol);
@@ -86,10 +91,9 @@ class SolicitudController {
       }
 
       const estadosMensaje = {
-        'Aprobado': '¡Tu solicitud ha sido APROBADA! 🎉',
-        'Rechazado': 'Tu solicitud ha sido rechazada 😔',
-        'En espera': 'Tu solicitud está en espera ⏳',
-        'Pendiente': 'Tu solicitud sigue pendiente',
+        'Aprobado': '¡Tu solicitud ha sido APROBADA!',
+        'En progreso': 'Tu solicitud está en progreso',
+        'Por revisar': 'Tu solicitud está por revisar',
       };
 
       const titulo = `Solicitud ${estado_actual}`;

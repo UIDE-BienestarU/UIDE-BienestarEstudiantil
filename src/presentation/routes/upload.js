@@ -33,7 +33,7 @@ const upload = multer({
 });
 
 // Ruta para subir archivos
-router.post('/', verifyToken, upload.single('documento'), (req, res) => {
+router.post('/upload', verifyToken, upload.single('documento'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({

@@ -122,7 +122,7 @@ export const validateSolicitud = [
 ];
 
 export const validateEstadoSolicitud = [
-  body('estado_actual').isIn(['Pendiente', 'Aprobado', 'Rechazado', 'En espera'])
+  body('estado_actual').isIn(['Aprobado', 'En progreso', 'Por revisar'])
     .withMessage('Estado no válido'),
   handleValidation
 ];

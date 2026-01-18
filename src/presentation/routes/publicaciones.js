@@ -6,7 +6,7 @@ import PublicacionController from '../controllers/PublicacionController.js';
 
 const router = express.Router();
 
-router.post('/', verifyToken, restrictTo('administrador', 'bienestar'), upload.single('imagen'), PublicacionController.crear);
-router.get('/', verifyToken, PublicacionController.obtenerTodas);
+router.post('/publicaciones-crear', verifyToken, restrictTo('administrador', 'bienestar'), upload.single('imagen'), PublicacionController.crear);
+router.get('/ver-publicaciones', verifyToken, PublicacionController.obtenerTodas);
 
 export default router;

@@ -9,7 +9,7 @@ const Publicacion = sequelize.define('Publicacion', {
   imagen: DataTypes.STRING(255),
   publicado_por: { type: DataTypes.INTEGER, allowNull: false },
 }, {
-  tableName: 'publicacion',
+  tableName: 'Publicacion',
   timestamps: true,
 });
 

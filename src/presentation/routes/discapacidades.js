@@ -36,8 +36,8 @@ const upload = multer({
   },
 });
 
-router.post('/discapacidades', verifyToken, restrictTo('estudiante'), upload.single('informe_medico'), validateDiscapacidad, DiscapacidadController.createDiscapacidad);
-router.get('/discapacidades', verifyToken, DiscapacidadController.getDiscapacidad);
-router.put('/discapacidades', verifyToken, restrictTo('estudiante'), upload.single('informe_medico'), validateDiscapacidad, DiscapacidadController.updateDiscapacidad);
+router.post('/agregar-discapacidad', verifyToken, restrictTo('estudiante'), upload.single('informe_medico'), validateDiscapacidad, DiscapacidadController.createDiscapacidad);
+router.get('/obtener-discapacidades', verifyToken, DiscapacidadController.getDiscapacidad);
+router.put('/actualizar-discapacidad/:id', verifyToken, restrictTo('estudiante'), upload.single('informe_medico'), validateDiscapacidad, DiscapacidadController.updateDiscapacidad);
 
 export default router;

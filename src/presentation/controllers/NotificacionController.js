@@ -2,15 +2,16 @@ import NotificacionService from '../../business/services/NotificacionService.js'
 import admin from '../../config/firebase.js';
 
 class NotificacionController {
-  // Obtener notificaciones
+  // Obtener notificaciones del usuario autenticado
   static async getNotificaciones(req, res) {
     try {
-      const notificaciones = await NotificacionService.getNotificaciones(req.user.userId, req.user.rol);
+      const notificaciones = await NotificacionService.getByUser(req.user.userId, req.user.rol);
       res.status(200).json({
         message: 'Notificaciones obtenidas exitosamente',
         data: notificaciones,
       });
     } catch (error) {
+      console.error('Error obteniendo notificaciones:', error);
       res.status(500).json({
         error: 'Error interno del servidor',
         code: 'SERVER_ERROR',
@@ -20,11 +21,22 @@ class NotificacionController {
     }
   }
 
-  // Obtener notificaciones por usuario
+  // Obtener notificaciones de un usuario específico (solo admin)
   static async getNotificacionesByUserId(req, res) {
     try {
       const { userId } = req.params;
-      if (req.user.rol !== 'administrador' && req.user.userId !== parseInt(userId)) {
+      const parsedUserId = parseInt(userId, 10);
+
+      if (isNaN(parsedUserId)) {
+        return res.status(400).json({
+          error: 'userId inválido',
+          code: 'BAD_REQUEST',
+          message: 'userId debe ser un número entero',
+          details: [],
+        });
+      }
+
+      if (req.user.rol !== 'administrador' && req.user.userId !== parsedUserId) {
         return res.status(403).json({
           error: 'No autorizado',
           code: 'FORBIDDEN',
@@ -32,12 +44,14 @@ class NotificacionController {
           details: [],
         });
       }
-      const notificaciones = await NotificacionService.getNotificacionesByUserId(userId);
+
+      const notificaciones = await NotificacionService.getNotificacionesByUserId(parsedUserId);
       res.status(200).json({
         message: 'Notificaciones obtenidas exitosamente',
         data: notificaciones,
       });
     } catch (error) {
+      console.error('Error obteniendo notificaciones por userId:', error);
       res.status(500).json({
         error: 'Error interno del servidor',
         code: 'SERVER_ERROR',
@@ -50,12 +64,18 @@ class NotificacionController {
   // Marcar notificación como leída
   static async markAsRead(req, res) {
     try {
-      const notificacion = await NotificacionService.markAsRead(req.params.id, req.user.userId, req.user.rol);
+      const notificacion = await NotificacionService.markAsRead(
+        req.params.id,
+        req.user.userId,
+        req.user.rol
+      );
+
       res.status(200).json({
         message: 'Notificación marcada como leída',
         data: notificacion,
       });
     } catch (error) {
+      console.error('Error marcando notificación como leída:', error);
       res.status(422).json({
         error: 'Error al marcar notificación',
         code: 'NOTIFICACION_ERROR',
@@ -65,10 +85,10 @@ class NotificacionController {
     }
   }
 
-  // NUEVO: Enviar notificación push con Firebase
+  // Enviar notificación push con Firebase (solo admin)
   static async enviarNotificacion(req, res) {
     try {
-      const { userId, title, body, data } = req.body;
+      const { userId, title, body, data = {} } = req.body;
 
       // Validación básica
       if (!userId || !title || !body) {
@@ -80,7 +100,7 @@ class NotificacionController {
         });
       }
 
-      // Solo administradores pueden enviar notificaciones (ajusta según tu lógica)
+      // Solo administradores pueden enviar
       if (req.user.rol !== 'administrador') {
         return res.status(403).json({
           error: 'No autorizado',
@@ -90,7 +110,7 @@ class NotificacionController {
         });
       }
 
-      // Obtener el token FCM del usuario desde tu base de datos (MySQL)
+      // Obtener token FCM
       const userToken = await NotificacionService.getUserFcmToken(userId);
 
       if (!userToken) {
@@ -102,47 +122,61 @@ class NotificacionController {
         });
       }
 
-      // Construir mensaje para Firebase
+      // Convertir TODOS los valores de data a string (obligatorio para FCM)
+      const safeData = {};
+      for (const [key, value] of Object.entries(data)) {
+        safeData[key] = value != null ? String(value) : '';
+      }
+
+      // Construir mensaje
       const message = {
         token: userToken,
         notification: {
-          title,
-          body,
+          title: String(title).trim(),
+          body: String(body).trim(),
         },
-        data: data || {}, // Datos adicionales (opcional)
+        data: safeData,
       };
 
-      // Enviar con Firebase
-      const response = await admin.messaging().send(message);
+      console.log('Enviando push con data:', safeData); // debug
 
-      // Opcional: guardar en la base de datos para historial
+      // Enviar con Firebase
+      let firebaseResponse = null;
+      try {
+        firebaseResponse = await admin.messaging().send(message);
+      } catch (firebaseError) {
+        console.error('Error enviando push:', firebaseError);
+
+        if (firebaseError.code === 'messaging/registration-token-not-registered') {
+          return res.status(410).json({
+            error: 'Token inválido',
+            code: 'INVALID_TOKEN',
+            message: 'El token del dispositivo ya no es válido',
+            details: [],
+          });
+        }
+
+        // No bloqueamos la respuesta por error de push (continuamos guardando en BD)
+      }
+
+      // Guardar siempre en historial (incluso si push falla)
       await NotificacionService.crearNotificacion({
-        userId,
-        title,
-        body,
-        leida: false,
+        usuario_id: userId,
+        titulo: String(title).trim(),
+        mensaje: String(body).trim(),
+        data: Object.keys(safeData).length > 0 ? safeData : null,
+        leido: false,
       });
 
       res.status(200).json({
         message: 'Notificación enviada exitosamente',
         data: {
-          firebaseResponse: response,
+          firebaseResponse: firebaseResponse || 'No enviado (posible token inválido)',
           destinatario: userId,
         },
       });
     } catch (error) {
-      console.error('Error enviando notificación push:', error);
-
-      // Errores comunes de Firebase
-      if (error.code === 'messaging/registration-token-not-registered') {
-        // Podrías marcar el token como inválido en tu DB aquí
-        return res.status(410).json({
-          error: 'Token inválido',
-          code: 'INVALID_TOKEN',
-          message: 'El token del dispositivo ya no es válido',
-        });
-      }
-
+      console.error('Error general enviando notificación:', error);
       res.status(500).json({
         error: 'Error al enviar notificación',
         code: 'NOTIFICATION_SEND_ERROR',
