@@ -9,21 +9,32 @@ import 'student_nueva_solicitud.dart';
 import 'student_perfil.dart';
 
 class StudentDashboard extends StatefulWidget {
-  const StudentDashboard({Key? key}) : super(key: key);
+  final int initialIndex;
+
+  const StudentDashboard({
+    Key? key,
+    this.initialIndex = 0,
+  }) : super(key: key);
 
   @override
   State<StudentDashboard> createState() => _StudentDashboardState();
 }
 
 class _StudentDashboardState extends State<StudentDashboard> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   final List<Widget> _screens = const [
-    StudentHomeScreen(),
-    StudentHistorialScreen(),
-    StudentNuevaSolicitudScreen(),
-    StudentPerfilScreen(),
+    StudentHomeScreen(),           // 0
+    StudentHistorialScreen(),      // 1
+    StudentNuevaSolicitudScreen(), // 2
+    StudentPerfilScreen(),         // 3
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +43,24 @@ class _StudentDashboardState extends State<StudentDashboard> {
         backgroundColor: UIDEColors.conchevino,
         foregroundColor: Colors.white,
         title: const Text("Bienestar Universitario"),
-        
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => _confirmarLogout(context),
+          ),
+        ],
       ),
-      body: _screens[_selectedIndex],
+
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
+
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) =>
-            setState(() => _selectedIndex = index),
+        onDestinationSelected: (index) {
+          setState(() => _selectedIndex = index);
+        },
         labelBehavior:
             NavigationDestinationLabelBehavior.onlyShowSelected,
         destinations: const [
@@ -67,12 +89,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
     );
   }
 
+  // ================= LOGOUT =================
+
   void _confirmarLogout(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         title: const Text("Cerrar sesión"),
         content:
             const Text("¿Estás seguro de que deseas salir?"),
