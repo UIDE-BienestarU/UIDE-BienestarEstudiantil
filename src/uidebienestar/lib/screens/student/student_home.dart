@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../../providers/avisos_provider.dart';
 import '../../models/aviso.dart';
 import '../../theme/uide_colors.dart';
+import 'student_dashboard.dart';
+
 
 class StudentHomeScreen extends StatelessWidget {
   const StudentHomeScreen({super.key});
@@ -24,25 +26,26 @@ class StudentHomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _saludo(),
-          const SizedBox(height: 30),
+          const SizedBox(height: 24),
+
+          _accionesRapidas(context),
+          const SizedBox(height: 32),
 
           _titulo("Objetos perdidos"),
           objetosPerdidos.isEmpty
               ? _vacio("No hay objetos perdidos")
-              : Column(
-                  children: objetosPerdidos
-                      .map((a) => _itemObjetoPerdido(context, a))
-                      .toList(),
-                ),
+              : _itemObjetoPerdido(context, objetosPerdidos.first),
 
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
 
-          _titulo("Comunicados importantes"),
+          _filaNoticias(),
+          const SizedBox(height: 12),
+
           comunicados.isEmpty
-              ? _vacio("No hay comunicados activos")
+              ? _vacio("No hay noticias")
               : Column(
                   children: comunicados
-                      .map((a) => _itemComunicado(context, a))
+                      .map((a) => _itemNoticia(context, a))
                       .toList(),
                 ),
         ],
@@ -50,28 +53,28 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 
-  // ================= UI BASE =================
+  // ================= SALUDO =================
 
   Widget _saludo() {
     return Card(
-      color: UIDEColors.azul,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: const Color.fromARGB(255, 13, 51, 100),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: const Padding(
         padding: EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "¡Hola!, Juan Fuentes",
+              "¡Hola, Juan Fuentes!",
               style: TextStyle(
-                fontSize: 26,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 6),
             Text(
-              "Revisa comunicados y objetos perdidos",
+              "Es un buen día para seguir aprendiendo.",
               style: TextStyle(color: Colors.white70),
             ),
           ],
@@ -80,86 +83,168 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _titulo(String texto) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        texto,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: UIDEColors.conchevino,
-        ),
+  // ================= ACCIONES RÁPIDAS =================
+
+Widget _accionesRapidas(BuildContext context) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _titulo("Acciones rápidas"),
+
+      Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 20,
+        runSpacing: 10,
+        children: [
+          _accionItem(
+            context,
+            Icons.health_and_safety,
+            textoCorto: "Salud",
+            tipoReal: "Salud y bienestar físico",
+          ),
+          _accionItem(
+            context,
+            Icons.psychology,
+            textoCorto: "Psicológico",
+            tipoReal: "Apoyo psicológico y psicopedagógico",
+          ),
+          _accionItem(
+            context,
+            Icons.school,
+            textoCorto: "Becas",
+            tipoReal: "Becas y ayudas financieras",
+          ),
+          _accionItem(
+            context,
+            Icons.admin_panel_settings,
+            textoCorto: "Académico",
+            tipoReal: "Gestión académica y administrativa",
+          ),
+          _accionItem(
+            context,
+            Icons.sports_soccer,
+            textoCorto: "Deportes",
+            tipoReal: "Deportes y cultura",
+          ),
+        ],
       ),
-    );
-  }
+    ],
+  );
+}
 
-  Widget _vacio(String texto) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Text(texto, style: const TextStyle(color: Colors.grey)),
-    );
-  }
 
-  // ================= OBJETOS PERDIDOS (CARD GRANDE) =================
+Widget _accionItem(
+  BuildContext context,
+  IconData icon, {
+  required String textoCorto,
+  required String tipoReal,
+}) {
+  return SizedBox(
+    width: 45,
+    child: _accion(context, icon, textoCorto, tipoReal),
+  );
+}
+
+
+
+Widget _accion(
+  BuildContext context,
+  IconData icon,
+  String textoCorto,
+  String tipoReal,
+) {
+  return InkWell(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => StudentDashboard(
+            initialIndex: 2,       // pestaña "Nueva"
+            tipoInicial: tipoReal // 🔥 tipo desde Home
+          ),
+        ),
+      );
+    },
+
+    child: Column(
+      children: [
+        CircleAvatar(
+          radius: 26,
+          backgroundColor:
+              const Color.fromARGB(255, 21, 30, 88).withOpacity(0.1),
+          child: Icon(
+            icon,
+            color: const Color.fromARGB(255, 27, 35, 104),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          textoCorto, // 👈 SOLO TEXTO CORTO
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+
+  // ================= OBJETOS PERDIDOS =================
 
   Widget _itemObjetoPerdido(BuildContext context, Aviso aviso) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          // IMAGEN GRANDE
           aviso.imagen != null
               ? Image.file(
                   File(aviso.imagen!),
-                  height: 200,
+                  height: 220,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 )
               : Container(
-                  height: 200,
+                  height: 220,
                   color: Colors.grey.shade300,
                   child: const Center(
                     child: Icon(Icons.backpack, size: 60),
                   ),
                 ),
 
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  aviso.titulo,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+          // TEXTO SOBRE IMAGEN
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              color: Colors.black.withOpacity(0.6),
+              child: Text(
+                aviso.titulo,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
+              ),
+            ),
+          ),
 
-                const SizedBox(height: 6),
-
-                Text(
-                  _fecha(aviso.fechaCreacion),
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-
-                const SizedBox(height: 12),
-
-                // ICONO DE COMENTARIOS
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.comment),
-                      onPressed: () => _detalle(context, aviso),
-                    ),
-                    Text("${aviso.comentarios.length} comentarios"),
-                  ],
-                ),
-              ],
+          // ICONO COMENTARIOS
+          Positioned(
+            bottom: 12,
+            right: 12,
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: IconButton(
+                icon: const Icon(Icons.comment),
+                color: UIDEColors.azul,
+                onPressed: () => _modalComentarios(context, aviso),
+              ),
             ),
           ),
         ],
@@ -167,99 +252,160 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 
-  // ================= COMUNICADOS (NORMAL) =================
-
-  Widget _itemComunicado(BuildContext context, Aviso aviso) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: aviso.imagen != null
-            ? Image.file(File(aviso.imagen!), width: 50, fit: BoxFit.cover)
-            : const Icon(Icons.campaign),
-        title: Text(aviso.titulo),
-        subtitle: Text(
-          aviso.contenido,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        onTap: () => _detalle(context, aviso),
-      ),
-    );
-  }
-
-  // ================= DETALLE + COMENTARIOS =================
-
-  void _detalle(BuildContext context, Aviso aviso) {
+  void _modalComentarios(BuildContext context, Aviso aviso) {
     showDialog(
       context: context,
       builder: (_) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  aviso.titulo,
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                Text(aviso.contenido),
-                const SizedBox(height: 12),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Comentarios",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
 
-                if (aviso.categoria == CategoriaAviso.objetosPerdidos) ...[
-                  const Divider(),
-                  const Text(
-                    "Comentarios",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-
-                  if (aviso.comentarios.isEmpty)
-                    const Text(
-                      "Aún no hay comentarios",
-                      style: TextStyle(color: Colors.grey),
-                    )
-                  else
-                    ...aviso.comentarios.map(
-                      (c) => ListTile(
-                        leading: const Icon(Icons.comment),
-                        title: Text(c.texto),
-                        subtitle: Text(
-                          _fecha(c.fecha),
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            context.read<AvisosProvider>().eliminarComentario(
-                              aviso.id,
-                              c.id,
-                            );
-                          },
-                        ),
-                      ),
+              if (aviso.comentarios.isEmpty)
+                const Text(
+                  "No hay comentarios aún",
+                  style: TextStyle(color: Colors.grey),
+                )
+              else
+                ...aviso.comentarios.map(
+                  (c) => ListTile(
+                    title: Text(c.texto),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        context
+                            .read<AvisosProvider>()
+                            .eliminarComentario(aviso.id, c.id);
+                      },
                     ),
-                  _CajaComentario(aviso.id),
-                ],
-              ],
-            ),
+                  ),
+                ),
+
+              const Divider(),
+              _CajaComentario(aviso.id),
+            ],
           ),
         ),
       ),
     );
   }
 
-  static String _fecha(DateTime f) =>
-      "${f.day}/${f.month}/${f.year}";
+  // ================= NOTICIAS =================
+
+  Widget _filaNoticias() {
+    return const Text(
+      "Noticias",
+      style: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: UIDEColors.conchevino,
+      ),
+    );
+  }
+
+Widget _itemNoticia(BuildContext context, Aviso aviso) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(16),
+      border: const Border(
+        left: BorderSide(width: 4, color: UIDEColors.conchevino),
+      ),
+      color: Theme.of(context).cardColor,
+    ),
+    child: ListTile(
+      title: Text(
+        aviso.titulo,
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge
+            ?.copyWith(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        aviso.contenido,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+      onTap: () => _detalle(context, aviso),
+    ),
+  );
+}
+
+
+  Widget _titulo(String texto) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Text(
+          texto,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: UIDEColors.conchevino,
+          ),
+        ),
+      );
+
+  Widget _vacio(String texto) =>
+      Text(texto, style: const TextStyle(color: Colors.grey));
+
+  // ================= DETALLE NOTICIA =================
+
+  void _detalle(BuildContext context, Aviso aviso) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (aviso.imagen != null)
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: Image.file(
+                    File(aviso.imagen!),
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      aviso.titulo,
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(aviso.contenido),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ================= CAJA COMENTARIOS =================
 
 class _CajaComentario extends StatefulWidget {
   final String avisoId;
+
   const _CajaComentario(this.avisoId);
 
   @override
@@ -267,7 +413,7 @@ class _CajaComentario extends StatefulWidget {
 }
 
 class _CajaComentarioState extends State<_CajaComentario> {
-  final _ctrl = TextEditingController();
+  final _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -275,19 +421,23 @@ class _CajaComentarioState extends State<_CajaComentario> {
       children: [
         Expanded(
           child: TextField(
-            controller: _ctrl,
-            decoration:
-                const InputDecoration(hintText: "Escribe un comentario"),
+            controller: _controller,
+            decoration: const InputDecoration(
+              hintText: "Escribe un comentario...",
+            ),
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.send),
+          icon: const Icon(Icons.send, color: UIDEColors.azul),
           onPressed: () {
-            if (_ctrl.text.trim().isEmpty) return;
-            context
-                .read<AvisosProvider>()
-                .agregarComentario(widget.avisoId, _ctrl.text.trim());
-            _ctrl.clear();
+            if (_controller.text.trim().isEmpty) return;
+
+            context.read<AvisosProvider>().agregarComentario(
+                  widget.avisoId,
+                  _controller.text.trim(),
+                );
+
+            _controller.clear();
           },
         ),
       ],

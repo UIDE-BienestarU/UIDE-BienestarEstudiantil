@@ -90,7 +90,9 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
           hintText: "Buscar solicitud...",
           prefixIcon: const Icon(Icons.search),
           filled: true,
-          fillColor: Colors.grey.shade100,
+          fillColor: Theme.of(context).inputDecorationTheme.fillColor
+    ?? Theme.of(context).cardColor,
+
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
@@ -115,51 +117,44 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
           final seleccionado = _estadoSeleccionado == estado;
 
           return ChoiceChip(
-            label: Text(estado),
-            selected: seleccionado,
-            selectedColor: UIDEColors.conchevino,
-            labelStyle: TextStyle(
-              color: seleccionado ? Colors.white : Colors.black87,
-              fontWeight: FontWeight.w600,
-            ),
-            onSelected: (_) {
-              setState(() => _estadoSeleccionado = estado);
-            },
-          );
+              label: Text(estado),
+              selected: seleccionado,
+
+              selectedColor: UIDEColors.conchevino,
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade200,
+
+              labelStyle: TextStyle(
+                color: seleccionado
+                    ? Colors.white
+                    : Theme.of(context).textTheme.bodyMedium!.color,
+                fontWeight: FontWeight.w600,
+              ),
+
+              onSelected: (_) {
+                setState(() => _estadoSeleccionado = estado);
+              },
+            );
+
         },
       ),
     );
   }
 
   Widget _cardSolicitud(Map<String, dynamic> solicitud) {
-    final estado = solicitud["estado"];
-
-    Color estadoColor;
-    IconData icono;
-
-    switch (estado) {
-      case 'Pendiente':
-        estadoColor = Colors.orange;
-        icono = Icons.hourglass_top;
-        break;
-      case 'En revisión':
-        estadoColor = Colors.blue;
-        icono = Icons.autorenew;
-        break;
-      default:
-        estadoColor = Colors.green;
-        icono = Icons.check_circle;
-    }
+    final Color estadoBase = UIDEColors.conchevino;
+    final IconData icono = Icons.assignment_turned_in;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Theme.of(context).shadowColor.withOpacity(0.15),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -167,12 +162,16 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
       ),
       child: Row(
         children: [
-          // ICONO
+          // ICONO ÚNICO Y PROFESIONAL
           CircleAvatar(
             radius: 24,
-            backgroundColor: estadoColor.withOpacity(0.15),
-            child: Icon(icono, color: estadoColor),
+            backgroundColor: estadoBase.withOpacity(0.15),
+            child: Icon(
+              icono,
+              color: estadoBase,
+            ),
           ),
+
 
           const SizedBox(width: 14),
 
@@ -183,40 +182,39 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
               children: [
                 Text(
                   solicitud["tipo"],
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
+
                 const SizedBox(height: 4),
                 Text(
                   "Enviada: ${solicitud["fecha"]}",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
+
+
               ],
             ),
           ),
 
-          // ESTADO
+          // ESTADO (COLOR ÚNICO)
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: estadoColor,
+              color: estadoBase.withOpacity(0.15),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              estado,
-              style: const TextStyle(
-                color: Colors.white,
+              solicitud["estado"],
+              style: TextStyle(
+                color: estadoBase.withOpacity(0.85),
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
+
         ],
       ),
     );

@@ -10,10 +10,12 @@ import 'student_perfil.dart';
 
 class StudentDashboard extends StatefulWidget {
   final int initialIndex;
+  final String? tipoInicial;
 
   const StudentDashboard({
     Key? key,
     this.initialIndex = 0,
+    this.tipoInicial,
   }) : super(key: key);
 
   @override
@@ -22,18 +24,24 @@ class StudentDashboard extends StatefulWidget {
 
 class _StudentDashboardState extends State<StudentDashboard> {
   late int _selectedIndex;
-
-  final List<Widget> _screens = const [
-    StudentHomeScreen(),           // 0
-    StudentHistorialScreen(),      // 1
-    StudentNuevaSolicitudScreen(), // 2
-    StudentPerfilScreen(),         // 3
-  ];
+  String? _tipoDesdeHome;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+    _tipoDesdeHome = widget.tipoInicial;
+  }
+
+  List<Widget> _buildScreens() {
+    return [
+      const StudentHomeScreen(),          // 0
+      const StudentHistorialScreen(),     // 1
+      StudentNuevaSolicitudScreen(        // 2
+        tipoInicial: _tipoDesdeHome,
+      ),
+      const StudentPerfilScreen(),        // 3
+    ];
   }
 
   @override
@@ -51,15 +59,48 @@ class _StudentDashboardState extends State<StudentDashboard> {
         ],
       ),
 
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
+      body: AnimatedSwitcher(
+  duration: const Duration(milliseconds: 450), // 👈 más tiempo
+  switchInCurve: Curves.easeOutCubic,
+  switchOutCurve: Curves.easeInCubic,
+  transitionBuilder: (child, animation) {
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.15, 0), // 👈 desplazamiento más visible
+          end: Offset.zero,
+        ).animate(animation),
+        child: ScaleTransition(
+          scale: Tween<double>(
+            begin: 0.96, // 👈 pequeño zoom de entrada
+            end: 1.0,
+          ).animate(animation),
+          child: child,
+        ),
       ),
+    );
+  },
+  child: IndexedStack(
+    key: ValueKey(_selectedIndex), // 🔥 NO QUITAR
+    index: _selectedIndex,
+    children: _buildScreens(),
+  ),
+),
+
+
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
-          setState(() => _selectedIndex = index);
+          setState(() {
+            _selectedIndex = index;
+
+            // 🔥 IMPORTANTE: si no está en "Nueva", limpiamos el tipo
+            if (index != 2) {
+              _tipoDesdeHome = null;
+            }
+          });
         },
         labelBehavior:
             NavigationDestinationLabelBehavior.onlyShowSelected,
