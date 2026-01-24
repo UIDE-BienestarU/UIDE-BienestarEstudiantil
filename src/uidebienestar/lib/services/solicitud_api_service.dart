@@ -6,10 +6,10 @@ class SolicitudApiService {
     await Future.delayed(const Duration(seconds: 1));
 
     return [
-      Solicitud(id: "001", estudiante: "Juan Fuentes", tipo: "Beca Académica", fecha: "15 Nov 2025", estado: "Pendiente"),
-      Solicitud(id: "002", estudiante: "María Castro", tipo: "Cita Psicológica", fecha: "14 Nov 2025", estado: "En revisión"),
-      Solicitud(id: "003", estudiante: "Mateo Castillo", tipo: "Certificado", fecha: "13 Nov 2025", estado: "Pendiente"),
-      Solicitud(id: "004", estudiante: "Virginia Mora", tipo: "Seguro Médico", fecha: "12 Nov 2025", estado: "Aprobada"),
+      Solicitud(id: "001", estudiante: "Juan Fuentes", correo: "jufuentespl@uide.edu.ec", tipo: "Becas", fecha: "15 Nov 2025", estado: "Pendiente"),
+      Solicitud(id: "002", estudiante: "María Castro", correo: "macastro@uide.edu.ec", tipo: "Psicológico", fecha: "14 Nov 2025", estado: "En revisión"),
+      Solicitud(id: "003", estudiante: "Mateo Castillo", correo: "macastillomapl@uide.edu.ec", tipo: "Académico", fecha: "13 Nov 2025", estado: "Pendiente"),
+      Solicitud(id: "004", estudiante: "Virginia Mora", correo: "vimoragu@uide.edu.ec", tipo: "Deportes", fecha: "12 Nov 2025", estado: "Aprobada"),
     ];
   }
 }

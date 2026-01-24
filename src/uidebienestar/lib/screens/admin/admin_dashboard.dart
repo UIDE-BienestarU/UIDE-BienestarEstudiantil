@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/uide_colors.dart';
+import '../../models/aviso.dart';
 
 import 'admin_home_screen.dart';
 import 'admin_solicitudes_screen.dart';
@@ -15,21 +15,36 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int index = 0;
-
-  final screens = const [
-    AdminHomeScreen(),
-    AdminSolicitudesScreen(),
-    AdminAvisosScreen(),
-    AdminPerfilScreen(),
-  ];
+  CategoriaAviso? categoriaAvisoInicial;
 
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      AdminHomeScreen(
+        onAccesoAvisos: (categoria) {
+          setState(() {
+            categoriaAvisoInicial = categoria;
+            index = 2; // pestaña Avisos
+          });
+        },
+      ),
+      const AdminSolicitudesScreen(),
+      AdminAvisosScreen(
+        categoriaInicial: categoriaAvisoInicial,
+      ),
+      const AdminPerfilScreen(),
+    ];
+
     return Scaffold(
       body: screens[index],
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
-        onDestinationSelected: (i) => setState(() => index = i),
+        onDestinationSelected: (i) {
+          setState(() {
+            index = i;
+            if (i != 2) categoriaAvisoInicial = null;
+          });
+        },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: "Inicio"),
           NavigationDestination(icon: Icon(Icons.folder), label: "Solicitudes"),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/uide_colors.dart';
 import '../../providers/theme_provider.dart';
@@ -18,49 +19,113 @@ class StudentPerfilScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 40),
 
-            const CircleAvatar(
-              radius: 60,
-              backgroundColor: UIDEColors.azul,
-              child: Icon(Icons.person, size: 70, color: Colors.white),
+            // Contenedor elegante para el header del perfil
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Avatar con sombra suave
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: UIDEColors.azul.withOpacity(0.25),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 65,
+                      backgroundColor: UIDEColors.azul,
+                      child: Icon(Icons.person, size: 75, color: Colors.white),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Información del estudiante - más equilibrada y estética
+                  Column(
+                    children: [
+                      // Nombre
+                      Text(
+                        "Juan Esteban Fuentes",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.3,
+                          color: Theme.of(context).textTheme.titleLarge?.color,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Etiqueta + correo (en una sola línea, sin cortes)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Correo:  ",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.75),
+                            ),
+                          ),
+                          Flexible(
+                            child: Text(
+                              "jufuentespl@uide.edu.ec",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
 
-            const SizedBox(height: 20),
-
-            const Text(
-              "Juan Esteban Fuentes",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 6),
-
-            const Text(
-              "jufuentespl@uide.edu.ec",
-              style: TextStyle(color: Colors.grey),
-            ),
-
-            const SizedBox(height: 40),
+            const SizedBox(height: 32),
 
             _perfilItem(
               context,
               Icons.language,
               "Idioma",
-              onTap: () =>
-                  context.read<LocaleProvider>().toggleLocale(),
+              onTap: () => context.read<LocaleProvider>().toggleLocale(),
             ),
 
             _perfilItem(
               context,
               Icons.dark_mode,
               "Tema",
-              onTap: () =>
-                  context.read<ThemeProvider>().toggleTheme(),
+              onTap: () => context.read<ThemeProvider>().toggleTheme(),
             ),
 
             _perfilItem(
               context,
-              Icons.help_outline,
-              "Ayuda",
-              onTap: () => _mostrarAyuda(context),
+              Icons.contacts,
+              "Contactos",
+              onTap: () => _mostrarContactos(context),
             ),
 
             _perfilItem(
@@ -103,32 +168,44 @@ class StudentPerfilScreen extends StatelessWidget {
     );
   }
 
-  //  POPUP DE AYUDA
-  void _mostrarAyuda(BuildContext context) {
+  void _mostrarContactos(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Contactos de ayuda"),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+        titlePadding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
+        title: const Center(
+          child: Text(
+            "Contactos de Ayuda",
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+            ),
+          ),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            _ContactoItem(
-                titulo: "BienestarU", telefono: "0912312321"),
-            _ContactoItem(
-                titulo: "Seguro Médico", telefono: "0912312321"),
-            _ContactoItem(
-                titulo: "Citas Psicológicas", telefono: "0912312321"),
-            _ContactoItem(
-                titulo: "Departamento de Finanzas",
-                telefono: "0912312321"),
-          ],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              _ContactoItem(titulo: "BienestarU", telefono: "0912312321"),
+              _ContactoDivider(),
+              _ContactoItem(titulo: "Seguro Médico", telefono: "0912312321"),
+              _ContactoDivider(),
+              _ContactoItem(titulo: "Citas Psicológicas", telefono: "0912312321"),
+              _ContactoDivider(),
+              _ContactoItem(titulo: "Departamento de Finanzas", telefono: "0912312321"),
+            ],
+          ),
         ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.grey[700],
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             onPressed: () => Navigator.pop(ctx),
             child: const Text("Cerrar"),
           ),
@@ -137,14 +214,12 @@ class StudentPerfilScreen extends StatelessWidget {
     );
   }
 
-  // 🚪 LOGOUT
   void _confirmarLogout(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text("Cerrar sesión"),
-        content:
-            const Text("¿Deseas salir de tu cuenta?"),
+        content: const Text("¿Deseas salir de tu cuenta?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -169,7 +244,6 @@ class StudentPerfilScreen extends StatelessWidget {
   }
 }
 
-// 📱 Widget limpio para contactos
 class _ContactoItem extends StatelessWidget {
   final String titulo;
   final String telefono;
@@ -179,21 +253,99 @@ class _ContactoItem extends StatelessWidget {
     required this.telefono,
   });
 
+  Future<void> _llamar(BuildContext context) async {
+    final cleanPhone = telefono.replaceAll(RegExp(r'[\s\-()]+'), '');
+    final Uri url = Uri(scheme: 'tel', path: cleanPhone);
+
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo llamar a $telefono')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al intentar llamar')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final primaryColor = UIDEColors.azul;
+
+    final primaryLight = isDark
+        ? primaryColor.withOpacity(0.25)
+        : primaryColor.withOpacity(0.15);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.phone, size: 18),
-          const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              "$titulo: $telefono",
-              style: const TextStyle(fontSize: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  telefono,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.75),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Material(
+            color: primaryLight,
+            shape: const CircleBorder(),
+            child: IconButton(
+              icon: Icon(
+                Icons.phone_rounded,
+                color: primaryColor,
+                size: 26,
+              ),
+              tooltip: 'Llamar a $telefono',
+              onPressed: () => _llamar(context),
+              padding: const EdgeInsets.all(12),
+              constraints: const BoxConstraints(minWidth: 52, minHeight: 52),
+              splashRadius: 26,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ContactoDivider extends StatelessWidget {
+  const _ContactoDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Divider(
+        height: 1,
+        thickness: 0.5,
+        color: Theme.of(context).dividerColor.withOpacity(0.3),
       ),
     );
   }

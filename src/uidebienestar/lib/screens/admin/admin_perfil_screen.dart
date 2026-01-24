@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/uide_colors.dart';
 import '../../providers/theme_provider.dart';
@@ -16,57 +17,116 @@ class AdminPerfilScreen extends StatelessWidget {
         title: const Text("Bienestar Universitario"),
         backgroundColor: UIDEColors.conchevino,
         foregroundColor: Colors.white,
-        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const SizedBox(height: 40),
-
-            const CircleAvatar(
-              radius: 60,
-              backgroundColor: UIDEColors.conchevino,
-              child: Icon(Icons.admin_panel_settings,
-                  size: 70, color: Colors.white),
-            ),
-
             const SizedBox(height: 20),
 
-            const Text(
-              "Diana Castro",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            // Contenedor elegante para el header del perfil (igual que en estudiante)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: UIDEColors.conchevino.withOpacity(0.25),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 65,
+                      backgroundColor: UIDEColors.conchevino,
+                      child: Icon(Icons.admin_panel_settings, size: 75, color: Colors.white),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Column(
+                    children: [
+                      Text(
+                        "Diana Castro Guerrero",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.3,
+                          color: Theme.of(context).textTheme.titleLarge?.color,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Correo:  ",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.75),
+                            ),
+                          ),
+                          Flexible(
+                            child: Text(
+                              "cadiana@uide.edu.ec",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
 
-            const SizedBox(height: 6),
-
-            const Text(
-              "cadiana@uide.edu.ec",
-              style: TextStyle(color: Colors.grey),
-            ),
-
-            const SizedBox(height: 40),
+            const SizedBox(height: 32),
 
             _perfilItem(
               context,
               Icons.language,
               "Idioma",
-              onTap: () =>
-                  context.read<LocaleProvider>().toggleLocale(),
+              onTap: () => context.read<LocaleProvider>().toggleLocale(),
             ),
 
             _perfilItem(
               context,
               Icons.dark_mode,
               "Tema",
-              onTap: () =>
-                  context.read<ThemeProvider>().toggleTheme(),
+              onTap: () => context.read<ThemeProvider>().toggleTheme(),
             ),
 
             _perfilItem(
               context,
-              Icons.support_agent,
-              "Soporte técnico",
-              onTap: () => _mostrarSoporte(context),
+              Icons.contacts,
+              "Contactos de ayuda",
+              onTap: () => _mostrarContactos(context),
             ),
 
             _perfilItem(
@@ -81,8 +141,6 @@ class AdminPerfilScreen extends StatelessWidget {
       ),
     );
   }
-
-  // ------------------ ITEMS PERFIL ------------------
 
   Widget _perfilItem(
     BuildContext context,
@@ -111,27 +169,40 @@ class AdminPerfilScreen extends StatelessWidget {
     );
   }
 
-  //  SOPORTE TI
-  void _mostrarSoporte(BuildContext context) {
+  void _mostrarContactos(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Soporte técnico"),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ContactoItem(
-              titulo: "Equipo TI UIDE",
-              telefono: "ti.soporte@uide.edu.ec",
+        titlePadding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
+        title: const Center(
+          child: Text(
+            "Contactos de ayuda",
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
             ),
-          ],
+          ),
         ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              _ContactoItem(titulo: "Equipo TI UIDE", telefono: "0999999999"),
+              _ContactoDivider(),
+              _ContactoItem(titulo: "Departamento de Finanzas", telefono: "0988888888"),
+            ],
+          ),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.grey[700],
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             onPressed: () => Navigator.pop(ctx),
             child: const Text("Cerrar"),
           ),
@@ -140,14 +211,12 @@ class AdminPerfilScreen extends StatelessWidget {
     );
   }
 
-  //  LOGOUT
   void _confirmarLogout(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text("Cerrar sesión"),
-        content:
-            const Text("¿Deseas salir de tu cuenta de administrador?"),
+        content: const Text("¿Deseas salir de tu cuenta de administrador?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -172,7 +241,6 @@ class AdminPerfilScreen extends StatelessWidget {
   }
 }
 
-//  CONTACTO SOPORTE
 class _ContactoItem extends StatelessWidget {
   final String titulo;
   final String telefono;
@@ -182,21 +250,99 @@ class _ContactoItem extends StatelessWidget {
     required this.telefono,
   });
 
+  Future<void> _llamar(BuildContext context) async {
+    final cleanPhone = telefono.replaceAll(RegExp(r'[\s\-()]+'), '');
+    final Uri url = Uri(scheme: 'tel', path: cleanPhone);
+
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo llamar a $telefono')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al intentar llamar')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final primaryColor = UIDEColors.conchevino; // ← Todo en conchevino
+
+    final primaryLight = isDark
+        ? primaryColor.withOpacity(0.25)
+        : primaryColor.withOpacity(0.15);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.support_agent, size: 18),
-          const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              "$titulo: $telefono",
-              style: const TextStyle(fontSize: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  telefono,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.75),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Material(
+            color: primaryLight,
+            shape: const CircleBorder(),
+            child: IconButton(
+              icon: Icon(
+                Icons.phone_rounded,
+                color: primaryColor,
+                size: 26,
+              ),
+              tooltip: 'Llamar a $telefono',
+              onPressed: () => _llamar(context),
+              padding: const EdgeInsets.all(12),
+              constraints: const BoxConstraints(minWidth: 52, minHeight: 52),
+              splashRadius: 26,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ContactoDivider extends StatelessWidget {
+  const _ContactoDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Divider(
+        height: 1,
+        thickness: 0.5,
+        color: Theme.of(context).dividerColor.withOpacity(0.3),
       ),
     );
   }

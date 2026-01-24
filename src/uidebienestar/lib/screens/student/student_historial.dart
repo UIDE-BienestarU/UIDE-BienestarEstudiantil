@@ -10,6 +10,8 @@ class StudentHistorialScreen extends StatefulWidget {
 }
 
 class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
+  int? _solicitudExpandida;
+
   String _estadoSeleccionado = 'Todos';
   String _busqueda = '';
 
@@ -71,8 +73,9 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
                   itemCount: _solicitudesFiltradas.length,
                   itemBuilder: (context, index) {
                     final solicitud = _solicitudesFiltradas[index];
-                    return _cardSolicitud(solicitud);
+                    return _cardSolicitud(solicitud, index);
                   },
+
                 ),
         ),
       ],
@@ -142,81 +145,136 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
     );
   }
 
-  Widget _cardSolicitud(Map<String, dynamic> solicitud) {
-    final Color estadoBase = UIDEColors.conchevino;
-    final IconData icono = Icons.assignment_turned_in;
+  Widget _cardSolicitud(Map<String, dynamic> solicitud, int index) {
+  final bool expandida = _solicitudExpandida == index;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // ICONO ÚNICO Y PROFESIONAL
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: estadoBase.withOpacity(0.15),
-            child: Icon(
-              icono,
-              color: estadoBase,
-            ),
-          ),
-
-
-          const SizedBox(width: 14),
-
-          // INFO
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    margin: const EdgeInsets.only(bottom: 12),
+    decoration: BoxDecoration(
+      color: Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Theme.of(context).shadowColor.withOpacity(0.15),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Column(
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            setState(() {
+              _solicitudExpandida = expandida ? null : index;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
               children: [
-                Text(
-                  solicitud["tipo"],
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor:
+                      UIDEColors.conchevino.withOpacity(0.15),
+                  child: const Icon(
+                    Icons.assignment,
+                    color: UIDEColors.conchevino,
+                  ),
+                ),
+                const SizedBox(width: 14),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        solicitud["tipo"],
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Enviada: ${solicitud["fecha"]}",
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
 
-                const SizedBox(height: 4),
-                Text(
-                  "Enviada: ${solicitud["fecha"]}",
-                  style: Theme.of(context).textTheme.bodySmall,
+                Icon(
+                  expandida
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  color: Colors.grey,
                 ),
-
-
               ],
             ),
           ),
+        ),
 
-          // ESTADO (COLOR ÚNICO)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: estadoBase.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
+        // 🔥 TIMELINE DESPLEGABLE
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 300),
+          crossFadeState: expandida
+              ? CrossFadeState.showFirst
+              : CrossFadeState.showSecond,
+          firstChild: _timelineEstado(solicitud["estado"]),
+          secondChild: const SizedBox.shrink(),
+        ),
+      ],
+    ),
+  );
+}
+Widget _timelineEstado(String estadoActual) {
+  final estados = ["Pendiente", "En revisión", "Aprobada"];
+
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+    child: Column(
+      children: estados.map((estado) {
+        final activo =
+            estados.indexOf(estado) <= estados.indexOf(estadoActual);
+
+        return Row(
+          children: [
+            Column(
+              children: [
+                Icon(
+                  activo ? Icons.check_circle : Icons.circle_outlined,
+                  size: 18,
+                  color: activo
+                      ? UIDEColors.conchevino
+                      : Colors.grey,
+                ),
+                if (estado != estados.last)
+                  Container(
+                    width: 2,
+                    height: 24,
+                    color: activo
+                        ? UIDEColors.conchevino
+                        : Colors.grey.shade300,
+                  ),
+              ],
             ),
-            child: Text(
-              solicitud["estado"],
+            const SizedBox(width: 12),
+            Text(
+              estado,
               style: TextStyle(
-                color: estadoBase.withOpacity(0.85),
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    activo ? FontWeight.bold : FontWeight.normal,
+                color: activo ? Colors.black : Colors.grey,
               ),
             ),
-          ),
+          ],
+        );
+      }).toList(),
+    ),
+  );
+}
 
-        ],
-      ),
-    );
-  }
 }

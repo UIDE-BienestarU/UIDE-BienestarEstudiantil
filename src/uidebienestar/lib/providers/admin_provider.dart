@@ -54,6 +54,7 @@ class AdminProvider extends ChangeNotifier {
       _todas[index] = Solicitud(
         id: _todas[index].id,
         estudiante: _todas[index].estudiante,
+        correo: _todas[index].correo,
         tipo: _todas[index].tipo,
         fecha: _todas[index].fecha,
         estado: 'Aprobada',

@@ -7,7 +7,6 @@ import '../../models/aviso.dart';
 import '../../theme/uide_colors.dart';
 import 'student_dashboard.dart';
 
-
 class StudentHomeScreen extends StatelessWidget {
   const StudentHomeScreen({super.key});
 
@@ -53,8 +52,16 @@ class StudentHomeScreen extends StatelessWidget {
     );
   }
 
-  // ================= SALUDO =================
+  // ================= HELPER IMÁGENES MÚLTIPLES =================
+  List<String> _imagenes(Aviso aviso) {
+    if (aviso.imagen == null) return [];
+    return aviso.imagen!
+        .split(',')
+        .where((e) => e.trim().isNotEmpty)
+        .toList();
+  }
 
+  // ================= SALUDO =================
   Widget _saludo() {
     return Card(
       color: const Color.fromARGB(255, 13, 51, 100),
@@ -84,129 +91,137 @@ class StudentHomeScreen extends StatelessWidget {
   }
 
   // ================= ACCIONES RÁPIDAS =================
+  Widget _accionesRapidas(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _titulo("Acciones rápidas"),
 
-Widget _accionesRapidas(BuildContext context) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _titulo("Acciones rápidas"),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 20,
+          runSpacing: 10,
+          children: [
+            _accionItem(
+              context,
+              Icons.health_and_safety,
+              textoCorto: "Salud",
+              tipoReal: "Salud y bienestar físico",
+            ),
+            _accionItem(
+              context,
+              Icons.psychology,
+              textoCorto: "Psicológico",
+              tipoReal: "Apoyo psicológico y psicopedagógico",
+            ),
+            _accionItem(
+              context,
+              Icons.school,
+              textoCorto: "Becas",
+              tipoReal: "Becas y ayudas financieras",
+            ),
+            _accionItem(
+              context,
+              Icons.admin_panel_settings,
+              textoCorto: "Académico",
+              tipoReal: "Gestión académica y administrativa",
+            ),
+            _accionItem(
+              context,
+              Icons.sports_soccer,
+              textoCorto: "Deportes",
+              tipoReal: "Deportes y cultura",
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
-      Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 20,
-        runSpacing: 10,
+  Widget _accionItem(
+    BuildContext context,
+    IconData icon, {
+    required String textoCorto,
+    required String tipoReal,
+  }) {
+    return SizedBox(
+      width: 45,
+      child: _accion(context, icon, textoCorto, tipoReal),
+    );
+  }
+
+  Widget _accion(
+    BuildContext context,
+    IconData icon,
+    String textoCorto,
+    String tipoReal,
+  ) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StudentDashboard(
+              initialIndex: 2,
+              tipoInicial: tipoReal
+            ),
+          ),
+        );
+      },
+      child: Column(
         children: [
-          _accionItem(
-            context,
-            Icons.health_and_safety,
-            textoCorto: "Salud",
-            tipoReal: "Salud y bienestar físico",
+          CircleAvatar(
+            radius: 26,
+            backgroundColor:
+                const Color.fromARGB(255, 21, 30, 88).withOpacity(0.1),
+            child: Icon(
+              icon,
+              color: const Color.fromARGB(255, 27, 35, 104),
+            ),
           ),
-          _accionItem(
-            context,
-            Icons.psychology,
-            textoCorto: "Psicológico",
-            tipoReal: "Apoyo psicológico y psicopedagógico",
-          ),
-          _accionItem(
-            context,
-            Icons.school,
-            textoCorto: "Becas",
-            tipoReal: "Becas y ayudas financieras",
-          ),
-          _accionItem(
-            context,
-            Icons.admin_panel_settings,
-            textoCorto: "Académico",
-            tipoReal: "Gestión académica y administrativa",
-          ),
-          _accionItem(
-            context,
-            Icons.sports_soccer,
-            textoCorto: "Deportes",
-            tipoReal: "Deportes y cultura",
+          const SizedBox(height: 6),
+          Text(
+            textoCorto,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),
-    ],
-  );
-}
+    );
+  }
 
-
-Widget _accionItem(
-  BuildContext context,
-  IconData icon, {
-  required String textoCorto,
-  required String tipoReal,
-}) {
-  return SizedBox(
-    width: 45,
-    child: _accion(context, icon, textoCorto, tipoReal),
-  );
-}
-
-
-
-Widget _accion(
-  BuildContext context,
-  IconData icon,
-  String textoCorto,
-  String tipoReal,
-) {
-  return InkWell(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => StudentDashboard(
-            initialIndex: 2,       // pestaña "Nueva"
-            tipoInicial: tipoReal // 🔥 tipo desde Home
-          ),
-        ),
-      );
-    },
-
-    child: Column(
-      children: [
-        CircleAvatar(
-          radius: 26,
-          backgroundColor:
-              const Color.fromARGB(255, 21, 30, 88).withOpacity(0.1),
-          child: Icon(
-            icon,
-            color: const Color.fromARGB(255, 27, 35, 104),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          textoCorto, // 👈 SOLO TEXTO CORTO
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ],
-    ),
-  );
-}
-
-
-
-
-  // ================= OBJETOS PERDIDOS =================
-
+  // ================= OBJETOS PERDIDOS (CON SWIPE) =================
   Widget _itemObjetoPerdido(BuildContext context, Aviso aviso) {
+    final imagenes = _imagenes(aviso);
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          aviso.imagen != null
-              ? Image.file(
-                  File(aviso.imagen!),
+          // 🔥 IMÁGENES MÚLTIPLES CON SWIPE
+          imagenes.isNotEmpty
+              ? SizedBox(
                   height: 220,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+                  child: PageView.builder(
+                    itemCount: imagenes.length,
+                    itemBuilder: (context, index) {
+                      return Image.file(
+                        File(imagenes[index]),
+                        width: double.infinity,
+                        height: 220,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Container(
+                          height: 220,
+                          color: Colors.grey.shade300,
+                          child: const Icon(Icons.backpack, size: 60),
+                        ),
+                      );
+                    },
+                  ),
                 )
               : Container(
                   height: 220,
@@ -233,6 +248,24 @@ Widget _accion(
               ),
             ),
           ),
+
+          // INDICADOR DE FOTOS
+          if (imagenes.length > 1)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "${imagenes.length} fotos",
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
+            ),
 
           // ICONO COMENTARIOS
           Positioned(
@@ -298,8 +331,7 @@ Widget _accion(
     );
   }
 
-  // ================= NOTICIAS =================
-
+  // ================= AVISOS =================
   Widget _filaNoticias() {
     return const Text(
       "Noticias",
@@ -311,35 +343,34 @@ Widget _accion(
     );
   }
 
-Widget _itemNoticia(BuildContext context, Aviso aviso) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(16),
-      border: const Border(
-        left: BorderSide(width: 4, color: UIDEColors.conchevino),
+  Widget _itemNoticia(BuildContext context, Aviso aviso) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: const Border(
+          left: BorderSide(width: 4, color: UIDEColors.conchevino),
+        ),
+        color: Theme.of(context).cardColor,
       ),
-      color: Theme.of(context).cardColor,
-    ),
-    child: ListTile(
-      title: Text(
-        aviso.titulo,
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge
-            ?.copyWith(fontWeight: FontWeight.bold),
+      child: ListTile(
+        title: Text(
+          aviso.titulo,
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          aviso.contenido,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+        onTap: () => _detalle(context, aviso),
       ),
-      subtitle: Text(
-        aviso.contenido,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-      onTap: () => _detalle(context, aviso),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _titulo(String texto) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -356,9 +387,10 @@ Widget _itemNoticia(BuildContext context, Aviso aviso) {
   Widget _vacio(String texto) =>
       Text(texto, style: const TextStyle(color: Colors.grey));
 
-  // ================= DETALLE NOTICIA =================
-
+  // ================= DETALLE NOTICIA (CON MÚLTIPLES IMÁGENES) =================
   void _detalle(BuildContext context, Aviso aviso) {
+    final imagenes = _imagenes(aviso);
+
     showDialog(
       context: context,
       builder: (_) => Dialog(
@@ -367,17 +399,45 @@ Widget _itemNoticia(BuildContext context, Aviso aviso) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (aviso.imagen != null)
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.file(
-                    File(aviso.imagen!),
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+              // 🔥 MÚLTIPLES IMÁGENES CON SWIPE
+              if (imagenes.isNotEmpty) ...[
+                SizedBox(
+                  height: 200,
+                  child: PageView.builder(
+                    itemCount: imagenes.length,
+                    itemBuilder: (context, index) {
+                      return ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                        child: Image.file(
+                          File(imagenes[index]),
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            height: 200,
+                            color: Colors.grey.shade300,
+                            child: const Icon(Icons.image_not_supported, size: 50),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
+                if (imagenes.length > 1)
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    color: Colors.grey.shade200,
+                    child: Center(
+                      child: Text(
+                        "${imagenes.length} fotos",
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -402,7 +462,6 @@ Widget _itemNoticia(BuildContext context, Aviso aviso) {
 }
 
 // ================= CAJA COMENTARIOS =================
-
 class _CajaComentario extends StatefulWidget {
   final String avisoId;
 
