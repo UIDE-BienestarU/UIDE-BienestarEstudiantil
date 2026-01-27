@@ -7,6 +7,7 @@ import 'student_home.dart';
 import 'student_historial.dart';
 import 'student_nueva_solicitud.dart';
 import 'student_perfil.dart';
+import 'student_notificaciones.dart'; // 👈 NUEVO
 
 class StudentDashboard extends StatefulWidget {
   final int initialIndex;
@@ -35,12 +36,12 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   List<Widget> _buildScreens() {
     return [
-      const StudentHomeScreen(),          // 0
-      const StudentHistorialScreen(),     // 1
-      StudentNuevaSolicitudScreen(        // 2
+      const StudentHomeScreen(), // 0
+      const StudentHistorialScreen(), // 1
+      StudentNuevaSolicitudScreen( // 2
         tipoInicial: _tipoDesdeHome,
       ),
-      const StudentPerfilScreen(),        // 3
+      const StudentPerfilScreen(), // 3
     ];
   }
 
@@ -52,6 +53,20 @@ class _StudentDashboardState extends State<StudentDashboard> {
         foregroundColor: Colors.white,
         title: const Text("Bienestar Universitario"),
         actions: [
+          // 🔔 BOTÓN DE NOTIFICACIONES
+          IconButton(
+            icon: const Icon(Icons.notifications_none),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StudentNotificacionesScreen(),
+                ),
+              );
+            },
+          ),
+
+          // 🚪 LOGOUT
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => _confirmarLogout(context),
@@ -60,35 +75,33 @@ class _StudentDashboardState extends State<StudentDashboard> {
       ),
 
       body: AnimatedSwitcher(
-  duration: const Duration(milliseconds: 450), // 👈 más tiempo
-  switchInCurve: Curves.easeOutCubic,
-  switchOutCurve: Curves.easeInCubic,
-  transitionBuilder: (child, animation) {
-    return FadeTransition(
-      opacity: animation,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0.15, 0), // 👈 desplazamiento más visible
-          end: Offset.zero,
-        ).animate(animation),
-        child: ScaleTransition(
-          scale: Tween<double>(
-            begin: 0.96, // 👈 pequeño zoom de entrada
-            end: 1.0,
-          ).animate(animation),
-          child: child,
+        duration: const Duration(milliseconds: 450),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.15, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: ScaleTransition(
+                scale: Tween<double>(
+                  begin: 0.96,
+                  end: 1.0,
+                ).animate(animation),
+                child: child,
+              ),
+            ),
+          );
+        },
+        child: IndexedStack(
+          key: ValueKey(_selectedIndex),
+          index: _selectedIndex,
+          children: _buildScreens(),
         ),
       ),
-    );
-  },
-  child: IndexedStack(
-    key: ValueKey(_selectedIndex), // 🔥 NO QUITAR
-    index: _selectedIndex,
-    children: _buildScreens(),
-  ),
-),
-
-
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
@@ -96,7 +109,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
           setState(() {
             _selectedIndex = index;
 
-            // 🔥 IMPORTANTE: si no está en "Nueva", limpiamos el tipo
+            // Limpia tipo si no está en Nueva
             if (index != 2) {
               _tipoDesdeHome = null;
             }
