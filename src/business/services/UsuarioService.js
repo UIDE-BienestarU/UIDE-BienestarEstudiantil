@@ -1,30 +1,29 @@
-// src/business/services/UsuarioService.js
 import Usuario from '../../data/models/Usuario.js';
 import Estudiante from '../../data/models/Estudiante.js';
 import Session from '../../data/models/Session.js';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
+import { signAccessToken, signRefreshToken, hashToken, verifyJwt } from '../utils/tokens.js';
 
 class UsuarioService {
   static async register(userData) {
     const t = await Usuario.sequelize.transaction();
     try {
-      const salt = await import('bcrypt').then(bcrypt => bcrypt.genSalt(12));
-      const contrasenaHash = await import('bcrypt').then(bcrypt => 
-        bcrypt.hash(userData.contrasena, salt)
-      );
+      const bcrypt = await import('bcrypt');
 
-      // 1. Crear el registro BASE en Usuario
+      const salt = await bcrypt.genSalt(12);
+      const contrasenaHash = await bcrypt.hash(userData.contrasena, salt);
+
+      // 1) Crear usuario
       const user = await Usuario.create({
         correo_institucional: userData.correo_institucional.toLowerCase().trim(),
         contrasena_hash: contrasenaHash,
         nombre_completo: userData.nombre_completo,
-        rol: userData.rol || 'estudiante'
+        rol: userData.rol || 'estudiante',
+        // Si ya migraron a guardar estos datos en Usuario (como en tu modelo Usuario.js),
+        // puedes setearlos aquí también y eliminar Estudiante.
       }, { transaction: t });
 
-      // 2. Si el rol es estudiante, crear el registro en la tabla ESTUDIANTE
+      // 2) Si rol estudiante, crear Estudiante (si todavía existe y la usan)
       let estudianteData = null;
-
       if (user.rol === 'estudiante') {
         estudianteData = await Estudiante.create({
           id: user.id,
@@ -36,94 +35,92 @@ class UsuarioService {
         }, { transaction: t });
       }
 
-      // 3. Generar Token
-      const token = jwt.sign(
-        { userId: user.id, rol: user.rol },
-        process.env.JWT_SECRET,
-        { expiresIn: '8h' }
-      );
+      // 3) Tokens
+      const accessToken = signAccessToken({ userId: user.id, rol: user.rol });
+      const refreshToken = signRefreshToken({ userId: user.id, rol: user.rol });
 
-      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-      // 4. Crear Sesión
+      // 4) Guardar refresh en Session (hash)
       await Session.create({
         userId: user.id,
-        tokenHash,
+        tokenHash: hashToken(refreshToken),
         isActive: true,
-        expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000)
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
       }, { transaction: t });
 
-      // 5. Confirmar todo en la base de datos
       await t.commit();
 
-      // 6. Preparar respuesta (Combinar datos de Usuario y Estudiante)
       const userResponse = user.toJSON();
       delete userResponse.contrasena_hash;
-      
 
-      const finalResponse = estudianteData 
-        ? { ...userResponse, ...estudianteData.toJSON() } 
+      const finalResponse = estudianteData
+        ? { ...userResponse, ...estudianteData.toJSON() }
         : userResponse;
 
-      return { user: finalResponse, token };
-
+      return { user: finalResponse, accessToken, refreshToken };
     } catch (error) {
-      await t.rollback(); 
-      console.error('ERROR EN REGISTRO:', error);
+      await t.rollback();
       throw error;
     }
   }
 
   static async login(correo, contrasena) {
-    // Buscar usuario base
-    const user = await Usuario.findOne({
-      where: { correo_institucional: correo }
-    });
-
-    if (!user) {
-      throw new Error('Credenciales inválidas');
-    }
+    const user = await Usuario.findOne({ where: { correo_institucional: correo } });
+    if (!user) throw new Error('Credenciales inválidas');
 
     const bcrypt = await import('bcrypt');
     const isValid = await bcrypt.compare(contrasena, user.contrasena_hash);
+    if (!isValid) throw new Error('Credenciales inválidas');
 
-    if (!isValid) {
-      throw new Error('Credenciales inválidas');
-    }
-
-    // Si quieres devolver los datos académicos en el login también:
     let additionalData = {};
     if (user.rol === 'estudiante') {
-       const estudiante = await Estudiante.findByPk(user.id);
-       if (estudiante) additionalData = estudiante.toJSON();
+      const estudiante = await Estudiante.findByPk(user.id);
+      if (estudiante) additionalData = estudiante.toJSON();
     }
 
-    const token = jwt.sign(
-      { userId: user.id, rol: user.rol },
-      process.env.JWT_SECRET,
-      { expiresIn: '8h' }
-    );
-
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const accessToken = signAccessToken({ userId: user.id, rol: user.rol });
+    const refreshToken = signRefreshToken({ userId: user.id, rol: user.rol });
 
     await Session.create({
       userId: user.id,
-      tokenHash,
+      tokenHash: hashToken(refreshToken),
       isActive: true,
-      expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000)
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
 
     const userResponse = user.toJSON();
     delete userResponse.contrasena_hash;
 
-    // Combinamos respuesta
-    const finalResponse = { ...userResponse, ...additionalData };
-
-    return { user: finalResponse, token };
+    return { user: { ...userResponse, ...additionalData }, accessToken, refreshToken };
   }
 
-  static async logout(userId, token) {
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  static async refresh(refreshToken) {
+    const decoded = verifyJwt(refreshToken);
+    const tokenHash = hashToken(refreshToken);
+
+    const session = await Session.findOne({
+      where: { userId: decoded.userId, tokenHash, isActive: true }
+    });
+
+    if (!session) throw new Error('INVALID_SESSION');
+
+    // Rotación: invalidar refresh anterior
+    await session.update({ isActive: false });
+
+    const accessToken = signAccessToken({ userId: decoded.userId, rol: decoded.rol });
+    const newRefreshToken = signRefreshToken({ userId: decoded.userId, rol: decoded.rol });
+
+    await Session.create({
+      userId: decoded.userId,
+      tokenHash: hashToken(newRefreshToken),
+      isActive: true,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+
+    return { accessToken, refreshToken: newRefreshToken };
+  }
+
+  static async logout(userId, refreshToken) {
+    const tokenHash = hashToken(refreshToken);
     await Session.update(
       { isActive: false },
       { where: { userId, tokenHash } }

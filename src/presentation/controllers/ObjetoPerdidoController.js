@@ -4,7 +4,7 @@ import ObjetoPerdidoService from '../../business/services/ObjetoPerdidoService.j
 import NotificacionService from '../../business/services/NotificacionService.js';
 import admin from '../../config/firebase.js';
 import Usuario from '../../data/models/Usuario.js';
-import ObjetoPerdido from '../../data/models/ObjetoPerdido.js';  
+import ObjetoPerdido from '../../data/models/ObjetoPerdido.js';
 
 class ObjetoPerdidoController {
   static async reportar(req, res) {
@@ -159,6 +159,41 @@ class ObjetoPerdidoController {
     } catch (error) {
       console.error('Error agregando comentario:', error);
       res.status(422).json({ error: error.message });
+    }
+  }
+
+  static async actualizarEstado(req, res) {
+    try {
+      const { estado } = req.body;
+
+      if (!estado) {
+        return res.status(400).json({
+          error: 'estado es requerido',
+          code: 'VALIDATION_ERROR',
+        });
+      }
+
+      if (!['perdido', 'encontrado', 'devuelto'].includes(estado)) {
+        return res.status(400).json({
+          error: 'estado inválido',
+          code: 'VALIDATION_ERROR',
+        });
+      }
+
+      const actualizado = await ObjetoPerdidoService.actualizarEstado(req.params.id, estado);
+
+      return res.status(200).json({
+        message: 'Estado actualizado',
+        data: actualizado,
+      });
+    } catch (error) {
+      console.error('Error actualizando estado objeto perdido:', error);
+      return res.status(500).json({
+        error: 'Error interno del servidor',
+        code: 'SERVER_ERROR',
+        message: error.message,
+        details: [],
+      });
     }
   }
 }

@@ -8,16 +8,25 @@ const Solicitud = sequelize.define('Solicitud', {
   estudiante_id: { type: DataTypes.INTEGER, allowNull: false },
   subtipo_id: { type: DataTypes.INTEGER, allowNull: false },
   fecha_solicitud: { type: DataTypes.DATEONLY, defaultValue: DataTypes.NOW },
+
   estado_actual: {
-    type: DataTypes.ENUM('Aprobado', 'En progreso', 'Por revisar'),
+    type: DataTypes.ENUM(
+      'Por revisar',
+      'En progreso',
+      'Observada',
+      'Derivada a becas',
+      'Aprobada',
+      'Rechazada'
+    ),
     defaultValue: 'Por revisar',
   },
+
   nivel_urgencia: {
     type: DataTypes.ENUM('Normal', 'Alta', 'Crítica'),
     defaultValue: 'Normal',
   },
   observaciones: DataTypes.TEXT,
-  comentario: {type: DataTypes.TEXT, allowNull: true, defaultValue: null},
+  comentario: { type: DataTypes.TEXT, allowNull: true, defaultValue: null },
 }, {
   tableName: 'Solicitud',
   timestamps: true,

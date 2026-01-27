@@ -15,7 +15,7 @@ const ComentarioObjeto = sequelize.define('ComentarioObjeto', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: { model: Usuario, key: 'id' },
-    onDelete: 'SET NULL'  
+    onDelete: 'SET NULL'
   },
   mensaje: { type: DataTypes.TEXT, allowNull: false },
   es_reclamo: { type: DataTypes.BOOLEAN, defaultValue: false },

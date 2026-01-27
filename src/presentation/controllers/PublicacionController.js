@@ -1,29 +1,35 @@
+// src/presentation/controllers/PublicacionController.js
 import PublicacionService from '../../business/services/PublicacionService.js';
+import { ok } from '../middleware/apiResponse.js';
+import { ApiError } from '../middleware/errorHandler.js';
 
 class PublicacionController {
-  // Crear publicacion
   static async crear(req, res) {
-    try {
-      if (!['administrador', 'bienestar'].includes(req.user.rol)) {
-        return res.status(403).json({ error: 'No autorizado' });
-      }
-      const { titulo, contenido } = req.body;
-      const imagen = req.file ? `/uploads/${req.file.filename}` : null;
-      const pub = await PublicacionService.crear(titulo, contenido, imagen, req.user.userId);
-      res.status(201).json({ message: 'Publicación creada', data: pub });
-    } catch (error) {
-      res.status(422).json({ error: error.message });
+    const { titulo, contenido } = req.body;
+
+    if (!titulo || !contenido) {
+      throw new ApiError(400, 'VALIDATION_ERROR', 'titulo y contenido son requeridos');
     }
+
+    const imagen = req.file ? `/Uploads/${req.file.filename}` : null;
+
+    const pub = await PublicacionService.create({
+      titulo: String(titulo).trim(),
+      contenido: String(contenido).trim(),
+      imagen,
+      publicado_por: req.user.userId,
+    });
+
+    return ok(res, { status: 201, message: 'Publicación creada', data: pub });
   }
 
-  // Obtener todas las publicaciones
   static async obtenerTodas(req, res) {
-    try {
-      const pubs = await PublicacionService.obtenerTodas();
-      res.status(200).json({ message: 'OK', data: pubs });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+    const result = await PublicacionService.list(req.query);
+    return ok(res, {
+      message: 'Publicaciones',
+      data: result.rows,
+      meta: { page: result.page, limit: result.limit, total: result.total },
+    });
   }
 }
 
