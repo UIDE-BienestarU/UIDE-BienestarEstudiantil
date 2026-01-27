@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/images/imagen4.png',
+                            'lib/assets/images/imagen4.png',
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) =>
                                 const Icon(Icons.school,

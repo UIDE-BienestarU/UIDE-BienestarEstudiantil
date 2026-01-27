@@ -9,21 +9,40 @@ import 'student_nueva_solicitud.dart';
 import 'student_perfil.dart';
 
 class StudentDashboard extends StatefulWidget {
-  const StudentDashboard({Key? key}) : super(key: key);
+  final int initialIndex;
+  final String? tipoInicial;
+
+  const StudentDashboard({
+    Key? key,
+    this.initialIndex = 0,
+    this.tipoInicial,
+  }) : super(key: key);
 
   @override
   State<StudentDashboard> createState() => _StudentDashboardState();
 }
 
 class _StudentDashboardState extends State<StudentDashboard> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+  String? _tipoDesdeHome;
 
-  final List<Widget> _screens = const [
-    StudentHomeScreen(),
-    StudentHistorialScreen(),
-    StudentNuevaSolicitudScreen(),
-    StudentPerfilScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+    _tipoDesdeHome = widget.tipoInicial;
+  }
+
+  List<Widget> _buildScreens() {
+    return [
+      const StudentHomeScreen(),          // 0
+      const StudentHistorialScreen(),     // 1
+      StudentNuevaSolicitudScreen(        // 2
+        tipoInicial: _tipoDesdeHome,
+      ),
+      const StudentPerfilScreen(),        // 3
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +51,57 @@ class _StudentDashboardState extends State<StudentDashboard> {
         backgroundColor: UIDEColors.conchevino,
         foregroundColor: Colors.white,
         title: const Text("Bienestar Universitario"),
-        
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => _confirmarLogout(context),
+          ),
+        ],
       ),
-      body: _screens[_selectedIndex],
+
+      body: AnimatedSwitcher(
+  duration: const Duration(milliseconds: 450), // 👈 más tiempo
+  switchInCurve: Curves.easeOutCubic,
+  switchOutCurve: Curves.easeInCubic,
+  transitionBuilder: (child, animation) {
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.15, 0), // 👈 desplazamiento más visible
+          end: Offset.zero,
+        ).animate(animation),
+        child: ScaleTransition(
+          scale: Tween<double>(
+            begin: 0.96, // 👈 pequeño zoom de entrada
+            end: 1.0,
+          ).animate(animation),
+          child: child,
+        ),
+      ),
+    );
+  },
+  child: IndexedStack(
+    key: ValueKey(_selectedIndex), // 🔥 NO QUITAR
+    index: _selectedIndex,
+    children: _buildScreens(),
+  ),
+),
+
+
+
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) =>
-            setState(() => _selectedIndex = index),
+        onDestinationSelected: (index) {
+          setState(() {
+            _selectedIndex = index;
+
+            // 🔥 IMPORTANTE: si no está en "Nueva", limpiamos el tipo
+            if (index != 2) {
+              _tipoDesdeHome = null;
+            }
+          });
+        },
         labelBehavior:
             NavigationDestinationLabelBehavior.onlyShowSelected,
         destinations: const [
@@ -67,12 +130,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
     );
   }
 
+  // ================= LOGOUT =================
+
   void _confirmarLogout(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         title: const Text("Cerrar sesión"),
         content:
             const Text("¿Estás seguro de que deseas salir?"),
