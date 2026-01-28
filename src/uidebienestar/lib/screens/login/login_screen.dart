@@ -1,8 +1,10 @@
 // lib/screens/login/login_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../theme/uide_colors.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/locale_provider.dart';
 
 import '../admin/admin_dashboard.dart';
 import '../student/student_dashboard.dart';
@@ -83,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/images/imagen4.png',
+                            'lib/assets/images/imagen4.png',
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) =>
                                 const Icon(Icons.school,
