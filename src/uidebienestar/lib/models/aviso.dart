@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'comentario.dart';
-
+// mejora
 enum CategoriaAviso {
   comunicado,
   objetosPerdidos,

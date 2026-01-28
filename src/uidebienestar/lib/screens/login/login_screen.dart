@@ -1,10 +1,8 @@
 // lib/screens/login/login_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../theme/uide_colors.dart';
 import '../../l10n/app_localizations.dart';
-import '../../providers/locale_provider.dart';
 
 import '../admin/admin_dashboard.dart';
 import '../student/student_dashboard.dart';
@@ -228,20 +226,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-              ),
-            ),
-
-            // 🔤 BOTÓN TEMPORAL – CAMBIO DE IDIOMA (LIMPIO)
-            Positioned(
-              top: 50,
-              right: 16,
-              child: FloatingActionButton.small(
-                onPressed: () {
-                  context.read<LocaleProvider>().toggleLocale();
-                },
-                backgroundColor: Colors.white.withOpacity(0.85),
-                child:
-                    const Icon(Icons.language, color: UIDEColors.conchevino),
               ),
             ),
           ],

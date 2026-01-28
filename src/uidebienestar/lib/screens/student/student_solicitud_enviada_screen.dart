@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/uide_colors.dart';
-import './student_dashboard.dart';
+import './student_dashboard.dart'; //IMPORTS
 
 class StudentSolicitudEnviadaScreen extends StatelessWidget {
   const StudentSolicitudEnviadaScreen({Key? key}) : super(key: key);

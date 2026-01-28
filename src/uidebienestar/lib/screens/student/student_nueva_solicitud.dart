@@ -12,7 +12,7 @@ class StudentNuevaSolicitudScreen extends StatefulWidget {
 }
 
 class _StudentNuevaSolicitudScreenState extends State<StudentNuevaSolicitudScreen> {
-  // ================== DATA ==================
+
   final Map<String, List<String>> _tiposConSubtipos = {
     'Salud y bienestar físico': [
       'Atención médica general',

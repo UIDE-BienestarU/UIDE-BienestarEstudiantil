@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+// NO TOMADO EN CUENTA DE MOMENTO
 class LocaleProvider extends ChangeNotifier {
   Locale _locale = const Locale('es');
 

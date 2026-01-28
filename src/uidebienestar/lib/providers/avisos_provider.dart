@@ -16,7 +16,6 @@ class AvisosProvider extends ChangeNotifier {
         .toList();
   }
 
-
   // CRUD AVISOS (ADMIN)
   void agregarAviso(Aviso aviso) {
     _avisos.insert(0, aviso);
@@ -45,7 +44,7 @@ class AvisosProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // COMENTARIOS (ESTUDIANTE)
+  // COMENTARIOS 
   // SOLO OBJETOS PERDIDOS
   void agregarComentario(String avisoId, String texto) {
     final index = _avisos.indexWhere((a) => a.id == avisoId);
@@ -59,12 +58,22 @@ class AvisosProvider extends ChangeNotifier {
         Comentario(
           texto: texto,
           fecha: DateTime.now(),
-        ),
+          autorNombre: "Juan Fuentes",
+          autorIniciales: "JF",
+        )
+
       ],
     );
 
     notifyListeners();
   }
+  Aviso avisoPorId(String id) {
+  return _avisos.firstWhere(
+    (a) => a.id == id,
+    orElse: () => throw Exception("Aviso no encontrado"),
+  );
+}
+
 
     void limpiarTodo() {
       _avisos.clear();

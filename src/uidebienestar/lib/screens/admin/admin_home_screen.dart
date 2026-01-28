@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/uide_colors.dart';
-import '../../models/aviso.dart';
+import '../../models/aviso.dart'; //IMPORTS
 
 class AdminHomeScreen extends StatelessWidget {
   final void Function(CategoriaAviso categoria) onAccesoAvisos;

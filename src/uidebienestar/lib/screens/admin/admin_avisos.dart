@@ -25,11 +25,12 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
   CategoriaAviso _categoria = CategoriaAviso.comunicado;
   List<String> _imagenesPaths = [];
   Aviso? _avisoEditando;
+  bool _mostrarActivos = true;
 
   @override
   void initState() {
     super.initState();
-    // 🔥 Si llega categoría predefinida, la usa
+
     if (widget.categoriaInicial != null) {
       _categoria = widget.categoriaInicial!;
     }
@@ -138,6 +139,10 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
   @override
   Widget build(BuildContext context) {
     final avisos = context.watch<AvisosProvider>().avisos;
+    final avisosFiltrados = avisos
+    .where((a) => a.activo == _mostrarActivos)
+    .toList();
+
 
     return Scaffold(
             appBar: AppBar(
@@ -298,8 +303,39 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: UIDEColors.conchevino),
               ),
             ),
+              Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ChoiceChip(
+                  label: const Text("Activos"),
+                  selected: _mostrarActivos,
+                  selectedColor: UIDEColors.conchevino.withOpacity(0.15),
+                  onSelected: (_) {
+                    setState(() {
+                      _mostrarActivos = true;
+                    });
+                  },
+                ),
+                const SizedBox(width: 12),
+                ChoiceChip(
+                  label: const Text("Inactivos"),
+                  selected: !_mostrarActivos,
+                  selectedColor: Colors.grey.withOpacity(0.2),
+                  onSelected: (_) {
+                    setState(() {
+                      _mostrarActivos = false;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
 
-            avisos.isEmpty
+
+            avisosFiltrados.isEmpty
+
                 ? const Padding(
                     padding: EdgeInsets.all(32.0),
                     child: Center(child: Text('No hay avisos aún', style: TextStyle(color: Colors.grey))),
@@ -308,9 +344,10 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                    itemCount: avisos.length,
+                    itemCount: avisosFiltrados.length,
                     itemBuilder: (context, index) {
-                      final a = avisos[index];
+                      final a = avisosFiltrados[index];
+
                       final imagenes = a.imagen != null ? a.imagen!.split(',') : [];
                       
                       return GestureDetector(

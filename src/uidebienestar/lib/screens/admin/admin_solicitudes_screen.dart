@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../theme/uide_colors.dart';
 import '../../models/solicitud.dart';
-import 'admin_detalle_solicitud.dart';
+import 'admin_detalle_solicitud.dart'; //IMPORTS
 
 class AdminSolicitudesScreen extends StatefulWidget {
   const AdminSolicitudesScreen({Key? key}) : super(key: key);

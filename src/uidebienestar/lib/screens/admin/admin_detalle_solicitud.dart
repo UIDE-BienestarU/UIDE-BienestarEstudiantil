@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/solicitud.dart';
 import '../../providers/admin_provider.dart';
-import '../../theme/uide_colors.dart';
+import '../../theme/uide_colors.dart'; //IMPORTS
 
 class AdminDetalleSolicitudScreen extends StatefulWidget {
   final Solicitud solicitud;

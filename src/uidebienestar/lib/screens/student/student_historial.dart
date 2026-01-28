@@ -15,7 +15,7 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
   String _estadoSeleccionado = 'Todos';
   String _busqueda = '';
 
-  final List<Map<String, dynamic>> _todasLasSolicitudes = const [
+  final List<Map<String, dynamic>> _todasLasSolicitudes = const [ //EJEMPLOS
     {
       "tipo": "Beca Académica",
       "fecha": "15 Nov 2025",

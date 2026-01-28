@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+// mejora
 class Solicitud {
   final String id;
   final String estudiante;

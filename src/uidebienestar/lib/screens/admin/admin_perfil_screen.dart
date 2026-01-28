@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import '../../theme/uide_colors.dart';
 import '../../providers/theme_provider.dart';
-import '../../providers/locale_provider.dart';
 import '../../main.dart';
+import 'admin_contactos.dart'; //NUEVA 
 
 class AdminPerfilScreen extends StatelessWidget {
   const AdminPerfilScreen({Key? key}) : super(key: key);
@@ -24,7 +22,7 @@ class AdminPerfilScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
-            // Contenedor elegante para el header del perfil (igual que en estudiante)
+            // Header del perfil
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -79,7 +77,7 @@ class AdminPerfilScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Correo:  ",
+                            "Correo: ",
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -110,23 +108,22 @@ class AdminPerfilScreen extends StatelessWidget {
 
             _perfilItem(
               context,
-              Icons.language,
-              "Idioma",
-              onTap: () => context.read<LocaleProvider>().toggleLocale(),
-            ),
-
-            _perfilItem(
-              context,
               Icons.dark_mode,
               "Tema",
               onTap: () => context.read<ThemeProvider>().toggleTheme(),
             ),
 
+            // ✅ BOTÓN CONTACTOS → NUEVA PANTALLA
             _perfilItem(
               context,
               Icons.contacts,
               "Contactos de ayuda",
-              onTap: () => _mostrarContactos(context),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminContactosScreen(),
+                ),
+              ),
             ),
 
             _perfilItem(
@@ -169,48 +166,6 @@ class AdminPerfilScreen extends StatelessWidget {
     );
   }
 
-  void _mostrarContactos(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        titlePadding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
-        title: const Center(
-          child: Text(
-            "Contactos de ayuda",
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 20,
-            ),
-          ),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-        contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              _ContactoItem(titulo: "Equipo TI UIDE", telefono: "0999999999"),
-              _ContactoDivider(),
-              _ContactoItem(titulo: "Departamento de Finanzas", telefono: "0988888888"),
-            ],
-          ),
-        ),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        actions: [
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey[700],
-              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cerrar"),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _confirmarLogout(BuildContext context) {
     showDialog(
       context: context,
@@ -236,113 +191,6 @@ class AdminPerfilScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ContactoItem extends StatelessWidget {
-  final String titulo;
-  final String telefono;
-
-  const _ContactoItem({
-    required this.titulo,
-    required this.telefono,
-  });
-
-  Future<void> _llamar(BuildContext context) async {
-    final cleanPhone = telefono.replaceAll(RegExp(r'[\s\-()]+'), '');
-    final Uri url = Uri(scheme: 'tel', path: cleanPhone);
-
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo llamar a $telefono')),
-        );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al intentar llamar')),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    final primaryColor = UIDEColors.conchevino; // ← Todo en conchevino
-
-    final primaryLight = isDark
-        ? primaryColor.withOpacity(0.25)
-        : primaryColor.withOpacity(0.15);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  telefono,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.75),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Material(
-            color: primaryLight,
-            shape: const CircleBorder(),
-            child: IconButton(
-              icon: Icon(
-                Icons.phone_rounded,
-                color: primaryColor,
-                size: 26,
-              ),
-              tooltip: 'Llamar a $telefono',
-              onPressed: () => _llamar(context),
-              padding: const EdgeInsets.all(12),
-              constraints: const BoxConstraints(minWidth: 52, minHeight: 52),
-              splashRadius: 26,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ContactoDivider extends StatelessWidget {
-  const _ContactoDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Divider(
-        height: 1,
-        thickness: 0.5,
-        color: Theme.of(context).dividerColor.withOpacity(0.3),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+//COLORES UIDE
 class UIDEColors {
   static const Color amarillo = Color(0xFFFDB913);
   static const Color conchevino = Color(0xFF8B1538);

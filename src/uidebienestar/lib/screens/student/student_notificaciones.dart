@@ -13,8 +13,8 @@ class StudentNotificacionesScreen extends StatelessWidget {
         title: const Text("Notificaciones"),
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: 8,
+        padding: const EdgeInsets.all(5),
+        itemCount: 4,
         itemBuilder: (context, index) {
           return Container(
             margin: const EdgeInsets.only(bottom: 10),
