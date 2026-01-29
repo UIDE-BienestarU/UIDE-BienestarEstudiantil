@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; //IMPORTS
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/contacto.dart';
 import '../../theme/uide_colors.dart';
@@ -10,27 +10,36 @@ class AdminContactosScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Contacto> contactos = [
       Contacto(
+        iniciales: "SA",
+        color: UIDEColors.conchevino, // color principal para admin
         nombre: "Secretaría Académica",
-        cargo: "Administración",
-        telefono: "0988888888",
+        cargo: "Administración Académica",
+        telefono: "+593 98 888 8888",
         correo: "secretaria@uide.edu.ec",
+        ubicacion: "Edificio Administrativo, Planta Baja",
       ),
-      // CONTACTOS
       Contacto(
+        iniciales: "TI",
+        color: UIDEColors.azul,
         nombre: "Equipo TI UIDE",
-        cargo: "Soporte Técnico", 
-        telefono: "0999999999",
+        cargo: "Soporte Técnico y Sistemas",
+        telefono: "+593 99 999 9999",
         correo: "ti@uide.edu.ec",
+        ubicacion: "Edificio B, Oficina 105",
       ),
       Contacto(
+        iniciales: "DF",
+        color: UIDEColors.amarillo,
         nombre: "Departamento de Finanzas",
-        cargo: "Gestión Financiera",
-        telefono: "0988888888",
+        cargo: "Gestión Financiera y Becas",
+        telefono: "+593 97 777 7777",
         correo: "finanzas@uide.edu.ec",
       ),
+      // Agrega más contactos aquí si es necesario
     ];
 
     return Scaffold(
+      backgroundColor: UIDEColors.grisClaro,
       appBar: AppBar(
         title: const Text("Contactos de ayuda"),
         backgroundColor: UIDEColors.conchevino,
@@ -41,61 +50,101 @@ class AdminContactosScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         itemCount: contactos.length,
         itemBuilder: (context, index) {
-          return _ContactoCard(contacto: contactos[index]);
+          return ContactoCard(contacto: contactos[index]);
         },
       ),
     );
   }
 }
 
-class _ContactoCard extends StatelessWidget {
+// Widget reutilizable (puedes moverlo a un archivo aparte como components/contacto_card.dart)
+class ContactoCard extends StatelessWidget {
   final Contacto contacto;
 
-  const _ContactoCard({required this.contacto});
+  const ContactoCard({super.key, required this.contacto});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+      elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              contacto.nombre,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: UIDEColors.conchevino,
+            // Círculo con iniciales
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: contacto.color,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                contacto.iniciales,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              contacto.cargo,
-              style: TextStyle(color: Colors.grey[600], fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.call,
-                    label: "Llamar",
-                    onPressed: () => _llamar(contacto.telefono),
+            const SizedBox(width: 16),
+
+            // Contenido
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    contacto.nombre,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: contacto.color, // mismo color que el círculo
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.email,
-                    label: "Correo", 
-                    onPressed: () => _correo(contacto.correo),
+                  const SizedBox(height: 2),
+                  Text(
+                    contacto.cargo,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: UIDEColors.grisTexto,
+                      height: 1.3,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+
+                  // Teléfono
+                  if (contacto.telefono.isNotEmpty)
+                    _InfoRow(
+                      icon: Icons.phone,
+                      text: contacto.telefono,
+                      color: contacto.color,
+                      onTap: () => _launchTel(contacto.telefono),
+                    ),
+
+                  // Correo
+                  if (contacto.correo.isNotEmpty)
+                    _InfoRow(
+                      icon: Icons.email,
+                      text: contacto.correo,
+                      color: contacto.color,
+                      onTap: () => _launchMail(contacto.correo),
+                    ),
+
+                  // Ubicación (opcional)
+                  if (contacto.ubicacion != null && contacto.ubicacion!.isNotEmpty)
+                    _InfoRow(
+                      icon: Icons.location_on,
+                      text: contacto.ubicacion!,
+                      color: contacto.color,
+                    ),
+                ],
+              ),
             ),
           ],
         ),
@@ -103,44 +152,56 @@ class _ContactoCard extends StatelessWidget {
     );
   }
 
-  Future<void> _llamar(String telefono) async {
-    final uri = Uri.parse("tel:$telefono");
+  Future<void> _launchTel(String phone) async {
+    final uri = Uri.parse("tel:${phone.replaceAll(RegExp(r'\s+'), '')}");
     if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
-  Future<void> _correo(String email) async {
+  Future<void> _launchMail(String email) async {
     final uri = Uri.parse("mailto:$email");
     if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 }
 
-class _ActionButton extends StatelessWidget {
+class _InfoRow extends StatelessWidget {
   final IconData icon;
-  final String label;
-  final VoidCallback onPressed;
+  final String text;
+  final Color color;
+  final VoidCallback? onTap;
 
-  const _ActionButton({
+  const _InfoRow({
     required this.icon,
-    required this.label,
-    required this.onPressed,
+    required this.text,
+    required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: UIDEColors.conchevino.withOpacity(0.1),
-        foregroundColor: UIDEColors.conchevino,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(vertical: 12),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(fontSize: 14, color: UIDEColors.grisTexto),
+              ),
+            ),
+            if (onTap != null)
+              Icon(Icons.chevron_right, size: 18, color: color.withOpacity(0.7)),
+          ],
+        ),
       ),
-      icon: Icon(icon, size: 20),
-      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-      onPressed: onPressed,
     );
   }
 }
