@@ -13,10 +13,7 @@ const Solicitud = sequelize.define('Solicitud', {
     type: DataTypes.ENUM(
       'Por revisar',
       'En progreso',
-      'Observada',
-      'Derivada a becas',
-      'Aprobada',
-      'Rechazada'
+      'Aprobada'
     ),
     defaultValue: 'Por revisar',
   },

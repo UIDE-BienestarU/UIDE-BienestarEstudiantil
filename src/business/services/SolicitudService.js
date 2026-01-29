@@ -5,7 +5,7 @@ import SubtipoSolicitud from '../../data/models/SubtipoSolicitud.js';
 
 import SolicitudHistorial from '../../data/models/SolicitudHistorial.js';
 import { Op } from 'sequelize';
-import { parsePagination } from '../utils/pagination.js'; // lo creamos abajo
+import { parsePagination } from '../utils/pagination.js'; 
 
 class SolicitudService {
   static async createSolicitud(userId, data) {

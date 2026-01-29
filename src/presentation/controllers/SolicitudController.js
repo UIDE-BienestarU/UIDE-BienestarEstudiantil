@@ -79,7 +79,7 @@ class SolicitudController {
 
   static async addDocumentos(req, res) {
     const solicitudId = Number(req.params.id);
-    const { documentos } = req.body; // [{ url_archivo, nombre_documento, obligatorio }]
+    const { documentos } = req.body; 
     if (!Array.isArray(documentos) || documentos.length === 0) {
       throw new ApiError(400, 'VALIDATION_ERROR', 'documentos es requerido');
     }
@@ -102,9 +102,6 @@ class SolicitudController {
         'Aprobada': '¡Tu solicitud ha sido APROBADA!',
         'En progreso': 'Tu solicitud está en progreso',
         'Por revisar': 'Tu solicitud está por revisar',
-        'Observada': 'Tu solicitud fue OBSERVADA: revisa los requisitos y vuelve a subir documentos.',
-        'Derivada a becas': 'Tu solicitud fue derivada al área de Becas.',
-        'Rechazada': 'Tu solicitud fue RECHAZADA. Revisa el comentario.',
       };
 
       const titulo = `Solicitud ${estado_actual}`;

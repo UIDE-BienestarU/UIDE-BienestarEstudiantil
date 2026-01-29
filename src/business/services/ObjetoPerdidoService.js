@@ -4,13 +4,12 @@ import { Op } from 'sequelize';
 import { parsePagination } from '../utils/pagination.js';
 
 class ObjetoPerdidoService {
-  static async list(query = {}) {
+  static async obtenerTodos(query = {}) {
     const { page, limit, offset } = parsePagination(query);
 
     const where = {};
 
-    // filtros
-    if (query.estado) where.estado = query.estado; // perdido/encontrado/devuelto
+    if (query.estado) where.estado = query.estado;
 
     if (query.q) {
       where[Op.or] = [
@@ -40,21 +39,25 @@ class ObjetoPerdidoService {
     return { rows, total: count, page, limit };
   }
 
-  static async create(data) {
-    return await ObjetoPerdido.create(data);
-  }
 
-  static async updateEstado(id, estado) {
-    const obj = await ObjetoPerdido.findByPk(id);
-    if (!obj) throw new Error('NOT_FOUND');
-    await obj.update({ estado });
-    return obj;
+  static async reportar(data) {
+    try {
+      return await ObjetoPerdido.create(data, { validate: true });
+    } catch (error) {
+      throw error; 
+    }
   }
 
   static async actualizarEstado(id, estado) {
     const obj = await ObjetoPerdido.findByPk(id);
     if (!obj) throw new Error('Objeto no encontrado');
+    await obj.update({ estado });
+    return obj;
+  }
 
+  static async updateEstado(id, estado) {
+    const obj = await ObjetoPerdido.findByPk(id);
+    if (!obj) throw new Error('NOT_FOUND');
     await obj.update({ estado });
     return obj;
   }
