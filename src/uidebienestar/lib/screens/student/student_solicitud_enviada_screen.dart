@@ -22,7 +22,7 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // ❌ CERRAR
+            // CERRAR
             Positioned(
               top: 10,
               right: 10,
@@ -42,7 +42,7 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
                       width: 90,
                       height: 90,
                       decoration: const BoxDecoration(
-                        color: UIDEColors.conchevino,
+                        color: Color.fromARGB(255, 20, 162, 1),
                         shape: BoxShape.circle,
                       ),
 
@@ -78,12 +78,12 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
 
                     const SizedBox(height: 32),
 
-                    // 👉 IR A MIS SOLICITUDES (Historial = index 1)
+                    //  IR A MIS SOLICITUDES (Historial = index 1)
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: UIDEColors.conchevino,
+                          backgroundColor: const Color.fromARGB(255, 20, 162, 1),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         onPressed: () => _irADashboard(context, 1),
@@ -96,7 +96,7 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
 
                     const SizedBox(height: 12),
 
-                    // 👉 VOLVER AL INICIO (Home = index 0)
+                    //  VOLVER AL INICIO (Home = index 0)
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(

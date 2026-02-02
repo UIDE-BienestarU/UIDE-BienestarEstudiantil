@@ -1,10 +1,8 @@
 // lib/screens/login/login_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../theme/uide_colors.dart';
 import '../../l10n/app_localizations.dart';
-import '../../providers/locale_provider.dart';
 
 import '../admin/admin_dashboard.dart';
 import '../student/student_dashboard.dart';
