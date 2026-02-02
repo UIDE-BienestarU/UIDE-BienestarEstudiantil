@@ -43,6 +43,63 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
     super.dispose();
   }
 
+  // ✅ VALIDADOR PERSONALIZADO
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: UIDEColors.amarillo, size: 28),
+            const SizedBox(width: 12),
+            const Text(
+              'Error',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: UIDEColors.azul,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[700],
+            height: 1.4,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIDEColors.conchevino,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 2,
+            ),
+            child: const Text(
+              'Confirmar',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _seleccionarImagen() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -61,9 +118,7 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
 
   void _guardarAviso() {
     if (_tituloController.text.trim().isEmpty || _contenidoController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Título y contenido son obligatorios')),
-      );
+      _showErrorDialog('Los campos Título y contenido son obligatorios');
       return;
     }
 
@@ -140,12 +195,11 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
   Widget build(BuildContext context) {
     final avisos = context.watch<AvisosProvider>().avisos;
     final avisosFiltrados = avisos
-    .where((a) => a.activo == _mostrarActivos)
-    .toList();
-
+        .where((a) => a.activo == _mostrarActivos)
+        .toList();
 
     return Scaffold(
-            appBar: AppBar(
+      appBar: AppBar(
         title: Text(
           widget.categoriaInicial != null
               ? "Nuevo ${widget.categoriaInicial == CategoriaAviso.objetosPerdidos ? 'Objeto perdido' : 'Comunicado'}"
@@ -303,39 +357,37 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: UIDEColors.conchevino),
               ),
             ),
-              Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ChoiceChip(
-                  label: const Text("Activos"),
-                  selected: _mostrarActivos,
-                  selectedColor: UIDEColors.conchevino.withOpacity(0.15),
-                  onSelected: (_) {
-                    setState(() {
-                      _mostrarActivos = true;
-                    });
-                  },
-                ),
-                const SizedBox(width: 12),
-                ChoiceChip(
-                  label: const Text("Inactivos"),
-                  selected: !_mostrarActivos,
-                  selectedColor: Colors.grey.withOpacity(0.2),
-                  onSelected: (_) {
-                    setState(() {
-                      _mostrarActivos = false;
-                    });
-                  },
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ChoiceChip(
+                    label: const Text("Activos"),
+                    selected: _mostrarActivos,
+                    selectedColor: UIDEColors.conchevino.withOpacity(0.15),
+                    onSelected: (_) {
+                      setState(() {
+                        _mostrarActivos = true;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  ChoiceChip(
+                    label: const Text("Inactivos"),
+                    selected: !_mostrarActivos,
+                    selectedColor: Colors.grey.withOpacity(0.2),
+                    onSelected: (_) {
+                      setState(() {
+                        _mostrarActivos = false;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-
 
             avisosFiltrados.isEmpty
-
                 ? const Padding(
                     padding: EdgeInsets.all(32.0),
                     child: Center(child: Text('No hay avisos aún', style: TextStyle(color: Colors.grey))),
@@ -371,15 +423,15 @@ class _AdminAvisosScreenState extends State<AdminAvisosScreen> {
                                           height: 70,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) => 
-                                            Container(
-                                              width: 70,
-                                              height: 70,
-                                              decoration: BoxDecoration(
-                                                color: UIDEColors.conchevino.withOpacity(0.08),
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: const Icon(Icons.image_not_supported, color: UIDEColors.conchevino, size: 32),
+                                              Container(
+                                            width: 70,
+                                            height: 70,
+                                            decoration: BoxDecoration(
+                                              color: UIDEColors.conchevino.withOpacity(0.08),
+                                              borderRadius: BorderRadius.circular(8),
                                             ),
+                                            child: const Icon(Icons.image_not_supported, color: UIDEColors.conchevino, size: 32),
+                                          ),
                                         ),
                                         if (imagenes.length > 1)
                                           Positioned(

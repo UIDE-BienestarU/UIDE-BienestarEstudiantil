@@ -21,20 +21,74 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
 
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: UIDEColors.amarillo, size: 28),
+            const SizedBox(width: 12),
+            const Text(
+              'Error',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: UIDEColors.azul,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[700],
+            height: 1.4,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIDEColors.conchevino,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 2,
+            ),
+            child: const Text(
+              'Confirmar',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _login() async {
     final loc = AppLocalizations.of(context)!;
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(loc.fillFieldsError)));
+      _showErrorDialog("Por favor completa los campos requeridos");
       return;
     }
 
     if (!email.endsWith('@uide.edu.ec')) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(loc.institutionalEmailError)));
+      _showErrorDialog("Usa tu correo institucional @uide.edu.ec");
       return;
     }
 
@@ -85,10 +139,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Image.asset(
                             'lib/assets/images/imagen4.png',
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const Icon(Icons.school,
-                                    size: 60,
-                                    color: UIDEColors.conchevino),
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.school,
+                              size: 60,
+                              color: UIDEColors.conchevino,
+                            ),
                           ),
                         ),
                       ),
@@ -122,7 +177,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(32, 40, 32, 32),
+                          padding:
+                              const EdgeInsets.fromLTRB(32, 40, 32, 32),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -153,8 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
-                                  prefixIcon:
-                                      const Icon(Icons.person_outline),
+                                  prefixIcon: const Icon(Icons.person_outline),
                                   hintText: loc.emailHint,
                                   filled: true,
                                   fillColor: Colors.grey[50],
@@ -171,8 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 controller: _passwordController,
                                 obscureText: _obscurePassword,
                                 decoration: InputDecoration(
-                                  prefixIcon:
-                                      const Icon(Icons.lock_outline),
+                                  prefixIcon: const Icon(Icons.lock_outline),
                                   hintText: loc.passwordHint,
                                   filled: true,
                                   fillColor: Colors.grey[50],
@@ -199,16 +253,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 18),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(16)),
+                                      borderRadius: BorderRadius.circular(16)),
                                 ),
                                 child: _isLoading
                                     ? const SizedBox(
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white),
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
                                       )
                                     : Text(
                                         loc.loginButton,

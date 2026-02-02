@@ -34,6 +34,7 @@ class AdminContactosScreen extends StatelessWidget {
         cargo: "Gestión Financiera y Becas",
         telefono: "+593 97 777 7777",
         correo: "finanzas@uide.edu.ec",
+        ubicacion: "Edificio B, Oficina 100",
       ),
       // Agrega más contactos aquí si es necesario
     ];

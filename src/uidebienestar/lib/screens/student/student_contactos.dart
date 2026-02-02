@@ -17,8 +17,6 @@ class StudentContactosScreen extends StatelessWidget {
         cargo: "Psicólogo\nBienestar Universitario",
         telefono: "+57 300 234 5678",
         correo: "carlos.rodriguez@universidad.edu.ec",
-        ubicacion: "Edificio A, Oficina 203",
-        horario: "Lunes - Viernes\n8:00 AM - 5:00 PM\nSábados\n8:00 AM - 12:00 PM",
       ),
       Contacto(
         iniciales: "MG",

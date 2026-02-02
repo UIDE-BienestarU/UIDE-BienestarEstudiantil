@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/solicitud.dart';
 import '../../providers/admin_provider.dart';
-import '../../theme/uide_colors.dart'; //IMPORTS
+import '../../theme/uide_colors.dart';
 
 class AdminDetalleSolicitudScreen extends StatefulWidget {
   final Solicitud solicitud;
@@ -19,6 +19,137 @@ class AdminDetalleSolicitudScreen extends StatefulWidget {
 class _AdminDetalleSolicitudScreenState extends State<AdminDetalleSolicitudScreen> {
   bool _mostrarMotivoPosponer = false;
   final TextEditingController _motivoController = TextEditingController();
+
+  // ✅ VALIDADOR POSPONER
+  void _showMotivoErrorDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: UIDEColors.amarillo, size: 28),
+            const SizedBox(width: 12),
+            const Text(
+              'Error',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: UIDEColors.azul,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Debe especificar el motivo de la posposición',
+          style: TextStyle(
+            fontSize: 16,
+            color: UIDEColors.grisTexto,
+            height: 1.4,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIDEColors.conchevino,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 2,
+            ),
+            child: const Text(
+              'Confirmar',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ VALIDADOR APROBAR
+  void _showAprobacionExitoDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        contentPadding: const EdgeInsets.fromLTRB(32, 40, 32, 32),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ÍCONO CHECK VERDE ✅
+            Container(
+              width: 80,
+              height: 80,
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 20, 162, 1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 45,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "¡Solicitud aprobada con éxito!",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: UIDEColors.azul,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "La solicitud ha sido procesada correctamente.\nEl estudiante recibirá una notificación.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                height: 1.5,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pop(context); // Vuelve a lista
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 20, 162, 1),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 2,
+              ),
+              child: const Text(
+                "Volver a Solicitudes",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -42,7 +173,7 @@ class _AdminDetalleSolicitudScreenState extends State<AdminDetalleSolicitudScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header compacto (CON CORREO ✅)
+            // Header compacto
             Row(
               children: [
                 CircleAvatar(
@@ -66,7 +197,6 @@ class _AdminDetalleSolicitudScreenState extends State<AdminDetalleSolicitudScree
                         widget.solicitud.estudiante,
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                       ),
-                      // ✅ CORREO AGREGADO
                       const SizedBox(height: 4),
                       Text(
                         widget.solicitud.correo,
@@ -96,7 +226,7 @@ class _AdminDetalleSolicitudScreenState extends State<AdminDetalleSolicitudScree
             ),
             const SizedBox(height: 32),
 
-            // Información de la solicitud (CON CORREO ✅)
+            // Información de la solicitud
             const Text(
               "Información de la solicitud",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: UIDEColors.conchevino),
@@ -148,7 +278,7 @@ class _AdminDetalleSolicitudScreenState extends State<AdminDetalleSolicitudScree
               ...widget.solicitud.documentos!.map((docName) => _buildDocumentRow(docName)),
             const SizedBox(height: 48),
 
-            // Botones de acción
+            // Botones de acción ✅ ACTUALIZADOS
             if (widget.solicitud.estado == "Pendiente" || widget.solicitud.estado == "En revisión")
               Row(
                 children: [
@@ -156,13 +286,7 @@ class _AdminDetalleSolicitudScreenState extends State<AdminDetalleSolicitudScree
                     child: ElevatedButton.icon(
                       onPressed: () {
                         provider.aprobar(widget.solicitud.id);
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text("Solicitud aprobada"),
-                            backgroundColor: colorPrincipal,
-                          ),
-                        );
+                        _showAprobacionExitoDialog(); // ✅ NUEVO VALIDADOR
                       },
                       icon: const Icon(Icons.check, size: 20),
                       label: const Text("Aprobar", style: TextStyle(fontSize: 16)),
@@ -195,7 +319,7 @@ class _AdminDetalleSolicitudScreenState extends State<AdminDetalleSolicitudScree
                 ],
               ),
 
-            // Campo motivo posposición
+            // Campo motivo posposición ✅ ACTUALIZADO
             if (_mostrarMotivoPosponer) ...[
               const SizedBox(height: 24),
               const Text(
@@ -223,9 +347,7 @@ class _AdminDetalleSolicitudScreenState extends State<AdminDetalleSolicitudScree
                 child: ElevatedButton(
                   onPressed: () {
                     if (_motivoController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Debe especificar el motivo")),
-                      );
+                      _showMotivoErrorDialog(); // ✅ NUEVO VALIDADOR
                       return;
                     }
                     setState(() {
