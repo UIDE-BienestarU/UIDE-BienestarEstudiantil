@@ -35,3 +35,4 @@ flutter:
 
   assets:
     - lib/assets/images/imagen4.png
+    - lib/assets/images/login.png

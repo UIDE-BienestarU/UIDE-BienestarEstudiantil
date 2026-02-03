@@ -1,14 +1,12 @@
-// lib/screens/login/login_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
-
 import '../../theme/uide_colors.dart';
 import '../../l10n/app_localizations.dart';
-
 import '../admin/admin_dashboard.dart';
 import '../student/student_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -21,79 +19,35 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
 
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-        title: Row(
-          children: [
-            Icon(Icons.error_outline, color: UIDEColors.amarillo, size: 28),
-            const SizedBox(width: 12),
-            const Text(
-              'Error',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: UIDEColors.azul,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          message,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[700],
-            height: 1.4,
-          ),
-        ),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: UIDEColors.conchevino,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 2,
-            ),
-            child: const Text(
-              'Confirmar',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _login() async {
     final loc = AppLocalizations.of(context)!;
+
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      _showErrorDialog("Por favor completa los campos requeridos");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.fillFieldsError ?? 'Completa los campos')),
+      );
       return;
     }
 
     if (!email.endsWith('@uide.edu.ec')) {
-      _showErrorDialog("Usa tu correo institucional @uide.edu.ec");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            loc.institutionalEmailError ?? 'Correo institucional requerido',
+          ),
+        ),
+      );
       return;
     }
 
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(milliseconds: 1200));
+
+    if (!mounted) return;
+
     setState(() => _isLoading = false);
 
     if (email.contains('admin')) {
@@ -111,180 +65,288 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
-    final bool isTablet = size.width > 600;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom; // ✅ teclado
 
     return Scaffold(
-      backgroundColor: UIDEColors.conchevino,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      // Logo
-                      Container(
-                        width: isTablet ? 140 : 110,
-                        height: isTablet ? 140 : 110,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'lib/assets/images/imagen4.png',
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.school,
-                              size: 60,
-                              color: UIDEColors.conchevino,
-                            ),
-                          ),
-                        ),
-                      ),
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'lib/assets/images/login.png',
+            fit: BoxFit.fitHeight,
+            alignment: Alignment.topCenter,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+            child: Container(
+              color: UIDEColors.conchevino.withAlpha((0.55 * 255).round()),
+            ),
+          ),
 
-                      const SizedBox(height: 24),
-
-                      Text(
-                        loc.appTitle.split(' ')[0],
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      Text(
-                        "UIDE",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: UIDEColors.amarillo,
-                          letterSpacing: 3,
-                        ),
-                      ),
-
-                      const SizedBox(height: 48),
-
-                      Card(
-                        elevation: 12,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)),
-                        child: Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(32, 40, 32, 32),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                loc.loginTitle,
-                                style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: UIDEColors.azul,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-
-                              const SizedBox(height: 8),
-
-                              Text(
-                                loc.loginSubtitle,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 15,
-                                ),
-                              ),
-
-                              const SizedBox(height: 32),
-
-                              TextField(
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: InputDecoration(
-                                  prefixIcon: const Icon(Icons.person_outline),
-                                  hintText: loc.emailHint,
-                                  filled: true,
-                                  fillColor: Colors.grey[50],
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              TextField(
-                                controller: _passwordController,
-                                obscureText: _obscurePassword,
-                                decoration: InputDecoration(
-                                  prefixIcon: const Icon(Icons.lock_outline),
-                                  hintText: loc.passwordHint,
-                                  filled: true,
-                                  fillColor: Colors.grey[50],
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(_obscurePassword
-                                        ? Icons.visibility_off
-                                        : Icons.visibility),
-                                    onPressed: () => setState(() =>
-                                        _obscurePassword = !_obscurePassword),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 32),
-
-                              ElevatedButton(
-                                onPressed: _isLoading ? null : _login,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: UIDEColors.azul,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 18),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16)),
-                                ),
-                                child: _isLoading
-                                    ? const SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : Text(
-                                        loc.loginButton,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+          // ✅ Scroll que reacciona mejor al teclado
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag, // ✅
+                  padding: EdgeInsets.only(
+                    bottom: bottomInset, // ✅ empuja todo hacia arriba
+                  ),
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          // Sección superior (logo + título)
+                          Expanded(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 32.0),
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 90,
+                                      height: 90,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(24),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.25),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ],
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(24),
+                                        child: Image.asset(
+                                          'lib/assets/images/imagen4.png',
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    const Text(
+                                      'Portal Estudiante',
+                                      style: TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Bienestar Universitario',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white.withAlpha(
+                                          (0.9 * 255).round(),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+
+                          // Tarjeta blanca inferior
+                          Container(
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(40),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 20,
+                                  offset: Offset(0, -8),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(24, 32, 24, 40),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'Iniciar Sesión',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Ingresa con tu correo institucional',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.grey[700],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 32),
+                                  _buildInputField(
+                                    label: 'Correo electrónico',
+                                    controller: _emailController,
+                                    icon: Icons.mail_outline,
+                                    hint: 'estudiante@uide.edu.ec',
+                                    keyboardType: TextInputType.emailAddress,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  _buildInputField(
+                                    label: 'Contraseña',
+                                    controller: _passwordController,
+                                    icon: Icons.lock_outline,
+                                    hint: '••••••••',
+                                    obscureText: _obscurePassword,
+                                    suffix: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility_off_outlined
+                                            : Icons.visibility_outlined,
+                                        color: Colors.grey[700],
+                                      ),
+                                      onPressed: () => setState(
+                                        () => _obscurePassword =
+                                            !_obscurePassword,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // ✅ ELIMINADO: "¿Olvidaste tu contraseña?"
+                                  // const SizedBox(height: 12),
+                                  // Align(
+                                  //   alignment: Alignment.centerRight,
+                                  //   child: TextButton(
+                                  //     onPressed: () {},
+                                  //     child: Text('¿Olvidaste tu contraseña?'),
+                                  //   ),
+                                  // ),
+
+                                  const SizedBox(height: 32),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 56,
+                                    child: ElevatedButton(
+                                      onPressed: _isLoading ? null : _login,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: UIDEColors.conchevino,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        elevation: 5,
+                                      ),
+                                      child: _isLoading
+                                          ? const SizedBox(
+                                              height: 24,
+                                              width: 24,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 3,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Ingresar',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    '¿Problemas para acceder? Contacta soporte',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildInputField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    String? hint,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    Widget? suffix,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          style: const TextStyle(fontSize: 16),
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Icon(icon, color: Colors.grey[600], size: 22),
+            ),
+            suffixIcon: suffix != null
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: suffix,
+                  )
+                : null,
+            filled: true,
+            fillColor: Colors.grey[50],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          ),
+        ),
+      ],
     );
   }
 

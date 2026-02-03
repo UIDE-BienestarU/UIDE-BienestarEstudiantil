@@ -11,10 +11,15 @@ class StudentContactosScreen extends StatelessWidget {
     // Puedes mover esta lista a un provider o archivo aparte más adelante
     final List<Contacto> contactos = [
       Contacto(
-        nombre: "BienestarU",
-        cargo: "Asistencia General",
-        telefono: "0912312321",
-        correo: "bienestar@uide.edu.ec",
+        iniciales: "CR",
+        color: const Color(0xFF8B1538), // conchevino
+        nombre: "Carlos Rodríguez Pérez",
+        cargo: "Psicólogo\nBienestar Universitario",
+        telefono: "+57 300 234 5678",
+        correo: "carlos.rodriguez@universidad.edu.ec",
+        ubicacion: "Edificio A, Oficina 203",
+        horario:
+            "Lunes - Viernes\n8:00 AM - 5:00 PM\nSábados\n8:00 AM - 12:00 PM",
       ),
       Contacto(
         iniciales: "MG",
