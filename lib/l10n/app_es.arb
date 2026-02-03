@@ -1,0 +1,39 @@
+{
+  "appTitle": "Bienestar Estudiantil UIDE",
+  "loginTitle": "Iniciar Sesión",
+  "loginSubtitle": "Usa tus credenciales de Canvas",
+  "emailHint": "usuario@uide.edu.ec",
+  "passwordHint": "Contraseña",
+  "loginButton": "INGRESAR",
+  "institutionalEmailError": "Usa tu correo institucional @uide.edu.ec",
+  "fillFieldsError": "Completa todos los campos",
+
+  "adminPanel": "Panel Administrativo",
+  "logout": "Cerrar sesión",
+  "logoutConfirmTitle": "Cerrar sesión",
+  "logoutConfirmMessage": "¿Estás seguro de que deseas salir?",
+  "cancel": "Cancelar",
+  "exit": "Salir",
+
+  "homeTab": "Inicio",
+  "requestsTab": "Solicitudes",
+  "newsTab": "Noticias",
+  "comingSoon": "Próximamente",
+
+  "welcomeAdmin": "¡Hola, Administrador!",
+  "manageRequests": "Gestiona todas las solicitudes de los estudiantes",
+
+  "pending": "Pendientes",
+  "inReview": "Revisión",
+  "approved": "Aprobadas",
+  "rejected": "Rechazadas",
+
+  "latestRequest": "Última solicitud",
+  "noRequestsYet": "No hay solicitudes aún",
+  "noPendingRequests": "No hay solicitudes pendientes",
+
+  "errorLoadingStats": "Error al cargar estadísticas",
+  "errorLoading": "Error al cargar",
+
+  "@@locale": "es"
+}

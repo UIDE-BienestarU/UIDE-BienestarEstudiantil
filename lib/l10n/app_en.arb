@@ -1,0 +1,39 @@
+{
+  "appTitle": "UIDE Student Wellness",
+  "loginTitle": "Sign In",
+  "loginSubtitle": "Use your Canvas credentials",
+  "emailHint": "user@uide.edu.ec",
+  "passwordHint": "Password",
+  "loginButton": "SIGN IN",
+  "institutionalEmailError": "Use your institutional email @uide.edu.ec",
+  "fillFieldsError": "Fill in all fields",
+
+  "adminPanel": "Admin Panel",
+  "logout": "Log out",
+  "logoutConfirmTitle": "Log out",
+  "logoutConfirmMessage": "Are you sure you want to log out?",
+  "cancel": "Cancel",
+  "exit": "Exit",
+
+  "homeTab": "Home",
+  "requestsTab": "Requests",
+  "newsTab": "News",
+  "comingSoon": "Coming soon",
+
+  "welcomeAdmin": "Hello, Administrator!",
+  "manageRequests": "Manage all student requests",
+
+  "pending": "Pending",
+  "inReview": "In Review",
+  "approved": "Approved",
+  "rejected": "Rejected",
+
+  "latestRequest": "Latest request",
+  "noRequestsYet": "No requests yet",
+  "noPendingRequests": "No pending requests",
+
+  "errorLoadingStats": "Error loading statistics",
+  "errorLoading": "Error loading",
+
+  "@@locale": "en"
+}
