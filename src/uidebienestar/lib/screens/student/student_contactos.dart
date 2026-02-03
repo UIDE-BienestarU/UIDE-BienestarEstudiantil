@@ -11,12 +11,10 @@ class StudentContactosScreen extends StatelessWidget {
     // Puedes mover esta lista a un provider o archivo aparte más adelante
     final List<Contacto> contactos = [
       Contacto(
-        iniciales: "CR",
-        color: const Color(0xFF8B1538), // conchevino
-        nombre: "Carlos Rodríguez Pérez",
-        cargo: "Psicólogo\nBienestar Universitario",
-        telefono: "+57 300 234 5678",
-        correo: "carlos.rodriguez@universidad.edu.ec",
+        nombre: "BienestarU",
+        cargo: "Asistencia General",
+        telefono: "0912312321",
+        correo: "bienestar@uide.edu.ec",
       ),
       Contacto(
         iniciales: "MG",
@@ -133,7 +131,8 @@ class ContactoCard extends StatelessWidget {
                     ),
 
                   // Ubicación
-                  if (contacto.ubicacion != null && contacto.ubicacion!.isNotEmpty)
+                  if (contacto.ubicacion != null &&
+                      contacto.ubicacion!.isNotEmpty)
                     _InfoRow(
                       icon: Icons.location_on,
                       text: contacto.ubicacion!,
@@ -141,7 +140,8 @@ class ContactoCard extends StatelessWidget {
                     ),
 
                   // Horario (solo si existe)
-                  if (contacto.horario != null && contacto.horario!.isNotEmpty) ...[
+                  if (contacto.horario != null &&
+                      contacto.horario!.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     const Text(
                       "Horario de atención",
@@ -210,7 +210,8 @@ class _InfoRow extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(fontSize: 14, color: UIDEColors.grisTexto),
+                style:
+                    const TextStyle(fontSize: 14, color: UIDEColors.grisTexto),
               ),
             ),
             if (onTap != null)
