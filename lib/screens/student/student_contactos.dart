@@ -43,7 +43,7 @@ class StudentContactosScreen extends StatelessWidget {
       backgroundColor: UIDEColors.grisClaro,
       appBar: AppBar(
         title: const Text("Contactos"),
-        backgroundColor: UIDEColors.azul,
+        backgroundColor: UIDEColors.conchevino,
         foregroundColor: Colors.white,
         elevation: 0,
       ),

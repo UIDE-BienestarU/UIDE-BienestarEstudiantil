@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart'; // ← AGREGADO
+
 import '../../theme/uide_colors.dart';
-import './student_dashboard.dart'; //IMPORTS
+import './student_dashboard.dart';
 
 class StudentSolicitudEnviadaScreen extends StatelessWidget {
   const StudentSolicitudEnviadaScreen({Key? key}) : super(key: key);
@@ -45,7 +47,6 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
                         color: UIDEColors.conchevino,
                         shape: BoxShape.circle,
                       ),
-
                       child: const Icon(
                         Icons.check,
                         color: Colors.white,
@@ -55,13 +56,14 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
-                    const Text(
+                    Text(
                       "¡Solicitud enviada con éxito!",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      style: GoogleFonts.poppins(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
                         color: UIDEColors.azul,
                       ),
+                      textAlign: TextAlign.center,
                     ),
 
                     const SizedBox(height: 12),
@@ -70,13 +72,14 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
                       "Tu solicitud ha sido procesada correctamente.\n"
                       "Recibirás una notificación en breve.",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        height: 1.4,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
 
-
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 40),
 
                     // 👉 IR A MIS SOLICITUDES (Historial = index 1)
                     SizedBox(
@@ -85,11 +88,18 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: UIDEColors.conchevino,
                           padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         onPressed: () => _irADashboard(context, 1),
-                        child: const Text(
+                        child: Text(
                           "Ir a mis solicitudes",
-                          style: TextStyle(color: Colors.white),
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -100,8 +110,22 @@ class StudentSolicitudEnviadaScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: UIDEColors.conchevino),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         onPressed: () => _irADashboard(context, 0),
-                        child: const Text("Volver al inicio"),
+                        child: Text(
+                          "Volver al inicio",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: UIDEColors.conchevino,
+                          ),
+                        ),
                       ),
                     ),
                   ],

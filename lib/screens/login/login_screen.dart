@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
             child: Container(
-              color: UIDEColors.conchevino.withAlpha((0.55 * 255).round()), // fix deprecado withOpacity
+              color: UIDEColors.conchevino.withAlpha((0.55 * 255).round()),
             ),
           ),
           // Contenido principal con scroll
@@ -139,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'Bienestar Universitario',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white.withAlpha((0.9 * 255).round()), // fix deprecado
+                                    color: Colors.white.withAlpha((0.9 * 255).round()),
                                   ),
                                 ),
                               ],
@@ -208,23 +208,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   onPressed: () =>
                                       setState(() => _obscurePassword = !_obscurePassword),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    // Implementar recuperación de contraseña
-                                  },
-                                  child: Text(
-                                    '¿Olvidaste tu contraseña?',
-                                    style: TextStyle(
-                                      color: UIDEColors.azul,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                    ),
-                                  ),
                                 ),
                               ),
                               const SizedBox(height: 32),

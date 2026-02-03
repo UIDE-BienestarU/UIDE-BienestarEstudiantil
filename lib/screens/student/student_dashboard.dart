@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../theme/uide_colors.dart';
-import '../../main.dart'; // contiene la función logout(context)
+import '../../main.dart'; // contiene logout(context)
 
-import 'student_home.dart';           // StudentHomeScreen
-import 'student_historial.dart';     // StudentHistorialScreen
-import 'student_nueva_solicitud.dart'; // StudentNuevaSolicitudScreen
-import 'student_perfil.dart';        // StudentPerfilScreen
-import 'student_notificaciones.dart'; // StudentNotificacionesScreen
+// Screens
+import 'student_home.dart';
+import 'student_historial.dart';
+import 'student_nueva_solicitud.dart';
+import 'student_perfil.dart';
+import 'student_notificaciones.dart';
 
 class StudentDashboard extends StatefulWidget {
   final int initialIndex;
@@ -49,43 +50,40 @@ class _StudentDashboardState extends State<StudentDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F9), // fondo claro como en tu primer código
+      backgroundColor: const Color(0xFFF7F7F9), // fondo claro general
 
-      // AppBar solo se muestra si NO estamos en Historial (índice 1)
-      appBar: _selectedIndex == 1
-          ? null
-          : AppBar(
-              elevation: 0,
-              backgroundColor: UIDEColors.conchevino,
-              foregroundColor: Colors.white,
-              title: Text(
-                "Bienestar Universitario",
-                style: GoogleFonts.poppins(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+      // AppBar SIEMPRE visible (eliminada la condición de ocultarlo en Historial)
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: UIDEColors.conchevino,
+        foregroundColor: Colors.white,
+        title: Text(
+          "Bienestar Universitario",
+          style: GoogleFonts.poppins(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_none, size: 22),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StudentNotificacionesScreen(),
                 ),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none, size: 22),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const StudentNotificacionesScreen(),
-                      ),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.logout, size: 22),
-                  onPressed: () => _confirmarLogout(context),
-                ),
-              ],
-            ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, size: 22),
+            onPressed: () => _confirmarLogout(context),
+          ),
+        ],
+      ),
 
-      // Transición suave entre pantallas (del segundo código)
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 450),
         switchInCurve: Curves.easeOutCubic,
@@ -112,7 +110,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
         ),
       ),
 
-      // Barra inferior con estilo sutil y blanco como en tu primer código
       bottomNavigationBar: NavigationBar(
         backgroundColor: UIDEColors.conchevino,
         indicatorColor: Colors.white.withOpacity(0.18),
@@ -121,8 +118,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
         onDestinationSelected: (index) {
           setState(() {
             _selectedIndex = index;
-            // Limpiar el tipo inicial si salimos de "Nueva solicitud"
-            if (index != 2) _tipoDesdeHome = null;
+            // Limpia tipoInicial si salimos de "Nueva solicitud"
+            if (index != 2) {
+              _tipoDesdeHome = null;
+            }
           });
         },
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
@@ -159,6 +158,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
     );
   }
 
+  // Diálogo de logout con estilo moderno y Google Fonts
   void _confirmarLogout(BuildContext context) {
     showDialog(
       context: context,
@@ -169,7 +169,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         content: Text(
-          "¿Deseas salir de tu cuenta?",
+          "¿Estás seguro de que deseas salir?",
           style: GoogleFonts.poppins(),
         ),
         actions: [
@@ -185,12 +185,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
               backgroundColor: UIDEColors.conchevino,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             onPressed: () {
               Navigator.pop(ctx);
               logout(context);
             },
-            child: Text("Salir", style: GoogleFonts.poppins()),
+            child: Text(
+              "Salir",
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+            ),
           ),
         ],
       ),

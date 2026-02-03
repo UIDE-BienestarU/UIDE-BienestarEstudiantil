@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../theme/uide_colors.dart';
 import 'student_solicitud_enviada_screen.dart';
@@ -56,17 +58,14 @@ class _StudentNuevaSolicitudScreenState
 
   late String _tipoSeleccionado;
   late String _subtipoSeleccionado;
-  final TextEditingController _descripcionController =
-      TextEditingController();
+  final TextEditingController _descripcionController = TextEditingController();
   List<PlatformFile> _archivos = [];
 
   @override
   void initState() {
     super.initState();
-    _tipoSeleccionado =
-        widget.tipoInicial ?? _tiposConSubtipos.keys.first;
-    _subtipoSeleccionado =
-        _tiposConSubtipos[_tipoSeleccionado]!.first;
+    _tipoSeleccionado = widget.tipoInicial ?? _tiposConSubtipos.keys.first;
+    _subtipoSeleccionado = _tiposConSubtipos[_tipoSeleccionado]!.first;
   }
 
   bool _formularioValido() {
@@ -92,15 +91,22 @@ class _StudentNuevaSolicitudScreenState
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Campos incompletos"),
-        content:
-            const Text("Por favor, completa los campos requeridos."),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          "Campos incompletos",
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          "Por favor, completa los campos requeridos.",
+          style: GoogleFonts.poppins(),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Aceptar"),
+            child: Text(
+              "Aceptar",
+              style: GoogleFonts.poppins(color: Colors.grey[700]),
+            ),
           ),
         ],
       ),
@@ -111,27 +117,39 @@ class _StudentNuevaSolicitudScreenState
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Confirmar envío"),
-        content: const Text(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          "Confirmar envío",
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
           "Revisa que la información y documentos sean correctos.",
+          style: GoogleFonts.poppins(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Regresar"),
+            child: Text(
+              "Regresar",
+              style: GoogleFonts.poppins(color: Colors.grey[700]),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: UIDEColors.conchevino,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () {
               Navigator.pop(context);
               _enviarSolicitud();
             },
-            child: const Text("Confirmar",
-                style: TextStyle(color: Colors.white)),
+            child: Text(
+              "Confirmar",
+              style: GoogleFonts.poppins(),
+            ),
           ),
         ],
       ),
@@ -139,7 +157,7 @@ class _StudentNuevaSolicitudScreenState
   }
 
   void _enviarSolicitud() {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => const StudentSolicitudEnviadaScreen(),
@@ -152,13 +170,7 @@ class _StudentNuevaSolicitudScreenState
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
-      // ✅ APPBAR PROPIO (NO SE BORRA)
-      appBar: AppBar(
-        title: const Text("Nueva solicitud"),
-        backgroundColor: UIDEColors.conchevino,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
+      // ✅ AppBar hijo eliminado → se usa el AppBar del padre
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -167,14 +179,15 @@ class _StudentNuevaSolicitudScreenState
             children: [
               Card(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _label(context, "Tipo de solicitud"),
+                      _label("Tipo de solicitud"),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _tipoSeleccionado,
@@ -183,8 +196,14 @@ class _StudentNuevaSolicitudScreenState
                         items: _tiposConSubtipos.keys
                             .map((tipo) => DropdownMenuItem(
                                   value: tipo,
-                                  child: Text(tipo,
-                                      overflow: TextOverflow.ellipsis),
+                                  child: Text(
+                                    tipo,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ))
                             .toList(),
                         onChanged: (v) {
@@ -196,7 +215,7 @@ class _StudentNuevaSolicitudScreenState
                         },
                       ),
                       const SizedBox(height: 24),
-                      _label(context, "Subtipo de solicitud"),
+                      _label("Subtipo de solicitud"),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _subtipoSeleccionado,
@@ -205,23 +224,29 @@ class _StudentNuevaSolicitudScreenState
                         items: _tiposConSubtipos[_tipoSeleccionado]!
                             .map((s) => DropdownMenuItem(
                                   value: s,
-                                  child: Text(s,
-                                      overflow: TextOverflow.ellipsis),
+                                  child: Text(
+                                    s,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ))
                             .toList(),
                         onChanged: (v) =>
                             setState(() => _subtipoSeleccionado = v!),
                       ),
                       const SizedBox(height: 24),
-                      _label(context, "Descripción"),
+                      _label("Descripción"),
                       const SizedBox(height: 8),
                       TextField(
                         controller: _descripcionController,
                         maxLines: 6,
+                        style: GoogleFonts.poppins(fontSize: 15),
                         decoration: _inputDecoration(
                           context,
-                          hint:
-                              "Describe el motivo de tu solicitud...",
+                          hint: "Describe el motivo de tu solicitud...",
                         ),
                       ),
                     ],
@@ -234,10 +259,10 @@ class _StudentNuevaSolicitudScreenState
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: UIDEColors.conchevino,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 18),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   onPressed: () {
                     if (!_formularioValido()) {
@@ -246,12 +271,13 @@ class _StudentNuevaSolicitudScreenState
                     }
                     _mostrarConfirmacionEnvio();
                   },
-                  child: const Text(
+                  child: Text(
                     "Enviar solicitud",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -262,20 +288,24 @@ class _StudentNuevaSolicitudScreenState
     );
   }
 
-  Widget _label(BuildContext context, String texto) {
+  Widget _label(String texto) {
     return Text(
       texto,
-      style: Theme.of(context)
-          .textTheme
-          .labelLarge
-          ?.copyWith(fontWeight: FontWeight.w600),
+      style: GoogleFonts.poppins(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: Colors.black87,
+      ),
     );
   }
 
-  InputDecoration _inputDecoration(BuildContext context,
-      {String? hint}) {
+  InputDecoration _inputDecoration(BuildContext context, {String? hint}) {
     return InputDecoration(
       hintText: hint,
+      hintStyle: GoogleFonts.poppins(
+        color: Colors.grey.shade500,
+        fontSize: 14,
+      ),
       filled: true,
       fillColor: Theme.of(context).cardColor,
       contentPadding:
@@ -285,9 +315,14 @@ class _StudentNuevaSolicitudScreenState
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide:
-            const BorderSide(color: UIDEColors.conchevino),
+        borderSide: const BorderSide(color: UIDEColors.conchevino),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _descripcionController.dispose();
+    super.dispose();
   }
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart'; // ← AGREGADO
+
 import '../../theme/uide_colors.dart';
 import '../../providers/theme_provider.dart';
 import '../../main.dart';
-import 'student_contactos.dart'; // ← NUEVA IMPORTACIÓN
+import 'student_contactos.dart';
 
 class StudentPerfilScreen extends StatelessWidget {
   const StudentPerfilScreen({Key? key}) : super(key: key);
@@ -60,7 +62,7 @@ class StudentPerfilScreen extends StatelessWidget {
                       // Nombre
                       Text(
                         "Juan Esteban Fuentes",
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.3,
@@ -77,7 +79,7 @@ class StudentPerfilScreen extends StatelessWidget {
                         children: [
                           Text(
                             "Correo: ",
-                            style: TextStyle(
+                            style: GoogleFonts.poppins(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.75),
@@ -86,7 +88,7 @@ class StudentPerfilScreen extends StatelessWidget {
                           Flexible(
                             child: Text(
                               "jufuentespl@uide.edu.ec",
-                              style: TextStyle(
+                              style: GoogleFonts.poppins(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                                 color: Theme.of(context).textTheme.bodyMedium?.color,
@@ -112,7 +114,6 @@ class StudentPerfilScreen extends StatelessWidget {
               onTap: () => context.read<ThemeProvider>().toggleTheme(),
             ),
 
-            // ✅ BOTÓN CONTACTOS → NUEVA PANTALLA
             _perfilItem(
               context,
               Icons.contacts,
@@ -154,7 +155,8 @@ class StudentPerfilScreen extends StatelessWidget {
         ),
         title: Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.poppins(
+            fontSize: 16,
             fontWeight: FontWeight.w600,
             color: isDanger ? Colors.red : Theme.of(context).textTheme.bodyLarge!.color,
           ),
@@ -169,24 +171,45 @@ class StudentPerfilScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Cerrar sesión"),
-        content: const Text("¿Deseas salir de tu cuenta?"),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          "Cerrar sesión",
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: Text(
+          "¿Deseas salir de tu cuenta?",
+          style: GoogleFonts.poppins(fontSize: 15),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancelar"),
+            child: Text(
+              "Cancelar",
+              style: GoogleFonts.poppins(
+                color: Colors.grey[700],
+                fontSize: 15,
+              ),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: UIDEColors.conchevino,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () {
               Navigator.pop(ctx);
               logout(context);
             },
-            child: const Text(
+            child: Text(
               "Salir",
-              style: TextStyle(color: Colors.white),
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

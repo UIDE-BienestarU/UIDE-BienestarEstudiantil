@@ -60,61 +60,29 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: UIDEColors.grisClaro,
+    return Column(
+      children: [
+        // ================= FILTROS =================
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: _filtrosEstado(),
+        ),
 
-      // ✅ APPBAR ÚNICA Y FIJA
-      appBar: AppBar(
-        title: Text(
-          'Mis Solicitudes',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
+        // ================= LISTA =================
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+            itemCount: _solicitudesFiltradas.length,
+            itemBuilder: (context, index) {
+              return _cardSolicitud(
+                _solicitudesFiltradas[index],
+                index,
+              );
+            },
           ),
         ),
-        backgroundColor: UIDEColors.conchevino,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-
-      body: Column(
-        children: [
-          // ================= FILTROS =================
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: _filtrosEstado(),
-          ),
-
-          // ================= LISTA =================
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-              itemCount: _solicitudesFiltradas.length,
-              itemBuilder: (context, index) {
-                return _cardSolicitud(
-                  _solicitudesFiltradas[index],
-                  index,
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: UIDEColors.conchevino,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const StudentNuevaSolicitudScreen(),
-            ),
-          );
-        },
-      ),
+      ],
     );
   }
 
