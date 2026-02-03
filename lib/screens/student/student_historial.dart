@@ -53,10 +53,8 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
   List<Map<String, dynamic>> get _solicitudesFiltradas {
     return _todasLasSolicitudes.where((s) {
       if (_estadoSeleccionado == 'Todas') return true;
-      return s['estado'] ==
-          (_estadoSeleccionado == 'Pendientes'
-              ? 'Pendiente'
-              : 'Aprobada');
+      if (_estadoSeleccionado == 'Pendientes') return s['estado'] == 'Pendiente';
+      return s['estado'] == 'Aprobada';
     }).toList();
   }
 
@@ -65,10 +63,10 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
     return Scaffold(
       backgroundColor: UIDEColors.grisClaro,
 
-      // ✅ ÚNICA APPBAR
+      // ✅ APPBAR ÚNICA Y FIJA
       appBar: AppBar(
         title: Text(
-          "Mis Solicitudes",
+          'Mis Solicitudes',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: 20,
@@ -88,31 +86,17 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
             child: _filtrosEstado(),
           ),
 
-          // ================= CONTENIDO + EMPTY STATE =================
+          // ================= LISTA =================
           Expanded(
-            child: Column(
-              children: [
-                // LISTA
-                Expanded(
-                  flex: 3,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                    itemCount: _solicitudesFiltradas.length,
-                    itemBuilder: (context, index) {
-                      return _cardSolicitud(
-                        _solicitudesFiltradas[index],
-                        index,
-                      );
-                    },
-                  ),
-                ),
-
-                // EMPTY STATE SIEMPRE VISIBLE
-                Expanded(
-                  flex: 2,
-                  child: _emptyState(),
-                ),
-              ],
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+              itemCount: _solicitudesFiltradas.length,
+              itemBuilder: (context, index) {
+                return _cardSolicitud(
+                  _solicitudesFiltradas[index],
+                  index,
+                );
+              },
             ),
           ),
         ],
@@ -221,8 +205,8 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: colorEstado.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),
@@ -248,7 +232,7 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
             ),
           ),
 
-          // ================= CRONOLOGÍA =================
+          // ================= TIMELINE =================
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 250),
             crossFadeState: expandida
@@ -262,24 +246,23 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
     );
   }
 
-  // ================= TIMELINE =================
+  // ================= TIMELINE COLOREADO =================
   Widget _timelineEstado(String estadoActual) {
     final pasos = ['Pendiente', 'En Progreso', 'Aprobada'];
     final indexActual = pasos.indexOf(estadoActual);
 
-    Color colorPaso(int i) {
-      if (i > indexActual) return Colors.grey.shade300;
-      if (pasos[i] == 'Pendiente') return UIDEColors.amarillo;
-      if (pasos[i] == 'En Progreso') return UIDEColors.azul;
+    Color colorPaso(String paso) {
+      if (paso == 'Pendiente') return UIDEColors.amarillo;
+      if (paso == 'En Progreso') return UIDEColors.azul;
       return Colors.green.shade700;
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 0, 24, 16),
+      padding: const EdgeInsets.fromLTRB(28, 8, 24, 16),
       child: Column(
         children: pasos.asMap().entries.map((e) {
           final i = e.key;
-          final texto = e.value;
+          final paso = e.value;
           final activo = i <= indexActual;
 
           return Row(
@@ -288,67 +271,37 @@ class _StudentHistorialScreenState extends State<StudentHistorialScreen> {
               Column(
                 children: [
                   Icon(
-                    Icons.check_circle,
-                    size: 22,
-                    color: activo ? colorPaso(i) : Colors.grey.shade300,
+                    Icons.circle,
+                    size: 14,
+                    color: activo
+                        ? colorPaso(paso)
+                        : Colors.grey.shade300,
                   ),
                   if (i < pasos.length - 1)
                     Container(
                       width: 2,
                       height: 28,
-                      color: activo ? colorPaso(i) : Colors.grey.shade300,
+                      color: activo
+                          ? colorPaso(paso)
+                          : Colors.grey.shade300,
                     ),
                 ],
               ),
               const SizedBox(width: 12),
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  texto,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight:
-                        activo ? FontWeight.w600 : FontWeight.w400,
-                  ),
+              Text(
+                paso,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight:
+                      activo ? FontWeight.w600 : FontWeight.w400,
+                  color: activo
+                      ? Colors.black87
+                      : Colors.grey.shade500,
                 ),
               ),
             ],
           );
         }).toList(),
-      ),
-    );
-  }
-
-  // ================= EMPTY STATE =================
-  Widget _emptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.rocket_launch_rounded,
-            size: 70,
-            color: UIDEColors.conchevino.withOpacity(0.7),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            "¡Sigue adelante!",
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: UIDEColors.conchevino,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Cada solicitud es un paso más\nhacia tu éxito académico.",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ],
       ),
     );
   }

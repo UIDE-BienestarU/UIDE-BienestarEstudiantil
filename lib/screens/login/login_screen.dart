@@ -21,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     final loc = AppLocalizations.of(context)!;
+
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -38,8 +39,12 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    // ── Lógica original de simulación y navegación ──
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(milliseconds: 1200));
+
+    if (!mounted) return; // Evita warning use_build_context_synchronously
+
     setState(() => _isLoading = false);
 
     if (email.contains('admin')) {
@@ -70,15 +75,13 @@ class _LoginScreenState extends State<LoginScreen> {
             width: double.infinity,
             height: double.infinity,
           ),
-
           // Efecto blur + overlay
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
             child: Container(
-              color: UIDEColors.conchevino.withOpacity(0.55),
+              color: UIDEColors.conchevino.withAlpha((0.55 * 255).round()), // fix deprecado withOpacity
             ),
           ),
-
           // Contenido principal con scroll
           SafeArea(
             child: SingleChildScrollView(
@@ -136,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'Bienestar Universitario',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withAlpha((0.9 * 255).round()), // fix deprecado
                                   ),
                                 ),
                               ],
@@ -144,7 +147,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-
                       // Tarjeta blanca inferior
                       Container(
                         width: double.infinity,
@@ -183,7 +185,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 32),
-
                               _buildInputField(
                                 label: 'Correo electrónico',
                                 controller: _emailController,
@@ -191,9 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 hint: 'estudiante@uide.edu.ec',
                                 keyboardType: TextInputType.emailAddress,
                               ),
-
                               const SizedBox(height: 24),
-
                               _buildInputField(
                                 label: 'Contraseña',
                                 controller: _passwordController,
@@ -211,9 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       setState(() => _obscurePassword = !_obscurePassword),
                                 ),
                               ),
-
                               const SizedBox(height: 12),
-
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: TextButton(
@@ -230,9 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
-
                               const SizedBox(height: 32),
-
                               SizedBox(
                                 width: double.infinity,
                                 height: 56,
@@ -264,9 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                 ),
                               ),
-
                               const SizedBox(height: 24),
-
                               Text(
                                 '¿Problemas para acceder? Contacta soporte',
                                 style: TextStyle(

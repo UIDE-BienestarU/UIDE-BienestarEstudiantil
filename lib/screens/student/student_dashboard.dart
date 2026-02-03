@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../theme/uide_colors.dart';
-import '../../main.dart';
+import '../../main.dart'; // contiene la función logout(context)
 
-import 'student_historial.dart';
-import 'student_nueva_solicitud.dart';
-import 'student_perfil.dart';
-import 'student_notificaciones.dart';
-import 'student_home.dart';
+import 'student_home.dart';           // StudentHomeScreen
+import 'student_historial.dart';     // StudentHistorialScreen
+import 'student_nueva_solicitud.dart'; // StudentNuevaSolicitudScreen
+import 'student_perfil.dart';        // StudentPerfilScreen
+import 'student_notificaciones.dart'; // StudentNotificacionesScreen
 
 class StudentDashboard extends StatefulWidget {
   final int initialIndex;
   final String? tipoInicial;
 
   const StudentDashboard({
-    Key? key,
+    super.key,
     this.initialIndex = 0,
     this.tipoInicial,
-  }) : super(key: key);
+  });
 
   @override
   State<StudentDashboard> createState() => _StudentDashboardState();
@@ -35,18 +35,23 @@ class _StudentDashboardState extends State<StudentDashboard> {
     _tipoDesdeHome = widget.tipoInicial;
   }
 
-  List<Widget> _buildScreens() => [
-        const StudentHomeScreen(),
-        const StudentHistorialScreen(),
-        StudentNuevaSolicitudScreen(tipoInicial: _tipoDesdeHome),
-        const StudentPerfilScreen(),
-      ];
+  List<Widget> _buildScreens() {
+    return [
+      const StudentHomeScreen(), // 0 - Inicio
+      const StudentHistorialScreen(), // 1 - Historial
+      StudentNuevaSolicitudScreen( // 2 - Nueva solicitud
+        tipoInicial: _tipoDesdeHome,
+      ),
+      const StudentPerfilScreen(), // 3 - Perfil
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F9),
+      backgroundColor: const Color(0xFFF7F7F9), // fondo claro como en tu primer código
 
+      // AppBar solo se muestra si NO estamos en Historial (índice 1)
       appBar: _selectedIndex == 1
           ? null
           : AppBar(
@@ -64,12 +69,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.notifications_none, size: 22),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const StudentNotificacionesScreen(),
-                    ),
-                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const StudentNotificacionesScreen(),
+                      ),
+                    );
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.logout, size: 22),
@@ -78,15 +85,34 @@ class _StudentDashboardState extends State<StudentDashboard> {
               ],
             ),
 
+      // Transición suave entre pantallas (del segundo código)
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 450),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.15, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.96, end: 1.0).animate(animation),
+                child: child,
+              ),
+            ),
+          );
+        },
         child: IndexedStack(
-          key: ValueKey(_selectedIndex),
+          key: ValueKey<int>(_selectedIndex),
           index: _selectedIndex,
           children: _buildScreens(),
         ),
       ),
 
+      // Barra inferior con estilo sutil y blanco como en tu primer código
       bottomNavigationBar: NavigationBar(
         backgroundColor: UIDEColors.conchevino,
         indicatorColor: Colors.white.withOpacity(0.18),
@@ -95,12 +121,17 @@ class _StudentDashboardState extends State<StudentDashboard> {
         onDestinationSelected: (index) {
           setState(() {
             _selectedIndex = index;
+            // Limpiar el tipo inicial si salimos de "Nueva solicitud"
             if (index != 2) _tipoDesdeHome = null;
           });
         },
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         labelTextStyle: WidgetStateProperty.all(
-          GoogleFonts.poppins(fontSize: 11, color: Colors.white),
+          GoogleFonts.poppins(
+            fontSize: 11,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         destinations: const [
           NavigationDestination(
@@ -133,21 +164,36 @@ class _StudentDashboardState extends State<StudentDashboard> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("Cerrar sesión", style: GoogleFonts.poppins()),
-        content: Text("¿Deseas salir?", style: GoogleFonts.poppins()),
+        title: Text(
+          "Cerrar sesión",
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          "¿Deseas salir de tu cuenta?",
+          style: GoogleFonts.poppins(),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              "Cancelar",
+              style: GoogleFonts.poppins(color: Colors.grey[700]),
+            ),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: UIDEColors.conchevino),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIDEColors.conchevino,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () {
               Navigator.pop(ctx);
               logout(context);
             },
-            child: const Text("Salir", style: TextStyle(color: Colors.white)),
+            child: Text("Salir", style: GoogleFonts.poppins()),
           ),
         ],
       ),
     );
   }
 }
-
