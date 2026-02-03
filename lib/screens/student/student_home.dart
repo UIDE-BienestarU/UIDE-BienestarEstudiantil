@@ -118,18 +118,23 @@ class StudentHomeScreen extends StatelessWidget {
             runSpacing: 14,
             children: [
               _accionItem(context, Icons.health_and_safety_rounded,
+                  color: Colors.green,
                   textoCorto: "Salud",
                   tipoReal: "Salud y bienestar físico"),
               _accionItem(context, Icons.psychology_rounded,
+                  color: Colors.purple,
                   textoCorto: "Psicológico",
                   tipoReal: "Apoyo psicológico y psicopedagógico"),
               _accionItem(context, Icons.school_rounded,
+                  color: Colors.orange,
                   textoCorto: "Becas",
                   tipoReal: "Becas y ayudas financieras"),
               _accionItem(context, Icons.admin_panel_settings_rounded,
+                  color: Colors.blue,
                   textoCorto: "Académico",
                   tipoReal: "Gestión académica y administrativa"),
               _accionItem(context, Icons.sports_soccer_rounded,
+                  color: Colors.redAccent,
                   textoCorto: "Deportes",
                   tipoReal: "Deportes y cultura"),
             ],
@@ -142,6 +147,7 @@ class StudentHomeScreen extends StatelessWidget {
   Widget _accionItem(
     BuildContext context,
     IconData icon, {
+    required Color color,
     required String textoCorto,
     required String tipoReal,
   }) {
@@ -174,7 +180,7 @@ class StudentHomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(icon, size: 28, color: UIDEColors.azul),
+            child: Icon(icon, size: 28, color:color),
           ),
           const SizedBox(height: 8),
           SizedBox(
