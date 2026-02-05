@@ -38,7 +38,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulamos login (en el futuro aquí irá el AuthService)
     await Future.delayed(const Duration(milliseconds: 1200));
 
     setState(() => _isLoading = false);

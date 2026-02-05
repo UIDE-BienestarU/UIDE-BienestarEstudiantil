@@ -1,3 +1,4 @@
+//theme/uide_colors.dart
 import 'package:flutter/material.dart';
 
 class UIDEColors {
