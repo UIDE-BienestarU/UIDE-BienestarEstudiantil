@@ -4,27 +4,32 @@ Sistema de gestión de bienestar estudiantil que permite a los estudiantes de la
 
 ## Integrantes
 
-| Nombre | Rol | GitHub |
-|--------|-----|--------|
-| Mateo Castillo | Backend | [@mateocp10](https://github.com/mateocp10) |
-| Christian Salinas | Backend | [@ChrisSR247](https://github.com/ChrisSR247) |
-| Juan Esteban Fuentes | Frontend | [@juanestebanf](https://github.com/juanestebanf) |
-| Victor Montaño | Frontend | [@Victor12-ui](https://github.com/Victor12-ui) |
-| Virginia Mora | Frontend | [@ginia18](https://github.com/ginia18) |
+| Nombre              | Rol      | GitHub                                    |
+|---------------------|----------|-------------------------------------------|
+| Mateo Castillo      | Backend  | [@mateocp10](https://github.com/mateocp10)      |
+| Christian Salinas   | Backend  | [@ChrisSR247](https://github.com/ChrisSR247)    |
+| Juan Esteban Fuentes| Frontend | [@juanestebanf](https://github.com/juanestebanf) |
+| Victor Montaño      | Frontend | [@Victor12-ui](https://github.com/Victor12-ui)  |
+| Virginia Mora       | Frontend | [@ginia18](https://github.com/ginia18)          |
 
 ## 🔗 Enlaces a GitHub Projects
 
-* https://github.com/UIDE-BienestarU/UIDE-BienestarEstudiantil.git
+- https://github.com/UIDE-BienestarU/UIDE-BienestarEstudiantil.git
 
 ## Descripción General
 
 Este sistema permite:
 
-* Registro e inicio de sesión para estudiantes y personal administrativo
-* Envío de solicitudes de becas con datos y documentos adjuntos
-* Seguimiento del estado de cada solicitud
-* Panel administrativo para revisión, aprobación o rechazo
-* Historial y trazabilidad de cambios por solicitud
+- Registro e inicio de sesión para estudiantes y personal administrativo
+- Envío de solicitudes de becas con datos y documentos adjuntos
+- Seguimiento del estado de cada solicitud
+- Panel administrativo para revisión, aprobación o rechazo
+- Historial y trazabilidad de cambios por solicitud
+- Envío de sugerencias al departamento de Bienestar
+- Gestión de objetos perdidos con comentarios y reclamos
+- Guardado de borradores de solicitudes
+- Notificaciones en tiempo real y push
+- Publicación de avisos institucionales y estadísticas
 
 El objetivo principal es digitalizar y centralizar el proceso de gestión de solicitudes de Bienestar Estudiantil en la UIDE.
 
@@ -34,7 +39,7 @@ El objetivo principal es digitalizar y centralizar el proceso de gestión de sol
 El sistema debe permitir que los estudiantes inicien sesión usando correo y contraseña.
 
 ### RF-02: Envío de Solicitudes con Documentos
-El sistema debe permitir el envío de solicitudes (completando campos de Titulo, asunto y documentos).
+El sistema debe permitir el envío de solicitudes (completando campos de Título, asunto y documentos).
 
 ### RF-03: Consulta de Estado de Solicitudes
 El sistema debe permitir al usuario consultar el estado de sus solicitudes enviadas.
@@ -67,10 +72,22 @@ El sistema debe notificar a estudiantes mediante ventanas de forma resumida.
 El sistema debe permitir al administrador visualizar estadísticas de solicitudes revisadas, por revisar y aprobadas.
 
 ### RF-13: Avisos sobre objetos perdidos
-El sistema debe permitir al administrador generar avisos sobre objetos perdidos incluyendo imagenes.
+El sistema debe permitir al administrador generar avisos sobre objetos perdidos incluyendo imágenes.
 
 ### RF-14: Filtrar solicitudes por estado y por tipo
 El sistema debe permitir al administrador filtrar solicitudes por tipo de estado y por tipo de solicitud.
+
+### RF-15: Módulo de Sugerencias
+El sistema debe contar con un módulo que permita a los usuarios enviar sugerencias directamente al departamento de Bienestar o administradores.
+
+### RF-16: Comentarios y Reclamos en Objetos Perdidos
+El sistema debe permitir a los usuarios agregar comentarios y reclamar objetos perdidos publicados en los avisos correspondientes.
+
+### RF-17: Borradores de Solicitudes
+El sistema debe permitir guardar solicitudes como borradores para continuar su edición en otro momento antes de enviarlas definitivamente.
+
+### RF-18: Registro de Dispositivos para Notificaciones Push
+El sistema debe permitir el registro de dispositivos de los usuarios para enviar notificaciones push cuando ocurran eventos relevantes.
 
 ## Requerimientos No Funcionales
 
@@ -86,52 +103,59 @@ La aplicación deberá ser compatible con dispositivos Android a partir de la ve
 ### RNF-04: Usabilidad
 La interfaz deberá ser clara, usable y permitir completar una solicitud en menos de 5 minutos.
 
+### RNF-05: Tiempo Real
+El sistema debe soportar comunicación en tiempo real para funcionalidades como comentarios en objetos perdidos mediante Socket.IO.
+
+### RNF-06: Idempotencia
+El sistema debe prevenir operaciones duplicadas (idempotencia) en acciones críticas como el envío de solicitudes o comentarios.
+
 ## Definition of Ready (DoR)
 
 Una Historia de Usuario se considera lista cuando:
 
-* Tiene criterios de aceptación en formato Gherkin
-* Está estimada en Story Points
-* Cuenta con prioridad (must / should / could / won't)
-* No tiene dependencias bloqueantes
-* Incluye mockups o diseños si aplica
-* El equipo entiende claramente qué se debe implementar
+- Tiene criterios de aceptación en formato Gherkin
+- Está estimada en Story Points
+- Cuenta con prioridad (must / should / could / won't)
+- No tiene dependencias bloqueantes
+- Incluye mockups o diseños si aplica
+- El equipo entiende claramente qué se debe implementar
 
 ## Definition of Done (DoD)
 
 Una Historia de Usuario está terminada cuando:
 
-* El código funciona correctamente
-* Tests unitarios/integración pasan (coverage > 80%)
-* Documentación técnica actualizada (README, API Docs)
-* Todos los criterios de aceptación se cumplen
-* No existen bugs críticos
-* Commits asociados al issue correspondiente
-* Estado actualizado en GitHub Projects
+- El código funciona correctamente
+- Tests unitarios/integración pasan (coverage > 80%)
+- Documentación técnica actualizada (README, API Docs)
+- Todos los criterios de aceptación se cumplen
+- No existen bugs críticos
+- Commits asociados al issue correspondiente
+- Estado actualizado en GitHub Projects
 
 ## Capacidad del Equipo
 
-* **Integrantes**: 5 personas
-* **Disponibilidad**: 12 horas por persona
-* **Velocidad estimada**: 3.5 SP por persona
-* **Capacidad total por sprint**: 17.5 Story Points
-* **Duración del sprint**: 2 semanas
+- **Integrantes**: 5 personas
+- **Disponibilidad**: 12 horas por persona
+- **Velocidad estimada**: 3.5 SP por persona
+- **Capacidad total por sprint**: 17.5 Story Points
+- **Duración del sprint**: 2 semanas
 
 ### Uso de GitFlow básico:
 
-* `main` → versión estable
-* `develop` → desarrollo continuo
-* `feature/` → nuevas funcionalidades
-* `fix/` → correcciones
+- `main` → versión estable
+- `develop` → desarrollo continuo
+- `feature/` → nuevas funcionalidades
+- `fix/` → correcciones
 
 ### Convención de commits:
 
-* `feat:` descripción
-* `fix:` descripción
-* `docs:` descripción
-* `refactor:` descripción
+- `feat:` descripción
+- `fix:` descripción
+- `docs:` descripción
+- `refactor:` descripción
 
 ## Instalación
+
 ```bash
 # Clonar repositorio
 git clone https://github.com/UIDE-BienestarU/UIDE-BienestarEstudiantil
