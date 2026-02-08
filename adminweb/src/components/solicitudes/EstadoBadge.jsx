@@ -1,17 +1,17 @@
 const EstadoBadge = ({ estado }) => {
-  const estadoLower = estado.toLowerCase();
-  let clase = "badge";
+  const estadoMap = {
+    'por revisar': { class: 'por-revisar', text: 'POR REVISAR' },
+    'en progreso': { class: 'en-progreso', text: 'EN PROGRESO' },
+    'aprobada':    { class: 'aprobada', text: 'APROBADA' },
+    'pendiente':   { class: 'por-revisar', text: 'PENDIENTE' },
+    'borrador':    { class: 'borrador', text: 'BORRADOR' },
+    'publicado':   { class: 'publicado', text: 'PUBLICADO' }
+  };
 
-  if (estadoLower === "pendiente") clase += " pendiente";
-  else if (estadoLower === "aprobado") clase += " aprobado";
-  else if (estadoLower === "en progreso" || estadoLower === "revision") clase += " en progreso";
-  else clase += " " + estadoLower;
+  const lower = (estado || "").toLowerCase();
+  const config = estadoMap[lower] || { class: 'default', text: estado || "?" };
 
-  const texto = estadoLower === "pendiente" ? "PENDIENTE" :
-                estadoLower === "aprobado"  ? "APROBADO"  :
-                estadoLower === "En progreso"  ? "EN PROGRESO"  : estado;
-
-  return <span className={clase}>{texto}</span>;
+  return <span className={`badge ${config.class}`}>{config.text}</span>;
 };
 
 export default EstadoBadge;

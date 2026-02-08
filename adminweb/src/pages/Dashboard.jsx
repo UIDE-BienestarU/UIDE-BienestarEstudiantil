@@ -2,6 +2,7 @@ import TopBar from "../components/layout/TopBar";
 import StatsGrid from "../components/dashboard/StatsGrid";
 import DashboardCharts from "../components/dashboard/DashboardsCharts";
 import RecentActivity from "../components/dashboard/RecentActivity";
+import ErrorBoundary from "../components/common/ErrorBoundary";
 
 export default function Dashboard() {
   return (
@@ -17,8 +18,12 @@ export default function Dashboard() {
         <StatsGrid />
 
         <section className="dashboard-grid">
-          <DashboardCharts />
-          <RecentActivity />
+          <ErrorBoundary>
+            <DashboardCharts />
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <RecentActivity />
+          </ErrorBoundary>
         </section>
       </main>
     </>

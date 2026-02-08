@@ -1,94 +1,117 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import solicitudDetalleMock from "../mock/solicitudDetalleMock";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import SolicitudInfo from "../components/solicitudesDetalle/SolicitudInfo";
 import HistorialTramites from "../components/solicitudesDetalle/HistorialTramites";
 import TopBar from "../components/layout/TopBar";
+import ToastNotification from "../components/common/ToastNotification";
+import solicitudesService from "../services/solicitudesService";
 
 const DetalleSolicitud = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const solicitudInicial = solicitudDetalleMock.find(s => s.id === id) || solicitudDetalleMock[0];
+  // State from navigation or null
+  const initialSolicitud = location.state?.solicitud || null;
 
-  // Estado local para la solicitud (simula actualización)
-  const [solicitud, setSolicitud] = useState(solicitudInicial);
+  const [solicitud, setSolicitud] = useState(initialSolicitud);
+  const [historial, setHistorial] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Toast State
+  const [toast, setToast] = useState(null); // { message, type }
 
-  // Estado para mostrar notificación toast
-  const [toast, setToast] = useState(null);
+  // Estados para el Panel de Administración (Gestión de Estado)
+  const [adminEstado, setAdminEstado] = useState("");
+  const [adminComentario, setAdminComentario] = useState("");
 
   const showToast = (mensaje, tipo = "success") => {
     setToast({ mensaje, tipo });
-    setTimeout(() => setToast(null), 3000); // desaparece después de 3 segundos
+    // ToastNotification handles its own timer for dismissal via onClose,
+    // but we can also auto-clear here if we want to ensure state consistency.
+    // However, the component calls onClose which we'll map to clearing state.
   };
 
-  const handleAprobar = () => {
-    setSolicitud(prev => ({
-      ...prev,
-      estado: "APROBADO",
-      historial: [
-        ...prev.historial,
-        {
-          fecha: "Hoy " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          accion: "Solicitud Aprobada",
-          detalle: "Aprobada por revisión administrativa.",
-          usuario: "admin_actual",
-          icon: "✅",
-          color: "#10b981"
+  useEffect(() => {
+    if (!solicitud) {
+        // En un caso real, aquí cargaríamos la solicitud por ID si no viene en el state
+        // Por ahora asumimos que viene del listado o implementamos fetch básico
+        // showToast("Cargando solicitud...", "info");
+    }
+
+    const loadHistorial = async () => {
+      try {
+        const data = await solicitudesService.getHistorial(id);
+        if (data && data.success && data.data) {
+           setHistorial(data.data);
+        } else if (Array.isArray(data)) {
+           setHistorial(data); 
         }
-      ]
-    }));
-    showToast("Solicitud aprobada exitosamente", "success");
+      } catch (error) {
+        console.error("Error loading historial", error);
+      }
+    };
+
+    loadHistorial();
+  }, [id, solicitud]);
+
+  // Sincronizar estado del admin panel cuando carga la solicitud
+  useEffect(() => {
+    if (solicitud && solicitud.estado_actual) {
+        setAdminEstado(solicitud.estado_actual);
+    }
+  }, [solicitud]);
+
+  const handleUpdateEstado = async () => {
+    if (!adminEstado) return;
+    
+    try {
+      setLoading(true);
+      await solicitudesService.updateEstado(id, adminEstado, adminComentario);
+      
+      // Update local state
+      setSolicitud(prev => ({ ...prev, estado_actual: adminEstado }));
+      showToast(`Estado actualizado correctamente a: ${adminEstado}`, "success");
+      setAdminComentario(""); // Limpiar comentario tras éxito
+      
+      // Reload historial
+      const hist = await solicitudesService.getHistorial(id);
+      if (hist && (hist.data || Array.isArray(hist))) setHistorial(hist.data || hist);
+
+    } catch (error) {
+      console.error("Error updating estado", error);
+      showToast("Error al actualizar estado. Intente nuevamente.", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDerivar = () => {
-    setSolicitud(prev => ({
-      ...prev,
-      estado: "EN TRÁMITE",
-      historial: [
-        ...prev.historial,
-        {
-          fecha: "Hoy " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          accion: "Solicitud Derivada",
-          detalle: "Derivada a otra unidad para revisión adicional.",
-          usuario: "admin_actual",
-          icon: "↪️",
-          color: "#3b82f6"
-        }
-      ]
-    }));
-    showToast("Solicitud derivada exitosamente", "info");
-  };
+  if (!solicitud) {
+     return (
+       <div className="p-8 text-center">
+         <h2>Cargando solicitud o acceso inválido...</h2>
+         <button className="btn-volver mt-4" onClick={() => navigate('/solicitudes')}>
+           Volver al listado
+         </button>
+       </div>
+     );
+  }
 
-  const handlePendiente = () => {
-    setSolicitud(prev => ({
-      ...prev,
-      estado: "PENDIENTE",
-      historial: [
-        ...prev.historial,
-        {
-          fecha: "Hoy " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          accion: "Marcada como Pendiente",
-          detalle: "Estado regresado a pendiente para revisión adicional.",
-          usuario: "admin_actual",
-          icon: "⏳",
-          color: "#fbbf24"
-        }
-      ]
-    }));
-    showToast("Solicitud marcada como Pendiente", "warning");
-  };
+  // Normalize status for UI logic
+  const estado = solicitud.estado_actual || solicitud.estado;
 
   return (
     <>
       <TopBar />
 
       <div className="detalle-container">
-        {/* Notificación Toast (card emergente) */}
+        {/* Usar el nuevo componente ToastNotification */}
         {toast && (
-          <div className={`toast ${toast.tipo}`}>
-            {toast.mensaje}
-          </div>
+          <ToastNotification 
+            message={toast.mensaje} 
+            type={toast.tipo} 
+            onClose={() => setToast(null)} 
+          />
         )}
 
         <div className="detalle-header">
@@ -97,61 +120,28 @@ const DetalleSolicitud = () => {
           </div>
 
           <div className="acciones-principales">
-            <button className="btn-volver" onClick={() => navigate(-1)}>
-              ← Volver al listado
+            <button className="btn-volver" onClick={() => navigate('/solicitudes')}>
+              ← Volver
             </button>
-
-            {/* Botones según estado actual */}
-            {solicitud.estado === "PENDIENTE" && (
-              <>
-                <button className="btn-derivar" onClick={handleDerivar}>
-                  Derivar
-                </button>
-                <button className="btn-aprobar" onClick={handleAprobar}>
-                  Aprobar
-                </button>
-              </>
-            )}
-
-            {solicitud.estado === "EN TRÁMITE" && (
-              <>
-                <button className="btn-aprobar" onClick={handleAprobar}>
-                  Aprobar
-                </button>
-                <button className="btn-pendiente" onClick={handlePendiente}>
-                  Marcar como Pendiente
-                </button>
-              </>
-            )}
-
-            {solicitud.estado === "APROBADO" && (
-              <button className="btn-pendiente" onClick={handlePendiente}>
-                Marcar como Pendiente
-              </button>
-            )}
           </div>
         </div>
-
-        <h1 className="detalle-titulo">
-          Solicitud #{solicitud.id}{" "}
-          <span className={`estado-badge ${solicitud.estado.toLowerCase().replace(" ", "-")}`}>
-            {solicitud.estado}
-          </span>
-        </h1>
 
         <div className="detalle-grid">
           <div className="columna-principal">
-            <SolicitudInfo solicitud={solicitud} />
+            <SolicitudInfo 
+                solicitud={solicitud} 
+                adminState={{ estado: adminEstado, comentario: adminComentario }}
+                onUpdateEstado={handleUpdateEstado}
+                setAdminState={setAdminEstado}
+                setAdminComentario={setAdminComentario}
+                loading={loading}
+            />
           </div>
 
           <div className="columna-historial">
-            <HistorialTramites historial={solicitud.historial || []} />
+            <HistorialTramites historial={historial} />
           </div>
         </div>
-
-        <footer className="detalle-footer">
-          Sistema de Bienestar Universitario 
-        </footer>
       </div>
     </>
   );

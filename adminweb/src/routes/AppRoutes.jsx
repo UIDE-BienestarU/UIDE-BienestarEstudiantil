@@ -6,13 +6,26 @@ import Solicitudes from "../pages/Solicitudes";
 import DetalleSolicitud from "../pages/DetalleSolicitud";
 import Avisos from "../pages/Avisos";
 import ObjetosPerdidos from "../pages/ObjetosPerdidos";
+import Sugerencias from "../pages/Sugerencias";
 import Perfil from "../pages/Perfil";
 
 import useAuth from "../hooks/useAuth";
 
 function PrivateRoute({ children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) return <div>Cargando...</div>;
+
   return user ? children : <Navigate to="/" />;
+}
+
+// Redirects to dashboard if already logged in
+function PublicRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) return <div>Cargando...</div>;
+
+  return user ? <Navigate to="/dashboard" /> : children;
 }
 
 export default function AppRoutes() {
@@ -20,8 +33,15 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
 
-        {/* Login */}
-        <Route path="/" element={<Login />} />
+        {/* Login - Wrapped in PublicRoute */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
 
         {/* Dashboard */}
         <Route
@@ -69,6 +89,16 @@ export default function AppRoutes() {
           element={
             <PrivateRoute>
               <ObjetosPerdidos />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Sugerencias */}
+        <Route
+          path="/sugerencias"
+          element={
+            <PrivateRoute>
+              <Sugerencias />
             </PrivateRoute>
           }
         />
