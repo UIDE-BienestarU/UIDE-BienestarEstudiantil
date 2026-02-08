@@ -10,7 +10,7 @@ const SolicitudesRow = ({ solicitud }) => {
 
       <td style={{ padding: '16px', borderBottom: '1px solid #eee' }}>
         <div style={{ fontWeight: '600', color: '#333' }}>{solicitud.estudiante?.nombre_completo || "Estudiante"}</div>
-        <div className="sub" style={{ fontSize: '0.85rem', color: '#888', marginTop: '4px' }}>{solicitud.estudiante?.matricula || "N/A"}</div>
+        <div className="sub" style={{ fontSize: '0.85rem', color: '#888', marginTop: '4px' }}>{solicitud.estudiante?.correo_institucional || "N/A"}</div>
       </td>
 
       <td style={{ padding: '16px', borderBottom: '1px solid #eee', color: '#555' }}>
