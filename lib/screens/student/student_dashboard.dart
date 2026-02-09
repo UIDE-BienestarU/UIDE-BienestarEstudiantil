@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../theme/uide_colors.dart';
-import '../../main.dart'; // contiene la función logout(context)
+import '../../main.dart';
 
-import 'student_home.dart';           // StudentHomeScreen
-import 'student_historial.dart';     // StudentHistorialScreen
-import 'student_nueva_solicitud.dart'; // StudentNuevaSolicitudScreen
-import 'student_perfil.dart';        // StudentPerfilScreen
-import 'student_notificaciones.dart'; // StudentNotificacionesScreen
+import 'student_home.dart';
+import 'student_historial.dart';
+import 'student_nueva_solicitud.dart';
+import 'student_perfil.dart';
+import 'student_notificaciones.dart';
 
 class StudentDashboard extends StatefulWidget {
   final int initialIndex;
@@ -37,29 +37,46 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   List<Widget> _buildScreens() {
     return [
-      const StudentHomeScreen(), // 0 - Inicio
-      const StudentHistorialScreen(), // 1 - Historial
-      StudentNuevaSolicitudScreen( // 2 - Nueva solicitud
+      const StudentHomeScreen(), // 0
+      const StudentHistorialScreen(), // 1
+      StudentNuevaSolicitudScreen(
+        // 2
         tipoInicial: _tipoDesdeHome,
       ),
-      const StudentPerfilScreen(), // 3 - Perfil
+      const StudentPerfilScreen(), // 3
     ];
   }
+
+  String _titleForIndex(int i) {
+    switch (i) {
+      case 0:
+        return "Bienestar Universitario";
+      case 1:
+        return "Mis Solicitudes";
+      case 2:
+        return "Nueva Solicitud";
+      case 3:
+        return "Perfil";
+      default:
+        return "Bienestar Universitario";
+    }
+  }
+
+  bool get _showAppBar => _selectedIndex != 1; // como lo querías
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F9), // fondo claro como en tu primer código
-
-      // AppBar solo se muestra si NO estamos en Historial (índice 1)
-      appBar: _selectedIndex == 1
-          ? null
-          : AppBar(
+      backgroundColor: const Color(0xFFF7F7F9),
+      appBar: _showAppBar
+          ? AppBar(
               elevation: 0,
               backgroundColor: UIDEColors.conchevino,
               foregroundColor: Colors.white,
+              centerTitle: false,
+              titleSpacing: 16,
               title: Text(
-                "Bienestar Universitario",
+                _titleForIndex(_selectedIndex),
                 style: GoogleFonts.poppins(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
@@ -68,7 +85,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.notifications_none, size: 22),
+                  tooltip: "Notificaciones",
+                  icon: const Icon(Icons.notifications_none_rounded, size: 22),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -79,52 +97,56 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.logout, size: 22),
+                  tooltip: "Cerrar sesión",
+                  icon: const Icon(Icons.logout_rounded, size: 22),
                   onPressed: () => _confirmarLogout(context),
                 ),
+                const SizedBox(width: 6),
               ],
-            ),
-
-      // Transición suave entre pantallas (del segundo código)
+            )
+          : null,
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 450),
+        duration: const Duration(milliseconds: 280),
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
-        transitionBuilder: (child, animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.15, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.96, end: 1.0).animate(animation),
-                child: child,
-              ),
-            ),
+
+        // ✅ evita “saltos” al medir tamaños distintos entre pantallas
+        layoutBuilder: (currentChild, previousChildren) {
+          return Stack(
+            children: [
+              ...previousChildren,
+              if (currentChild != null) currentChild,
+            ],
           );
         },
-        child: IndexedStack(
+
+        transitionBuilder: (child, animation) {
+          final fade =
+              CurvedAnimation(parent: animation, curve: Curves.easeOut);
+          final slide = Tween<Offset>(
+            begin: const Offset(0.08, 0),
+            end: Offset.zero,
+          ).animate(fade);
+
+          return FadeTransition(
+            opacity: fade,
+            child: SlideTransition(position: slide, child: child),
+          );
+        },
+
+        child: KeyedSubtree(
           key: ValueKey<int>(_selectedIndex),
-          index: _selectedIndex,
-          children: _buildScreens(),
+          child: IndexedStack(
+            index: _selectedIndex,
+            children: _buildScreens(),
+          ),
         ),
       ),
-
-      // Barra inferior con estilo sutil y blanco como en tu primer código
       bottomNavigationBar: NavigationBar(
         backgroundColor: UIDEColors.conchevino,
         indicatorColor: Colors.white.withOpacity(0.18),
-        height: 64,
+        height: 66,
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-            // Limpiar el tipo inicial si salimos de "Nueva solicitud"
-            if (index != 2) _tipoDesdeHome = null;
-          });
-        },
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         labelTextStyle: WidgetStateProperty.all(
           GoogleFonts.poppins(
@@ -133,25 +155,40 @@ class _StudentDashboardState extends State<StudentDashboard> {
             fontWeight: FontWeight.w500,
           ),
         ),
+        onDestinationSelected: (index) {
+          setState(() {
+            _selectedIndex = index;
+
+            // ✅ tu lógica original: si sales de "Nueva solicitud", limpia tipoInicial
+            if (index != 2) _tipoDesdeHome = null;
+          });
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined, size: 22, color: Colors.white70),
-            selectedIcon: Icon(Icons.home, size: 22, color: Colors.white),
+            selectedIcon:
+                Icon(Icons.home_rounded, size: 22, color: Colors.white),
             label: 'Inicio',
           ),
           NavigationDestination(
-            icon: Icon(Icons.folder_open_outlined, size: 22, color: Colors.white70),
-            selectedIcon: Icon(Icons.folder_open, size: 22, color: Colors.white),
+            icon: Icon(Icons.folder_open_outlined,
+                size: 22, color: Colors.white70),
+            selectedIcon:
+                Icon(Icons.folder_open_rounded, size: 22, color: Colors.white),
             label: 'Historial',
           ),
           NavigationDestination(
-            icon: Icon(Icons.add_circle_outline, size: 26, color: Colors.white70),
-            selectedIcon: Icon(Icons.add_circle, size: 30, color: Colors.white),
+            icon: Icon(Icons.add_circle_outline_rounded,
+                size: 28, color: Colors.white70),
+            selectedIcon:
+                Icon(Icons.add_circle_rounded, size: 32, color: Colors.white),
             label: 'Nueva',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline, size: 22, color: Colors.white70),
-            selectedIcon: Icon(Icons.person, size: 22, color: Colors.white),
+            icon: Icon(Icons.person_outline_rounded,
+                size: 22, color: Colors.white70),
+            selectedIcon:
+                Icon(Icons.person_rounded, size: 22, color: Colors.white),
             label: 'Perfil',
           ),
         ],
@@ -184,11 +221,12 @@ class _StudentDashboardState extends State<StudentDashboard> {
             style: ElevatedButton.styleFrom(
               backgroundColor: UIDEColors.conchevino,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () {
               Navigator.pop(ctx);
-              logout(context);
+              logout();
             },
             child: Text("Salir", style: GoogleFonts.poppins()),
           ),

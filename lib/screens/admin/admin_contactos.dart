@@ -9,33 +9,26 @@ class AdminContactosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Contacto> contactos = [
+      // ✅ Contacto principal (Proyecto)
       Contacto(
-        iniciales: "SA",
-        color: UIDEColors.conchevino, // color principal para admin
-        nombre: "Secretaría Académica",
-        cargo: "Administración Académica",
-        telefono: "+593 98 888 8888",
-        correo: "secretaria@uide.edu.ec",
-        ubicacion: "Edificio Administrativo, Planta Baja",
+        iniciales: "CS",
+        color: UIDEColors.conchevino,
+        nombre: "Christian Salinas",
+        cargo: "Líder del Proyecto",
+        telefono: "+593 99 171 3343",
+        correo: "chsalinasra@uide.edu.ec",
+        ubicacion: "UIDE",
       ),
+
       Contacto(
-        iniciales: "TI",
+        iniciales: "MC",
         color: UIDEColors.azul,
-        nombre: "Equipo TI UIDE",
-        cargo: "Soporte Técnico y Sistemas",
-        telefono: "+593 99 999 9999",
-        correo: "ti@uide.edu.ec",
-        ubicacion: "Edificio B, Oficina 105",
+        nombre: "Mateo Castillo",
+        cargo: "Encargado de Backend",
+        telefono: "+593 98 686 1663",
+        correo: "matcastilloma@uide.edu.ec",
+        ubicacion: "UIDE",
       ),
-      Contacto(
-        iniciales: "DF",
-        color: UIDEColors.amarillo,
-        nombre: "Departamento de Finanzas",
-        cargo: "Gestión Financiera y Becas",
-        telefono: "+593 97 777 7777",
-        correo: "finanzas@uide.edu.ec",
-      ),
-      // Agrega más contactos aquí si es necesario
     ];
 
     return Scaffold(
@@ -46,18 +39,69 @@ class AdminContactosScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: contactos.length,
-        itemBuilder: (context, index) {
-          return ContactoCard(contacto: contactos[index]);
-        },
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        children: [
+          const _AdminHelpBanner(),
+          const SizedBox(height: 12),
+          ...contactos.map((c) => ContactoCard(contacto: c)).toList(),
+        ],
       ),
     );
   }
 }
 
-// Widget reutilizable (puedes moverlo a un archivo aparte como components/contacto_card.dart)
+class _AdminHelpBanner extends StatelessWidget {
+  const _AdminHelpBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black.withOpacity(0.06)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: UIDEColors.conchevino.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.report_problem_rounded,
+                color: UIDEColors.conchevino),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "Si el administrador tiene alguna duda o detecta un error en la app, "
+              "por favor repórtalo a estos contactos.",
+              style: TextStyle(
+                fontSize: 13.2,
+                color: Colors.grey.shade700,
+                height: 1.25,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Widget reutilizable
 class ContactoCard extends StatelessWidget {
   final Contacto contacto;
 
@@ -104,7 +148,7 @@ class ContactoCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: contacto.color, // mismo color que el círculo
+                      color: contacto.color,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -117,8 +161,6 @@ class ContactoCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // Teléfono
                   if (contacto.telefono.isNotEmpty)
                     _InfoRow(
                       icon: Icons.phone,
@@ -126,8 +168,6 @@ class ContactoCard extends StatelessWidget {
                       color: contacto.color,
                       onTap: () => _launchTel(contacto.telefono),
                     ),
-
-                  // Correo
                   if (contacto.correo.isNotEmpty)
                     _InfoRow(
                       icon: Icons.email,
@@ -135,9 +175,8 @@ class ContactoCard extends StatelessWidget {
                       color: contacto.color,
                       onTap: () => _launchMail(contacto.correo),
                     ),
-
-                  // Ubicación (opcional)
-                  if (contacto.ubicacion != null && contacto.ubicacion!.isNotEmpty)
+                  if (contacto.ubicacion != null &&
+                      contacto.ubicacion!.isNotEmpty)
                     _InfoRow(
                       icon: Icons.location_on,
                       text: contacto.ubicacion!,
@@ -153,7 +192,7 @@ class ContactoCard extends StatelessWidget {
   }
 
   Future<void> _launchTel(String phone) async {
-    final uri = Uri.parse("tel:${phone.replaceAll(RegExp(r'\s+'), '')}");
+    final uri = Uri.parse("tel:${phone.replaceAll(RegExp(r'\\s+'), '')}");
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
@@ -194,11 +233,13 @@ class _InfoRow extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
-                style: TextStyle(fontSize: 14, color: UIDEColors.grisTexto),
+                style:
+                    const TextStyle(fontSize: 14, color: UIDEColors.grisTexto),
               ),
             ),
             if (onTap != null)
-              Icon(Icons.chevron_right, size: 18, color: color.withOpacity(0.7)),
+              Icon(Icons.chevron_right,
+                  size: 18, color: color.withOpacity(0.7)),
           ],
         ),
       ),

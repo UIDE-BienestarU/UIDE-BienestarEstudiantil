@@ -1,7 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../theme/uide_colors.dart';
 import '../../l10n/app_localizations.dart';
+
+import '../../services/auth_service.dart'; // ✅ AuthService
+import '../../services/push_service.dart'; // ✅ PushService (registro device/token)
+
+import '../../providers/session_provider.dart'; // ✅ SessionProvider
+
 import '../admin/admin_dashboard.dart';
 import '../student/student_dashboard.dart';
 
@@ -13,61 +21,86 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
 
   bool _obscurePassword = true;
   bool _isLoading = false;
 
-  void _login() async {
+  Future<void> _login() async {
     final loc = AppLocalizations.of(context)!;
+
+    final ok = _formKey.currentState?.validate() ?? false;
+    if (!ok) return;
 
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.fillFieldsError ?? 'Completa los campos')),
-      );
-      return;
-    }
-
-    if (!email.endsWith('@uide.edu.ec')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.institutionalEmailError ?? 'Correo institucional requerido')),
-      );
-      return;
-    }
-
-    // ── Lógica original de simulación y navegación ──
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 1200));
 
-    if (!mounted) return; // Evita warning use_build_context_synchronously
+    try {
+      // ✅ LOGIN REAL (aquí se guardan tokens en SecureStorage)
+      final user = await AuthService.login(email, password);
 
-    setState(() => _isLoading = false);
+      if (!mounted) return;
 
-    if (email.contains('admin')) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const AdminDashboard()),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const StudentDashboard()),
+      // ✅ guarda usuario en sesión
+      context.read<SessionProvider>().setUser(user);
+
+      // ✅ IMPORTANTE: NO hacerlo obligatorio.
+      // Dispara el registro en background, si falla NO rompe el login ni muestra error.
+      Future(() async {
+        try {
+          await PushService.initAndRegister();
+        } catch (_) {
+          // no hagas nada: no debe llegar a UI
+        }
+      });
+
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      final rol = (user['rol'] ?? '').toString();
+
+      if (rol == 'administrador' || rol == 'bienestar') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminDashboard()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const StudentDashboard()),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Fondo con imagen
           Image.asset(
             'lib/assets/images/login.png',
             fit: BoxFit.fitHeight,
@@ -75,14 +108,12 @@ class _LoginScreenState extends State<LoginScreen> {
             width: double.infinity,
             height: double.infinity,
           ),
-          // Efecto blur + overlay
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
             child: Container(
-              color: UIDEColors.conchevino.withAlpha((0.55 * 255).round()), // fix deprecado withOpacity
+              color: UIDEColors.conchevino.withAlpha((0.55 * 255).round()),
             ),
           ),
-          // Contenido principal con scroll
           SafeArea(
             child: SingleChildScrollView(
               child: ConstrainedBox(
@@ -94,7 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: IntrinsicHeight(
                   child: Column(
                     children: [
-                      // Sección superior (logo + título) - se expande
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 32.0),
@@ -139,7 +169,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'Bienestar Universitario',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white.withAlpha((0.9 * 255).round()), // fix deprecado
+                                    color: Colors.white.withAlpha(
+                                      (0.9 * 255).round(),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -147,12 +179,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
+
                       // Tarjeta blanca inferior
                       Container(
                         width: double.infinity,
                         decoration: const BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(40)),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black12,
@@ -163,112 +197,137 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Iniciar Sesión',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Iniciar Sesión',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Ingresa con tu correo institucional',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.grey[700],
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 32),
-                              _buildInputField(
-                                label: 'Correo electrónico',
-                                controller: _emailController,
-                                icon: Icons.mail_outline,
-                                hint: 'estudiante@uide.edu.ec',
-                                keyboardType: TextInputType.emailAddress,
-                              ),
-                              const SizedBox(height: 24),
-                              _buildInputField(
-                                label: 'Contraseña',
-                                controller: _passwordController,
-                                icon: Icons.lock_outline,
-                                hint: '••••••••',
-                                obscureText: _obscurePassword,
-                                suffix: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Ingresa con tu correo institucional',
+                                  style: TextStyle(
+                                    fontSize: 15,
                                     color: Colors.grey[700],
                                   ),
-                                  onPressed: () =>
-                                      setState(() => _obscurePassword = !_obscurePassword),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    // Implementar recuperación de contraseña
+                                const SizedBox(height: 32),
+                                _buildInputField(
+                                  label: 'Correo electrónico',
+                                  controller: _emailController,
+                                  icon: Icons.mail_outline,
+                                  hint: 'estudiante@uide.edu.ec',
+                                  keyboardType: TextInputType.emailAddress,
+                                  enabled: !_isLoading,
+                                  focusNode: _emailFocus,
+                                  textInputAction: TextInputAction.next,
+                                  onFieldSubmitted: (_) {
+                                    FocusScope.of(context)
+                                        .requestFocus(_passwordFocus);
                                   },
-                                  child: Text(
-                                    '¿Olvidaste tu contraseña?',
-                                    style: TextStyle(
-                                      color: UIDEColors.azul,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
+                                  validator: (v) {
+                                    final email = (v ?? '').trim();
+                                    if (email.isEmpty) {
+                                      return loc.fillFieldsError ??
+                                          'Completa los campos';
+                                    }
+                                    if (!email.endsWith('@uide.edu.ec')) {
+                                      return loc.institutionalEmailError ??
+                                          'Correo institucional requerido';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 24),
+                                _buildInputField(
+                                  label: 'Contraseña',
+                                  controller: _passwordController,
+                                  icon: Icons.lock_outline,
+                                  hint: '••••••••',
+                                  obscureText: _obscurePassword,
+                                  enabled: !_isLoading,
+                                  focusNode: _passwordFocus,
+                                  textInputAction: TextInputAction.done,
+                                  onFieldSubmitted: (_) {
+                                    if (!_isLoading) _login();
+                                  },
+                                  suffix: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      color: Colors.grey[700],
                                     ),
+                                    onPressed: _isLoading
+                                        ? null
+                                        : () => setState(() =>
+                                            _obscurePassword =
+                                                !_obscurePassword),
+                                  ),
+                                  validator: (v) {
+                                    final pass = (v ?? '');
+                                    if (pass.isEmpty) {
+                                      return loc.fillFieldsError ??
+                                          'Completa los campos';
+                                    }
+                                    return null;
+                                  },
+                                ),
+
+                                // ✅ Eliminado: "¿Olvidaste tu contraseña?"
+
+                                const SizedBox(height: 32),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 56,
+                                  child: ElevatedButton(
+                                    onPressed: _isLoading ? null : _login,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: UIDEColors.conchevino,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      elevation: 5,
+                                    ),
+                                    child: _isLoading
+                                        ? const SizedBox(
+                                            height: 24,
+                                            width: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 3,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Ingresar',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 32),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 56,
-                                child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _login,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: UIDEColors.conchevino,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    elevation: 5,
+                                const SizedBox(height: 24),
+                                Text(
+                                  '¿Problemas para acceder? Contacta soporte',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
                                   ),
-                                  child: _isLoading
-                                      ? const SizedBox(
-                                          height: 24,
-                                          width: 24,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 3,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : const Text(
-                                          'Ingresar',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                              const SizedBox(height: 24),
-                              Text(
-                                '¿Problemas para acceder? Contacta soporte',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 13,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -291,6 +350,11 @@ class _LoginScreenState extends State<LoginScreen> {
     TextInputType? keyboardType,
     bool obscureText = false,
     Widget? suffix,
+    String? Function(String?)? validator,
+    bool enabled = true,
+    FocusNode? focusNode,
+    TextInputAction? textInputAction,
+    void Function(String)? onFieldSubmitted,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,11 +368,16 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,
           style: const TextStyle(fontSize: 16),
+          validator: validator,
+          enabled: enabled,
+          focusNode: focusNode,
+          textInputAction: textInputAction,
+          onFieldSubmitted: onFieldSubmitted,
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: Padding(
@@ -316,7 +385,10 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Icon(icon, color: Colors.grey[600], size: 22),
             ),
             suffixIcon: suffix != null
-                ? Padding(padding: const EdgeInsets.only(right: 8), child: suffix)
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: suffix,
+                  )
                 : null,
             filled: true,
             fillColor: Colors.grey[50],
@@ -324,7 +396,8 @@ class _LoginScreenState extends State<LoginScreen> {
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           ),
         ),
       ],
@@ -335,6 +408,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 }

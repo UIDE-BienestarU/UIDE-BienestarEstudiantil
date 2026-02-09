@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../theme/uide_colors.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/session_provider.dart'; // ✅ NUEVO (para limpiar sesión)
+import '../../services/auth_service.dart'; // ✅ NUEVO (logout backend)
+import '../../services/push_service.dart'; // ✅ NUEVO (unregister)
 import '../../main.dart';
-import 'admin_contactos.dart'; //NUEVA 
+import 'admin_contactos.dart';
 
 class AdminPerfilScreen extends StatelessWidget {
   const AdminPerfilScreen({Key? key}) : super(key: key);
@@ -52,12 +56,11 @@ class AdminPerfilScreen extends StatelessWidget {
                     child: const CircleAvatar(
                       radius: 65,
                       backgroundColor: UIDEColors.conchevino,
-                      child: Icon(Icons.admin_panel_settings, size: 75, color: Colors.white),
+                      child: Icon(Icons.admin_panel_settings,
+                          size: 75, color: Colors.white),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   Column(
                     children: [
                       Text(
@@ -70,9 +73,7 @@ class AdminPerfilScreen extends StatelessWidget {
                         ),
                         textAlign: TextAlign.center,
                       ),
-
                       const SizedBox(height: 12),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -81,7 +82,11 @@ class AdminPerfilScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.75),
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color
+                                  ?.withOpacity(0.75),
                             ),
                           ),
                           Flexible(
@@ -90,7 +95,10 @@ class AdminPerfilScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).textTheme.bodyMedium?.color,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color,
                               ),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
@@ -113,7 +121,7 @@ class AdminPerfilScreen extends StatelessWidget {
               onTap: () => context.read<ThemeProvider>().toggleTheme(),
             ),
 
-            // ✅ BOTÓN CONTACTOS → NUEVA PANTALLA
+            // ✅ CONTACTOS
             _perfilItem(
               context,
               Icons.contacts,
@@ -157,7 +165,9 @@ class AdminPerfilScreen extends StatelessWidget {
           label,
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: isDanger ? Colors.red : Theme.of(context).textTheme.bodyLarge!.color,
+            color: isDanger
+                ? Colors.red
+                : Theme.of(context).textTheme.bodyLarge!.color,
           ),
         ),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -181,9 +191,24 @@ class AdminPerfilScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: UIDEColors.conchevino,
             ),
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              logout(context);
+
+              // ✅ 1) Desregistrar token del dispositivo
+              try {
+                await PushService.unregister();
+              } catch (_) {}
+
+              // ✅ 2) Limpiar sesión / logout backend (si aplica)
+              try {
+                context.read<SessionProvider>().clear();
+              } catch (_) {}
+              try {
+                await AuthService.logout();
+              } catch (_) {}
+
+              // ✅ 3) Navegar al login
+              logout();
             },
             child: const Text(
               "Salir",
