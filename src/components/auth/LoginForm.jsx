@@ -9,26 +9,32 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    // ❌ Campos vacíos
     if (!email || !password) {
       setError("Complete todos los campos");
+      setLoading(false);
       return;
     }
 
-    // ❌ Correo incorrecto
-    if (email !== "admin@uide.edu.ec") {
-      setError("Correo incorrecto");
-      return;
+    try {
+      await login(email, password);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+      if (err.response?.status === 401) {
+        setError("Credenciales incorrectas");
+      } else {
+        setError(err.response?.data?.message || "Error al iniciar sesión");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    // ✅ Login correcto
-    login({ email });
-    navigate("/dashboard");
   };
 
   return (
@@ -42,6 +48,8 @@ export default function LoginForm() {
           placeholder="admin@uide.edu.ec"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
+          autoComplete="username"
         />
       </div>
 
@@ -52,11 +60,13 @@ export default function LoginForm() {
           placeholder="********"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
+          autoComplete="current-password"
         />
       </div>
 
-      <button type="submit" className="btn-primary w-full">
-        Ingresar
+      <button type="submit" className="btn-primary w-full" disabled={loading}>
+        {loading ? "Ingresando..." : "Ingresar"}
       </button>
     </form>
   );

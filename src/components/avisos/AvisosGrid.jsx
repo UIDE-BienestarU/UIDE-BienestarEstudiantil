@@ -2,7 +2,12 @@ import AvisoCard from './AvisoCard';
 
 export default function AvisosGrid({ avisos, onEdit, onDelete, onMore }) {
   return (
-    <div className="avisos-grid">
+    <div className="avisos-grid" style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+      gap: '30px',
+      padding: '20px 0'
+    }}>
       {avisos.map((aviso) => (
         <AvisoCard 
           key={aviso.id} 

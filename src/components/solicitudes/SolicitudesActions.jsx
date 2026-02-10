@@ -9,7 +9,7 @@ const SolicitudesActions = ({ solicitud }) => {
     <div className="acciones">
       <button
         className="btn-ver-detalle"
-        onClick={() => navigate(`/solicitudes/${solicitud.id}`)}
+        onClick={() => navigate(`/solicitudes/${solicitud.id}`, { state: { solicitud } })}
         title="Ver detalle de la solicitud"
         aria-label="Ver detalle"
       >
