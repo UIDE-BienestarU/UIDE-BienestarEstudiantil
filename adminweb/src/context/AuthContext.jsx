@@ -35,11 +35,6 @@ export function AuthProvider({ children }) {
       contrasena,
     });
 
-    // Backend returns: { data: { user, accessToken, refreshToken } }
-    // Response data is wrapped in 'data' by Axios, and then our API returns 'data' property
-    // Actually, looking at controller: return ok(res, { data: { user, accessToken... } })
-    // So axios response.data looks like: { message, data: { user, accessToken, refreshToken } }
-    
     const { user, accessToken, refreshToken } = response.data.data;
 
     if (accessToken) {
@@ -69,19 +64,31 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // ✅ REEMPLAZA SOLO ESTA FUNCIÓN POR ESTA (arreglada)
   const refreshAccessToken = useCallback(async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      await logout();
+      throw new Error("No refresh token");
+    }
+
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (!refreshToken) throw new Error("No refresh token");
-
       const response = await api.post("/auth/refresh", { refreshToken });
-      const { token } = response.data;
 
-      localStorage.setItem("token", token);
-      return token;
-    } catch (error) {
-      logout();
-      throw error;
+      // ✅ consistente con login: response.data.data
+      const payload = response.data?.data || response.data;
+      const accessToken = payload?.accessToken || payload?.token;
+      const newRefresh = payload?.refreshToken;
+
+      if (!accessToken) throw new Error("Refresh no devolvió accessToken/token");
+
+      localStorage.setItem("token", accessToken);
+      if (newRefresh) localStorage.setItem("refreshToken", newRefresh);
+
+      return accessToken;
+    } catch (e) {
+      await logout();
+      throw e;
     }
   }, [logout]);
 
