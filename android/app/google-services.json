@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "636047821906",
+    "project_id": "bienestaruide",
+    "storage_bucket": "bienestaruide.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636047821906:android:871feda718bccc1690a38b",
+        "android_client_info": {
+          "package_name": "ec.miempresa.miapp.uidebienestar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOSQPL4kLprkob7nv5YIW5zDIbwh69OMU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
